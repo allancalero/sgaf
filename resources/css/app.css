@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	.dark input,
+	.dark select,
+	.dark textarea {
+		@apply bg-gray-900/80 text-gray-100 border-gray-700 placeholder-gray-500 shadow-sm;
+	}
+
+	.dark input:focus,
+	.dark select:focus,
+	.dark textarea:focus {
+		@apply border-indigo-400 ring-indigo-400;
+	}
+
+	.dark label {
+		@apply text-gray-200;
+	}
+}

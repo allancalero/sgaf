@@ -1,0 +1,223 @@
+// Modelo de Base de Datos: Sistema de Gestión de Activos Fijos
+// Alcaldía de Tipitapa - Basado en inventario 
+
+// --- Enums para mejorar la integridad de los datos ---
+// Estados generales para entidades activas/inactivas
+Enum estado_general {
+  ACTIVO    // Entidad en uso
+  INACTIVO  // Entidad desactivada
+}
+
+// Estados físicos de los activos fijos
+Enum estado_activo {
+  NUEVO    // Recién adquirido
+  BUENO    // En buen estado de uso
+  REGULAR  // Con desgaste moderado
+  MALO     // En mal estado o por reemplazar
+}
+
+// Roles de usuarios del sistema
+Enum rol_usuario {
+  ADMIN        // Administrador del sistema (acceso total)
+  CONTADOR     // Personal contable (gestión financiera)
+  JEFE_UNIDAD  // Responsable de área (gestión de activos)
+  AUDITOR      // Solo lectura y reportes
+}
+
+// Estados de los cheques
+Enum estado_cheque {
+  EMITIDO    // Cheque emitido pero no cobrado
+  COBRADO    // Cheque ya cobrado por el beneficiario
+  ANULADO    // Cheque cancelado antes de cobrar
+  DEVUELTO   // Cheque devuelto por el banco
+  PENDIENTE  // Cheque en proceso de emisión
+}
+
+// ÁREAS: Departamentos o unidades organizacionales de la Alcaldía
+Table areas {
+  id int [pk, increment]                                    // Identificador único del área
+  nombre varchar(255) [not null, unique]                   // Nombre del departamento/área
+  estado estado_general [not null, default: "ACTIVO"]      // Estado actual del área
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// CARGOS: Puestos laborales dentro de la organización
+Table cargos {
+  id int [pk, increment]                                    // Identificador único del cargo
+  nombre varchar(255) [not null, unique]                   // Nombre del puesto (ej: Jefe, Auxiliar)
+  estado estado_general [not null, default: "ACTIVO"]      // Estado actual del cargo
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// RESPONSABLES: Personas o entidades responsables de áreas/proyectos
+Table responsables {
+  id int [pk, increment]                                    // Identificador único del responsable
+  nombre varchar(255) [not null]                           // Nombre del responsable
+  id_cargo int [ref: > cargos.id, not null]                // Cargo que desempeña
+  area_id int [ref: > areas.id, not null]                  // Área a la que pertenece
+  estado estado_general [not null, default: "ACTIVO"]      // Estado actual del responsable
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// UBICACIONES: Lugares físicos donde se encuentran los activos
+Table ubicaciones {
+  id int [pk, increment]                                    // Identificador único de la ubicación
+  nombre varchar(255) [not null, unique]                   // Nombre de la ubicación (ej: Oficina 101, Bodega)
+  estado estado_general [not null, default: "ACTIVO"]      // Estado actual de la ubicación
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// CLASIFICACIONES: Categorías principales de activos fijos
+Table clasificaciones {
+  id int [pk, increment]                                    // Identificador único de la clasificación
+  nombre varchar(255) [not null, unique]                   // Nombre de la categoría (ej: EQUIPO DE COMPUTACIÓN)
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// FUENTES DE FINANCIAMIENTO: Origen de los recursos para adquirir activos
+Table fuentes_financiamiento {
+  id int [pk, increment]                                    // Identificador único de la fuente
+  nombre varchar(255) [not null]                           // Nombre de la fuente (ej: FONDOS PROPIOS, PRÉSTAMO)
+  estado estado_general [not null, default: "ACTIVO"]      // Estado actual de la fuente
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// TIPOS DE ACTIVOS: Especificaciones concretas dentro de cada clasificación
+Table tipos_activos {
+  id int [pk, increment]                                    // Identificador único del tipo de activo
+  nombre varchar(255) [not null, unique]                   // Nombre específico (ej: LAPTOP, IMPRESORA)
+  clasificacion_id int [ref: > clasificaciones.id, not null] // Clasificación a la que pertenece
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// PROVEEDORES: Empresas o personas que suministran los activos
+Table proveedores {
+  id int [pk, increment]                                    // Identificador único del proveedor
+  nombre varchar(255) [not null]                           // Razón social o nombre del proveedor
+  ruc varchar(100)                                         // Registro Único del Contribuyente
+  direccion varchar(255)                                   // Dirección fiscal del proveedor
+  telefono varchar(100)                                    // Número de contacto
+  email varchar(255)                                       // Correo electrónico
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// PERSONAL: Empleados que pueden ser custodios de activos
+Table personal {
+  id int [pk, increment]                                    // Identificador único del empleado
+  nombre varchar(100) [not null]                           // Nombre del empleado
+  apellido varchar(100) [not null]                         // Apellido del empleado
+  cargo_id int [ref: > cargos.id, not null]                // Cargo que desempeña
+  area_id int [ref: > areas.id, not null]                  // Área a la que pertenece
+  ubicacion_id int [ref: > ubicaciones.id, not null]       // Ubicación donde trabaja
+  telefono varchar(100)                                    // Número de contacto personal
+  email varchar(255)                                       // Correo electrónico institucional
+  numero_empleado varchar(50)                              // Código interno de identificación
+  numero_cedula varchar(50)                                // Documento de identidad
+  fecha_nac date                                           // Fecha de nacimiento
+  edad int [not null, note: "Edad calculada a partir de fecha_nac"] // Edad en años
+  direccion varchar(255)                                   // Dirección de residencia
+  profesion varchar(100)                                   // Profesión o especialidad
+  estado estado_general [not null, default: "ACTIVO"]      // Estado laboral actual
+  foto varchar(255)                                        // Ruta de la fotografía institucional
+  created_at datetime                                      // Fecha de creación del registro
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// USUARIOS: Personas con acceso al sistema de gestión
+Table usuarios {
+  id int [pk, increment]                                    // Identificador único del usuario
+  nombre varchar(100) [not null]                           // Nombre del usuario
+  apellido varchar(100) [not null]                         // Apellido del usuario
+  email varchar(255) [not null, unique]                    // Correo para inicio de sesión
+  password varchar(255) [not null]                         // Contraseña encriptada
+  rol rol_usuario [not null]                               // Nivel de acceso al sistema
+  estado estado_general [not null, default: "ACTIVO"]      // Estado de la cuenta
+  foto varchar(255)                                        // Ruta de la fotografía de perfil
+  created_at datetime                                      // Fecha de creación de la cuenta
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// CHEQUES: Documentos de pago utilizados para adquirir activos
+Table cheques {
+  id int [pk, increment]                                    // Identificador único del cheque
+  numero_cheque varchar(50) [not null, unique]             // Número secuencial del cheque
+  banco varchar(100) [not null]                            // Institución financiera emisora
+  cuenta_bancaria varchar(50) [not null]                   // Cuenta bancaria de donde se emite
+  monto_total decimal(12,2) [not null]                     // Valor total del cheque
+  saldo_disponible decimal(12,2) [not null, default: "monto_total"] // Monto pendiente por asignar
+  fecha_emision date [not null]                            // Fecha de creación del documento
+  fecha_vencimiento date                                   // Fecha límite de cobro
+  beneficiario varchar(255) [not null]                     // Persona o empresa a quien se paga
+  beneficiario_ruc varchar(100)                            // Identificación fiscal del beneficiario
+  descripcion text                                         // Observaciones o detalles adicionales
+  estado estado_cheque [not null, default: "EMITIDO"]      // Estado actual del documento
+  area_solicitante_id int [ref: > areas.id, not null]      // Área que requirió el pago
+  usuario_emisor_id int [ref: > usuarios.id, not null]     // Persona que autorizó el cheque
+  created_at datetime                                      // Fecha de registro del cheque
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// ACTIVOS FIJOS: Bienes duraderos de la Alcaldía
+Table activos_fijos {
+  id int [pk, increment]                                    // Identificador único del activo
+  
+  // IDENTIFICACIÓN DEL ACTIVO
+  codigo_inventario varchar(50) [not null, unique]         // Código alfanumérico único de control
+  nombre_activo varchar(255) [not null]                    // Denominación del bien
+  marca varchar(255)                                       // Fabricante del producto
+  modelo varchar(255)                                      // Versión específica del producto
+  color varchar(50)                                        // Color predominante
+  serie varchar(255)                                       // Número de serie del fabricante
+  foto varchar(255)                                        // Imagen de referencia del activo
+  descripcion text                                         // Características adicionales
+  
+  // CANTIDAD
+  cantidad int [default: 1]                                // Número de unidades (para artículos similares)
+  
+  // VALORES ECONÓMICOS
+  precio_unitario decimal(12,2)                            // Costo individual del artículo
+  precio_adquisicion decimal(12,2)                         // Costo total de adquisición
+  
+  // DATOS DE ADQUISICIÓN
+  fecha_adquisicion date                                   // Fecha de compra/recepción del activo
+  numero_factura varchar(100)                              // Documento de respaldo de la compra
+  
+  // RELACIÓN CON CHEQUES
+  cheque_id int [ref: > cheques.id]                        // Cheque utilizado para la compra
+  monto_cheque_utilizado decimal(12,2)                     // Monto del cheque asignado a este activo
+  
+  // ESTADO FÍSICO
+  estado estado_activo [not null, default: "BUENO"]        // Condición actual del activo
+  
+  // UBICACIÓN Y ASIGNACIÓN
+  area_id int [ref: > areas.id, not null]                  // Área donde se encuentra el activo
+  ubicacion_id int [ref: > ubicaciones.id, not null]       // Ubicación física específica
+  clasificacion_id int [ref: > clasificaciones.id, not null] // Categoría general del activo
+  tipo_activo_id int [ref: > tipos_activos.id]             // Tipo específico de activo
+  fuente_financiamiento_id int [ref: > fuentes_financiamiento.id, not null] // Origen de los recursos
+  proveedor_id int [ref: > proveedores.id]                 // Empresa que suministró el activo
+  personal_id int [ref: > personal.id]                     // Persona responsable del cuidado
+  
+  // AUDITORÍA
+  created_at datetime                                      // Fecha de registro en el sistema
+  updated_at datetime                                      // Fecha de última actualización
+}
+
+// HISTORIAL DE ASIGNACIONES: Registro de cambios de custodia de activos
+Table historial_asignaciones {
+  id int [pk, increment]                                    // Identificador único del registro
+  activo_id int [ref: > activos_fijos.id, not null]        // Activo que cambió de custodio
+  asignacion_anterior_id int [ref: > personal.id]          // Custodio anterior del activo
+  asignacion_nuevo_id int [ref: > personal.id, not null]   // Nuevo custodio del activo
+  fecha_asignacion date [not null]                         // Fecha del cambio de responsabilidad
+  motivo text                                              // Justificación del cambio
+  created_at datetime                                      // Fecha de registro del cambio
+}
