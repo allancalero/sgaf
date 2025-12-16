@@ -12,6 +12,7 @@
         th { background-color: #4F46E5; color: white; padding: 6px; text-align: left; font-size: 9px; }
         td { padding: 5px; border-bottom: 1px solid #ddd; font-size: 9px; }
         .footer { margin-top: 20px; text-align: center; font-size: 8px; color: #666; }
+        .footer .cargo { font-weight: bold; color: #4F46E5; font-size: 9px; display: block; margin-top: 2px; }
         .totals { margin: 15px 0; font-weight: bold; }
     </style>
 </head>
@@ -65,8 +66,27 @@
     </table>
 
     <div class="footer">
-        <p>_____________________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _____________________</p>
-        <p>{{ $system->alcaldesa ?? 'Alcaldesa' }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ $system->gerente ?? 'Gerente' }}</p>
+        <table style="width: 100%; margin-top: 30px;">
+            <tr>
+                <td style="width: 25%; text-align: center; vertical-align: top;">
+                    <p style="margin-top: 40px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold;">{{ $system->responsable_activo_fijo ?? '____________________' }}</p>
+                    <p class="cargo">Responsable de Activo Fijo</p>
+                </td>
+                <td style="width: 25%; text-align: center; vertical-align: top;">
+                    <p style="margin-top: 40px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold;">{{ $system->director_administrativo ?? '____________________' }}</p>
+                    <p class="cargo">Director Administrativo</p>
+                </td>
+                <td style="width: 25%; text-align: center; vertical-align: top;">
+                    <p style="margin-top: 40px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold;">{{ $system->gerente ?? '____________________' }}</p>
+                    <p class="cargo">Gerente</p>
+                </td>
+                <td style="width: 25%; text-align: center; vertical-align: top;">
+                    <p style="margin-top: 40px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold;">{{ $system->alcaldesa ?? '____________________' }}</p>
+                    <p class="cargo">Alcaldesa Municipal</p>
+                </td>
+            </tr>
+        </table>
+        <p style="margin-top: 20px; font-size: 8px; color: #999;">Generado el {{ now()->format('d/m/Y H:i:s') }} por {{ $usuario ?? 'Sistema' }}</p>
     </div>
 </body>
 </html>

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('system_settings', function (Blueprint $table) {
             $table->string('responsable_activo_fijo', 255)->nullable()->after('gerente');
             $table->string('director_administrativo', 255)->nullable()->after('responsable_activo_fijo');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('system_settings', function (Blueprint $table) {
             $table->dropColumn(['responsable_activo_fijo', 'director_administrativo']);
         });
     }

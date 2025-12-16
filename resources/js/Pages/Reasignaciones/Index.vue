@@ -34,6 +34,7 @@ defineProps({
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">ID</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Activo</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Ubicación</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Responsable</th>
@@ -44,6 +45,9 @@ defineProps({
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                                     <tr v-for="reasignacion in reasignaciones" :key="reasignacion.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            #{{ reasignacion.id }}
+                                        </td>
                                         <td class="whitespace-nowrap px-6 py-4">
                                             <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                                                 {{ reasignacion.activo?.codigo }}
@@ -74,17 +78,25 @@ defineProps({
                                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                             {{ reasignacion.usuario }}
                                         </td>
-                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium space-x-3">
                                             <Link
                                                 :href="route('reasignaciones.show', reasignacion.id)"
                                                 class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                             >
                                                 Ver
                                             </Link>
+                                            <Link
+                                                v-if="reasignacion.activo?.id"
+                                                :href="route('activos.trazabilidad') + '?activo_id=' + reasignacion.activo.id"
+                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                                title="Ver trazabilidad del activo"
+                                            >
+                                                Trazabilidad
+                                            </Link>
                                             <a
                                                 :href="route('reasignaciones.acta-pdf', reasignacion.id)"
                                                 target="_blank"
-                                                class="ml-3 text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                                class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
                                                 title="Descargar Acta de Reasignación"
                                             >
                                                 Acta PDF
@@ -92,7 +104,7 @@ defineProps({
                                         </td>
                                     </tr>
                                     <tr v-if="!reasignaciones || reasignaciones.length === 0">
-                                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                             No hay reasignaciones registradas
                                         </td>
                                     </tr>

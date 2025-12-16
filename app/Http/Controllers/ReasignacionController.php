@@ -34,7 +34,7 @@ class ReasignacionController extends Controller
                     'responsable_anterior' => $reasignacion->responsableAnterior ? $reasignacion->responsableAnterior->nombre . ' ' . $reasignacion->responsableAnterior->apellido : null,
                     'responsable_nuevo' => $reasignacion->responsableNuevo ? $reasignacion->responsableNuevo->nombre . ' ' . $reasignacion->responsableNuevo->apellido : null,
                     'motivo' => $reasignacion->motivo,
-                    'fecha' => $reasignacion->fecha_reasignacion->format('Y-m-d'),
+                    'fecha' => $reasignacion->fecha_reasignacion->format('Y-m-d H:i'),
                     'usuario' => $reasignacion->usuario->nombre . ' ' . $reasignacion->usuario->apellido,
                     'created_at' => $reasignacion->created_at->format('Y-m-d H:i'),
                 ];
@@ -47,7 +47,7 @@ class ReasignacionController extends Controller
 
     public function create()
     {
-        $activos = ActivoFijo::with(['ubicacion', 'responsable'])
+        $activos = ActivoFijo::with(['ubicacion', 'responsable', 'area'])
             ->orderBy('codigo_inventario')
             ->get()
             ->map(function ($activo) {
@@ -55,10 +55,12 @@ class ReasignacionController extends Controller
                     'id' => $activo->id,
                     'codigo' => $activo->codigo_inventario,
                     'descripcion' => $activo->nombre_activo,
+                    'area_id' => $activo->area_id,
                     'ubicacion_actual_id' => $activo->ubicacion_id,
                     'ubicacion_actual' => $activo->ubicacion?->nombre,
                     'responsable_actual_id' => $activo->personal_id,
                     'responsable_actual' => $activo->responsable ? $activo->responsable->nombre . ' ' . $activo->responsable->apellido : null,
+                    'foto' => $activo->foto,
                 ];
             });
 
@@ -67,13 +69,17 @@ class ReasignacionController extends Controller
             return [
                 'id' => $p->id,
                 'nombre_completo' => $p->nombre . ' ' . $p->apellido,
+                'area_id' => $p->area_id,
             ];
         });
+
+        $areas = \App\Models\Area::orderBy('nombre')->get(['id', 'nombre']);
 
         return Inertia::render('Reasignaciones/Create', [
             'activos' => $activos,
             'ubicaciones' => $ubicaciones,
             'personal' => $personal,
+            'areas' => $areas,
         ]);
     }
 
@@ -81,15 +87,23 @@ class ReasignacionController extends Controller
     {
         $validated = $request->validate([
             'activo_id' => 'required|exists:activos_fijos,id',
+            'area_nueva_id' => 'nullable|exists:areas,id',
             'ubicacion_nueva_id' => 'nullable|exists:ubicaciones,id',
             'responsable_nuevo_id' => 'nullable|exists:personal,id',
             'motivo' => 'required|string',
             'observaciones' => 'nullable|string',
             'fecha_reasignacion' => 'required|date',
+            'foto_reasignacion' => 'nullable|image|max:2048',
         ]);
 
         // Get current asset values
         $activo = ActivoFijo::findOrFail($validated['activo_id']);
+        
+        // Handle photo upload
+        $fotoPath = null;
+        if ($request->hasFile('foto_reasignacion')) {
+            $fotoPath = $request->file('foto_reasignacion')->store('reasignaciones', 'public');
+        }
         
         // Create reassignment record
         $reasignacion = Reasignacion::create([
@@ -100,13 +114,15 @@ class ReasignacionController extends Controller
             'responsable_nuevo_id' => $validated['responsable_nuevo_id'] ?? $activo->personal_id,
             'motivo' => $validated['motivo'],
             'observaciones' => $validated['observaciones'],
-            'fecha_reasignacion' => $validated['fecha_reasignacion'],
+            'foto_reasignacion' => $fotoPath ? '/storage/' . $fotoPath : null,
+            'fecha_reasignacion' => now(),
             'estado' => 'completada',
             'usuario_id' => auth()->id(),
         ]);
 
         // Update asset
         $activo->update([
+            'area_id' => $validated['area_nueva_id'] ?? $activo->area_id,
             'ubicacion_id' => $validated['ubicacion_nueva_id'] ?? $activo->ubicacion_id,
             'personal_id' => $validated['responsable_nuevo_id'] ?? $activo->personal_id,
         ]);
@@ -130,7 +146,20 @@ class ReasignacionController extends Controller
         $reasignacion->load(['activo', 'ubicacionAnterior', 'ubicacionNueva', 'responsableAnterior', 'responsableNuevo', 'usuario']);
         
         return Inertia::render('Reasignaciones/Show', [
-            'reasignacion' => $reasignacion,
+            'reasignacion' => [
+                'id' => $reasignacion->id,
+                'activo' => $reasignacion->activo,
+                'ubicacion_anterior' => $reasignacion->ubicacionAnterior,
+                'ubicacion_nueva' => $reasignacion->ubicacionNueva,
+                'responsable_anterior' => $reasignacion->responsableAnterior,
+                'responsable_nuevo' => $reasignacion->responsableNuevo,
+                'motivo' => $reasignacion->motivo,
+                'observaciones' => $reasignacion->observaciones,
+                'fecha_reasignacion' => $reasignacion->fecha_reasignacion?->format('Y-m-d'),
+                'usuario' => $reasignacion->usuario,
+                'created_at' => $reasignacion->created_at?->format('Y-m-d H:i:s'),
+                'foto_reasignacion' => $reasignacion->foto_reasignacion,
+            ],
         ]);
     }
 
@@ -156,21 +185,34 @@ class ReasignacionController extends Controller
 
         $system = SystemSetting::first();
 
-        // Generate QR Code
+        // Generate QR Code with unique data
         $renderer = new Svg();
         $renderer->setHeight(120);
         $renderer->setWidth(120);
         $writer = new Writer($renderer);
-        $qrData = "REASIG-{$reasignacion->id}-{$reasignacion->activo->codigo_inventario}";
+        
+        // Generar código único: ID reasignación + código activo + fecha reasignación + timestamp generación
+        $qrData = sprintf(
+            "REASIG|ID:%d|COD:%s|FECHA:%s|GEN:%s",
+            $reasignacion->id,
+            $reasignacion->activo->codigo_inventario ?? 'N-A',
+            $reasignacion->fecha_reasignacion->format('Y-m-d'),
+            now()->format('YmdHis')
+        );
         $qrSvg = $writer->writeString($qrData);
         $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
         
         // Convertir logo a base64 para DomPDF
-        $logoPath = public_path('logo-alcaldia.png');
         $logoBase64 = '';
-        if (file_exists($logoPath)) {
-            $logoData = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        if ($system && $system->logo_url) {
+            // Extraer el path del storage desde la URL
+            $logoPath = str_replace('/storage', 'storage/app/public', parse_url($system->logo_url, PHP_URL_PATH));
+            $fullPath = base_path($logoPath);
+            
+            if (file_exists($fullPath)) {
+                $logoData = file_get_contents($fullPath);
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
         }
         
         $pdf = Pdf::loadView('reportes.acta-reasignacion-pdf', [
@@ -179,6 +221,7 @@ class ReasignacionController extends Controller
             'fecha_emision' => now()->format('d/m/Y'),
             'qrCode' => $qrBase64,
             'logoBase64' => $logoBase64,
+            'usuario' => auth()->user() ? (auth()->user()->full_name ?: auth()->user()->email) : 'Sistema',
         ]);
 
         $pdf->setPaper('letter', 'portrait');

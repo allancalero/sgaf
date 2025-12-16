@@ -14,11 +14,20 @@ const props = defineProps({
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Detalle de Reasignación
+                    Detalle de Reasignación #{{ reasignacion.id }}
                 </h2>
-                <Link :href="route('reasignaciones.index')" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                    Volver
-                </Link>
+                <div class="flex gap-3">
+                    <Link 
+                        v-if="reasignacion.activo?.id"
+                        :href="route('activos.trazabilidad') + '?activo_id=' + reasignacion.activo.id" 
+                        class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition"
+                    >
+                        Ver Trazabilidad
+                    </Link>
+                    <Link :href="route('reasignaciones.index')" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        Volver
+                    </Link>
+                </div>
             </div>
         </template>
 
@@ -33,11 +42,11 @@ const props = defineProps({
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Código:</span>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ reasignacion.activo?.codigo }}</p>
+                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ reasignacion.activo?.codigo_inventario }}</p>
                                     </div>
                                     <div>
                                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Descripción:</span>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ reasignacion.activo?.descripcion }}</p>
+                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ reasignacion.activo?.nombre_activo }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -98,6 +107,12 @@ const props = defineProps({
                                 <div>
                                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de registro:</span>
                                     <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ new Date(reasignacion.created_at).toLocaleString() }}</p>
+                                </div>
+                                <div v-if="reasignacion.foto_reasignacion">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Foto del estado actual:</span>
+                                    <div class="mt-2">
+                                        <img :src="reasignacion.foto_reasignacion" alt="Foto de reasignación" class="w-64 h-64 object-cover rounded-lg border-2 border-gray-300 dark:border-gray-600 shadow-lg" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

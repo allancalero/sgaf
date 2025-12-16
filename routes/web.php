@@ -119,7 +119,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/sistema/respaldo/{backup}', [SistemaController::class, 'eliminarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.delete'])->name('sistema.respaldo.eliminar');
     
     // Reasignaciones de Activos
-    Route::resource('reasignaciones', ReasignacionController::class)->middleware('permission:activos.manage');
+    Route::resource('reasignaciones', ReasignacionController::class)
+        ->parameters(['reasignaciones' => 'reasignacion'])
+        ->middleware('permission:activos.manage');
     Route::get('/reasignaciones/{reasignacion}/acta-pdf', [ReasignacionController::class, 'generarActaPdf'])
         ->middleware('permission:activos.view')
         ->name('reasignaciones.acta-pdf');

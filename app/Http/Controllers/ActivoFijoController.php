@@ -89,10 +89,16 @@ class ActivoFijoController extends Controller
 
     public function trazabilidad(): Response
     {
+        // Get activo_id from query parameter
+        $activoId = request()->query('activo_id');
+        
         $activos = ActivoFijo::query()
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
             ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+            ->when($activoId, function ($query, $activoId) {
+                return $query->where('activos_fijos.id', $activoId);
+            })
             ->select(
                 'activos_fijos.id',
                 'activos_fijos.codigo_inventario',
@@ -114,6 +120,9 @@ class ActivoFijoController extends Controller
             ->join('personal as nuevo', 'h.asignacion_nuevo_id', '=', 'nuevo.id')
             ->leftJoin('areas as area_anterior', 'anterior.area_id', '=', 'area_anterior.id')
             ->leftJoin('areas as area_nuevo', 'nuevo.area_id', '=', 'area_nuevo.id')
+            ->when($activoId, function ($query, $activoId) {
+                return $query->where('h.activo_id', $activoId);
+            })
             ->select(
                 'h.id',
                 'h.activo_id',
@@ -128,9 +137,39 @@ class ActivoFijoController extends Controller
             ->orderByDesc('h.id')
             ->get()
             ->groupBy('activo_id');
+        
+        // Get reasignaciones
+        $reasignaciones = DB::table('reasignaciones as r')
+            ->join('activos_fijos as a', 'r.activo_id', '=', 'a.id')
+            ->leftJoin('ubicaciones as ub_ant', 'r.ubicacion_anterior_id', '=', 'ub_ant.id')
+            ->leftJoin('ubicaciones as ub_nue', 'r.ubicacion_nueva_id', '=', 'ub_nue.id')
+            ->leftJoin('personal as p_ant', 'r.responsable_anterior_id', '=', 'p_ant.id')
+            ->leftJoin('personal as p_nue', 'r.responsable_nuevo_id', '=', 'p_nue.id')
+            ->when($activoId, function ($query, $activoId) {
+                return $query->where('r.activo_id', $activoId);
+            })
+            ->select(
+                'r.id',
+                'r.activo_id',
+                'r.fecha_reasignacion as fecha_asignacion',
+                'r.motivo',
+                DB::raw("CONCAT_WS(' ', p_ant.nombre, p_ant.apellido) as anterior_nombre"),
+                DB::raw("CONCAT_WS(' ', p_nue.nombre, p_nue.apellido) as nuevo_nombre"),
+                'ub_ant.nombre as ubicacion_anterior',
+                'ub_nue.nombre as ubicacion_nueva',
+            )
+            ->orderByDesc('r.fecha_reasignacion')
+            ->orderByDesc('r.id')
+            ->get()
+            ->groupBy('activo_id');
 
-        $activosConHistorial = $activos->map(function ($activo) use ($historial) {
-            $movimientos = $historial->get($activo->id, collect());
+        $activosConHistorial = $activos->map(function ($activo) use ($historial, $reasignaciones) {
+            $movimientosHistorial = $historial->get($activo->id, collect());
+            $movimientosReasignaciones = $reasignaciones->get($activo->id, collect());
+            
+            // Combine and sort by date
+            $todosMovimientos = $movimientosHistorial->concat($movimientosReasignaciones)
+                ->sortByDesc('fecha_asignacion');
 
             return [
                 'id' => $activo->id,
@@ -141,14 +180,16 @@ class ActivoFijoController extends Controller
                 'area' => $activo->area,
                 'ubicacion' => $activo->ubicacion,
                 'responsable' => $activo->responsable,
-                'historial' => $movimientos->map(fn ($row) => [
+                'historial' => $todosMovimientos->map(fn ($row) => [
                     'id' => $row->id,
                     'fecha_asignacion' => $row->fecha_asignacion,
                     'motivo' => $row->motivo,
                     'desde' => $row->anterior_nombre,
                     'hacia' => $row->nuevo_nombre,
-                    'area_desde' => $row->area_anterior,
-                    'area_hacia' => $row->area_nuevo,
+                    'area_desde' => $row->area_anterior ?? null,
+                    'area_hacia' => $row->area_nuevo ?? null,
+                    'ubicacion_desde' => $row->ubicacion_anterior ?? null,
+                    'ubicacion_hacia' => $row->ubicacion_nueva ?? null,
                 ])->values()->all(),
             ];
         });
@@ -562,12 +603,26 @@ class ActivoFijoController extends Controller
         ];
 
         $system = \App\Models\SystemSetting::first();
+        
+        // Preparar logo
+        $logoBase64 = '';
+        if ($system && $system->logo_url) {
+            $logoPath = str_replace('/storage', 'storage/app/public', parse_url($system->logo_url, PHP_URL_PATH));
+            $fullPath = base_path($logoPath);
+            
+            if (file_exists($fullPath)) {
+                $logoData = file_get_contents($fullPath);
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
+        }
 
         $pdf = Pdf::loadView('reportes.inventario-pdf', [
             'activos' => $activos,
             'totales' => $totales,
             'filters' => $filters,
             'system' => $system,
+            'logoBase64' => $logoBase64,
+            'usuario' => auth()->user() ? (auth()->user()->full_name ?: auth()->user()->email) : 'Sistema',
         ]);
         
         $pdf->setPaper('letter', 'landscape');
@@ -661,11 +716,16 @@ class ActivoFijoController extends Controller
         $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
         
         // Convertir logo a base64 para DomPDF
-        $logoPath = public_path('logo-alcaldia.png');
         $logoBase64 = '';
-        if (file_exists($logoPath)) {
-            $logoData = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        if ($system && $system->logo_url) {
+            // Extraer el path del storage desde la URL
+            $logoPath = str_replace('/storage', 'storage/app/public', parse_url($system->logo_url, PHP_URL_PATH));
+            $fullPath = base_path($logoPath);
+            
+            if (file_exists($fullPath)) {
+                $logoData = file_get_contents($fullPath);
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
         }
         
         $pdf = Pdf::loadView('reportes.acta-asignacion-pdf', [
@@ -674,6 +734,7 @@ class ActivoFijoController extends Controller
             'fecha_emision' => now()->format('d/m/Y'),
             'qrCode' => $qrBase64,
             'logoBase64' => $logoBase64,
+            'usuario' => auth()->user() ? (auth()->user()->full_name ?: auth()->user()->email) : 'Sistema',
         ]);
 
         $pdf->setPaper('letter', 'portrait');

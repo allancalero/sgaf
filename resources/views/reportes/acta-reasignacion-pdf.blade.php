@@ -66,10 +66,10 @@
         
         /* Firmas */
         .signatures { margin-top: 25px; display: table; width: 100%; }
-        .sig-box { display: table-cell; text-align: center; width: 33.33%; padding: 0 10px; }
+        .sig-box { display: table-cell; text-align: center; width: 25%; padding: 0 5px; }
         .sig-line { border-top: 1px solid #000; margin-top: 50px; padding-top: 5px; }
         .sig-name { font-weight: bold; font-size: 10px; color: #1f2937; }
-        .sig-title { font-size: 9px; color: #666; margin-top: 2px; }
+        .sig-title { font-size: 10px; color: #7C3AED; margin-top: 3px; font-weight: bold; }
         
         /* Footer */
         .footer { margin-top: 15px; text-align: center; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 8px; }
@@ -134,7 +134,7 @@
         </div>
         <table class="data-table" style="margin-top: 10px;">
             <tr><td>Fecha de Reasignación:</td><td class="highlight-purple">{{ $reasignacion->fecha_reasignacion->format('d/m/Y') }}</td></tr>
-            <tr><td>Registrado por:</td><td>{{ $reasignacion->usuario->name ?? 'Sistema' }}</td></tr>
+            <tr><td>Registrado por:</td><td>{{ $reasignacion->usuario->full_name ?? $reasignacion->usuario->email ?? 'Sistema' }}</td></tr>
         </table>
     </div>
 
@@ -162,26 +162,32 @@
     <div class="signatures">
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $reasignacion->responsableAnterior ? $reasignacion->responsableAnterior->nombre . ' ' . $reasignacion->responsableAnterior->apellido : '________________' }}</p>
+                <p class="sig-name">{{ $reasignacion->responsableAnterior ? $reasignacion->responsableAnterior->nombre . ' ' . $reasignacion->responsableAnterior->apellido : '____________________' }}</p>
                 <p class="sig-title">Responsable Anterior (Entrega)</p>
             </div>
         </div>
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $reasignacion->responsableNuevo ? $reasignacion->responsableNuevo->nombre . ' ' . $reasignacion->responsableNuevo->apellido : '________________' }}</p>
+                <p class="sig-name">{{ $reasignacion->responsableNuevo ? $reasignacion->responsableNuevo->nombre . ' ' . $reasignacion->responsableNuevo->apellido : '____________________' }}</p>
                 <p class="sig-title">Responsable Nuevo (Recibe)</p>
             </div>
         </div>
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $system->gerente ?? 'Encargado de Activos' }}</p>
-                <p class="sig-title">Gerente / Encargado Activos Fijos</p>
+                <p class="sig-name">{{ $system->responsable_activo_fijo ?? '____________________' }}</p>
+                <p class="sig-title">Responsable de Activo Fijo</p>
+            </div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-line">
+                <p class="sig-name">{{ $system->director_administrativo ?? '____________________' }}</p>
+                <p class="sig-title">Director Administrativo</p>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        <p>Documento válido con firmas autorizadas | {{ $system->nombre_alcaldia ?? 'SGAF' }} {{ date('Y') }} | Sistema de Gestión de Activos Fijos</p>
+        <p>Generado el {{ now()->format('d/m/Y H:i:s') }} por {{ $usuario ?? 'Sistema' }} | {{ $system->nombre_alcaldia ?? 'SGAF' }} {{ date('Y') }}</p>
     </div>
 </body>
 </html>

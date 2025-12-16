@@ -19,13 +19,14 @@ class Reasignacion extends Model
         'responsable_nuevo_id',
         'motivo',
         'observaciones',
+        'foto_reasignacion',
         'fecha_reasignacion',
         'estado',
         'usuario_id',
     ];
 
     protected $casts = [
-        'fecha_reasignacion' => 'date',
+        'fecha_reasignacion' => 'datetime',
     ];
 
     // Relationships

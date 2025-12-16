@@ -26,6 +26,8 @@ class SystemSettingController extends Controller
             'nombre_alcaldia' => ['nullable', 'string', 'max:255'],
             'alcaldesa' => ['nullable', 'string', 'max:255'],
             'gerente' => ['nullable', 'string', 'max:255'],
+            'responsable_activo_fijo' => ['nullable', 'string', 'max:255'],
+            'director_administrativo' => ['nullable', 'string', 'max:255'],
             'moneda' => ['required', 'string', 'max:20'],
             'ano_fiscal' => ['nullable', 'integer', 'min:2000', 'max:2100'],
             'logo_file' => ['nullable', 'image', 'mimes:png', 'max:2048'],

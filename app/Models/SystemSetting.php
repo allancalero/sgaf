@@ -13,6 +13,8 @@ class SystemSetting extends Model
         'nombre_alcaldia',
         'alcaldesa',
         'gerente',
+        'responsable_activo_fijo',
+        'director_administrativo',
         'moneda',
         'ano_fiscal',
         'logo_url',
