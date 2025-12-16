@@ -45,6 +45,7 @@ const chartInstances = {};
 
 const page = usePage();
 const currencySymbol = computed(() => page.props.system?.moneda || 'C$');
+const municipalityName = computed(() => page.props.system?.nombre_alcaldia || 'SGAF');
 const formatCurrency = (value) => `${currencySymbol.value}${Number(value || 0).toLocaleString('es-ES', { minimumFractionDigits: 2 })}`;
 
 const palette = ['#6366F1', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#22D3EE', '#A855F7'];

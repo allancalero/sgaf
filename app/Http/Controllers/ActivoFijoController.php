@@ -12,6 +12,8 @@ use App\Models\TipoActivo;
 use App\Models\FuenteFinanciamiento;
 use App\Models\Proveedor;
 use App\Models\Personal;
+use App\Models\SystemSetting;
+use App\Models\Cheque;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,6 +21,7 @@ use Inertia\Response;
 use Illuminate\Support\Facades\DB;
 use BaconQrCode\Writer;
 use BaconQrCode\Renderer\Image\Svg;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ActivoFijoController extends Controller
 {
@@ -189,6 +192,8 @@ class ActivoFijoController extends Controller
     {
         $filters = $request->validate([
             'area_id' => ['nullable', 'integer'],
+            'ubicacion_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
             'clasificacion_id' => ['nullable', 'integer'],
             'estado' => ['nullable', 'string'],
         ]);
@@ -213,6 +218,12 @@ class ActivoFijoController extends Controller
         if ($filters['area_id'] ?? false) {
             $query->where('activos_fijos.area_id', $filters['area_id']);
         }
+        if ($filters['ubicacion_id'] ?? false) {
+            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('activos_fijos.personal_id', $filters['personal_id']);
+        }
         if ($filters['clasificacion_id'] ?? false) {
             $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
         }
@@ -230,18 +241,31 @@ class ActivoFijoController extends Controller
         ];
 
         $areas = Area::orderBy('nombre')->get(['id', 'nombre']);
+        $ubicaciones = Ubicacion::where('estado', 'activo')->orderBy('nombre')->get(['id', 'nombre']);
         $clasificaciones = Clasificacion::orderBy('codigo')->get(['id', 'codigo', 'nombre']);
         $activosList = ActivoFijo::orderBy('codigo_inventario')->get(['id', 'codigo_inventario', 'nombre_activo']);
         $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido', 'area_id']);
+
+        // Mapa de ubicaciones usadas por area
+        $areaLocationMap = ActivoFijo::select('area_id', 'ubicacion_id')
+            ->whereNotNull('area_id')
+            ->whereNotNull('ubicacion_id')
+            ->distinct()
+            ->get()
+            ->groupBy('area_id')
+            ->map(fn($items) => $items->pluck('ubicacion_id')->unique()->values()->all())
+            ->all();
 
         return Inertia::render('Activos/Reportes', [
             'activos' => $activos,
             'totales' => $totales,
             'areas' => $areas,
+            'ubicaciones' => $ubicaciones,
             'clasificaciones' => $clasificaciones,
             'filters' => $filters,
             'activosList' => $activosList,
             'personal' => $personal,
+            'areaLocationMap' => $areaLocationMap,
         ]);
     }
 
@@ -249,6 +273,8 @@ class ActivoFijoController extends Controller
     {
         $filters = $request->validate([
             'area_id' => ['nullable', 'integer'],
+            'ubicacion_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
             'clasificacion_id' => ['nullable', 'integer'],
             'estado' => ['nullable', 'string'],
         ]);
@@ -271,6 +297,12 @@ class ActivoFijoController extends Controller
 
         if ($filters['area_id'] ?? false) {
             $query->where('activos_fijos.area_id', $filters['area_id']);
+        }
+        if ($filters['ubicacion_id'] ?? false) {
+            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('activos_fijos.personal_id', $filters['personal_id']);
         }
         if ($filters['clasificacion_id'] ?? false) {
             $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
@@ -448,5 +480,174 @@ class ActivoFijoController extends Controller
             'svg' => $svg,
             'detalle' => $detalle,
         ]);
+    }
+
+    public function exportInventarioPdf(Request $request)
+    {
+        $filters = $request->validate([
+            'area_id' => ['nullable', 'integer'],
+            'ubicacion_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
+            'clasificacion_id' => ['nullable', 'integer'],
+            'estado' => ['nullable', 'string'],
+        ]);
+
+        $query = ActivoFijo::query()
+            ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
+            ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
+            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
+            ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+            ->select(
+                'activos_fijos.codigo_inventario',
+                'activos_fijos.nombre_activo',
+                'areas.nombre as area',
+                'clasificaciones.nombre as clasificacion',
+                'ubicaciones.nombre as ubicacion',
+                DB::raw("CONCAT_WS(' ', personal.nombre, personal.apellido) as responsable"),
+                'activos_fijos.estado',
+                'activos_fijos.precio_adquisicion',
+            );
+
+        if ($filters['area_id'] ?? false) {
+            $query->where('activos_fijos.area_id', $filters['area_id']);
+        }
+        if ($filters['ubicacion_id'] ?? false) {
+            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('activos_fijos.personal_id', $filters['personal_id']);
+        }
+        if ($filters['clasificacion_id'] ?? false) {
+            $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
+        }
+        if ($filters['estado'] ?? false) {
+            $query->where('activos_fijos.estado', $filters['estado']);
+        }
+
+        $activos = $query->orderBy('activos_fijos.codigo_inventario')->get();
+        
+        $totales = [
+            'cantidad' => $activos->count(),
+            'valor' => $activos->sum(fn($a) => (float) $a->precio_adquisicion),
+        ];
+
+        $system = \App\Models\SystemSetting::first();
+
+        $pdf = Pdf::loadView('reportes.inventario-pdf', [
+            'activos' => $activos,
+            'totales' => $totales,
+            'filters' => $filters,
+            'system' => $system,
+        ]);
+        
+        $pdf->setPaper('letter', 'landscape');
+
+        return $pdf->download('inventario.pdf');
+    }
+
+    public function exportTrazabilidadPdf(Request $request)
+    {
+        $filters = $request->validate([
+            'desde' => ['nullable', 'date'],
+            'hasta' => ['nullable', 'date'],
+            'activo_id' => ['nullable', 'integer'],
+            'area_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
+        ]);
+
+        $query = DB::table('historial_asignaciones as h')
+            ->join('activos_fijos as a', 'h.activo_id', '=', 'a.id')
+            ->leftJoin('personal as anterior', 'h.asignacion_anterior_id', '=', 'anterior.id')
+            ->join('personal as nuevo', 'h.asignacion_nuevo_id', '=', 'nuevo.id')
+            ->leftJoin('areas as area_anterior', 'anterior.area_id', '=', 'area_anterior.id')
+            ->leftJoin('areas as area_nuevo', 'nuevo.area_id', '=', 'area_nuevo.id')
+            ->select(
+                'h.fecha_asignacion',
+                'a.codigo_inventario',
+                'a.nombre_activo',
+                DB::raw("CONCAT_WS(' ', anterior.nombre, anterior.apellido) as desde"),
+                DB::raw("CONCAT_WS(' ', nuevo.nombre, nuevo.apellido) as hacia"),
+                'area_anterior.nombre as area_desde',
+                'area_nuevo.nombre as area_hacia',
+                'h.motivo',
+            );
+
+        if ($filters['desde'] ?? false) {
+            $query->whereDate('h.fecha_asignacion', '>=', $filters['desde']);
+        }
+        if ($filters['hasta'] ?? false) {
+            $query->whereDate('h.fecha_asignacion', '<=', $filters['hasta']);
+        }
+        if ($filters['activo_id'] ?? false) {
+            $query->where('h.activo_id', $filters['activo_id']);
+        }
+        if ($filters['area_id'] ?? false) {
+            $query->where('area_nuevo.id', $filters['area_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('h.asignacion_nuevo_id', $filters['personal_id']);
+        }
+
+        $movimientos = $query->orderByDesc('h.fecha_asignacion')->get();
+
+        $system = \App\Models\SystemSetting::first();
+
+        $pdf = Pdf::loadView('reportes.trazabilidad-pdf', [
+            'movimientos' => $movimientos,
+            'filters' => $filters,
+            'system' => $system,
+        ]);
+        
+        $pdf->setPaper('letter', 'landscape');
+
+        return $pdf->download('trazabilidad.pdf');
+    }
+
+    /**
+     * Generar Acta de Asignación en PDF
+     */
+    public function generarActaAsignacion($id)
+    {
+        $activo = ActivoFijo::with(['area', 'ubicacion', 'clasificacion', 'personal'])
+            ->findOrFail($id);
+
+        // Verificar que tenga responsable asignado
+        if (!$activo->personal_id) {
+            return redirect()->back()->with('error', 'El activo no tiene un responsable asignado.');
+        }
+
+        $system = SystemSetting::first();
+
+        // Generate QR Code
+        $renderer = new Svg();
+        $renderer->setHeight(120);
+        $renderer->setWidth(120);
+        $writer = new Writer($renderer);
+        $qrSvg = $writer->writeString($activo->codigo_inventario);
+        $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+        
+        // Convertir logo a base64 para DomPDF
+        $logoPath = public_path('logo-alcaldia.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+        
+        $pdf = Pdf::loadView('reportes.acta-asignacion-pdf', [
+            'activo' => $activo,
+            'system' => $system,
+            'fecha_emision' => now()->format('d/m/Y'),
+            'qrCode' => $qrBase64,
+            'logoBase64' => $logoBase64,
+        ]);
+
+        $pdf->setPaper('letter', 'portrait');
+
+        $filename = "acta-asignacion-{$activo->codigo_inventario}.pdf";
+        
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 }

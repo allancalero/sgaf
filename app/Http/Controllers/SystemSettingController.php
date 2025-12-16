@@ -24,6 +24,8 @@ class SystemSettingController extends Controller
     {
         $data = $request->validate([
             'nombre_alcaldia' => ['nullable', 'string', 'max:255'],
+            'alcaldesa' => ['nullable', 'string', 'max:255'],
+            'gerente' => ['nullable', 'string', 'max:255'],
             'moneda' => ['required', 'string', 'max:20'],
             'ano_fiscal' => ['nullable', 'integer', 'min:2000', 'max:2100'],
             'logo_file' => ['nullable', 'image', 'mimes:png', 'max:2048'],
@@ -40,6 +42,9 @@ class SystemSettingController extends Controller
 
         $setting->fill($data);
         $setting->save();
+
+        // Clear the cached system settings so changes appear immediately
+        cache()->forget('system_setting:first');
 
         return redirect()->route('sistema.parametros')->with('success', 'Parámetros actualizados');
     }

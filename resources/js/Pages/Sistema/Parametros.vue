@@ -12,6 +12,8 @@ const can = (permission) => page.props.auth.user?.permissions?.includes(permissi
 
 const form = useForm({
     nombre_alcaldia: props.setting?.nombre_alcaldia || '',
+    alcaldesa: props.setting?.alcaldesa || '',
+    gerente: props.setting?.gerente || '',
     moneda: props.setting?.moneda || 'USD',
     ano_fiscal: props.setting?.ano_fiscal || '',
     logo_file: null,
@@ -82,6 +84,31 @@ const onFileChange = (event) => {
                                 placeholder="Ej. Alcaldía Municipal de ..."
                             />
                             <p v-if="form.errors.nombre_alcaldia" class="mt-1 text-sm text-red-600">{{ form.errors.nombre_alcaldia }}</p>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Alcaldesa</label>
+                                <input
+                                    v-model="form.alcaldesa"
+                                    type="text"
+                                    class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    maxlength="255"
+                                    placeholder="Nombre completo de la alcaldesa"
+                                />
+                                <p v-if="form.errors.alcaldesa" class="mt-1 text-sm text-red-600">{{ form.errors.alcaldesa }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Gerente</label>
+                                <input
+                                    v-model="form.gerente"
+                                    type="text"
+                                    class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    maxlength="255"
+                                    placeholder="Nombre completo del gerente"
+                                />
+                                <p v-if="form.errors.gerente" class="mt-1 text-sm text-red-600">{{ form.errors.gerente }}</p>
+                            </div>
                         </div>
 
                         <div class="grid gap-4 sm:grid-cols-2">

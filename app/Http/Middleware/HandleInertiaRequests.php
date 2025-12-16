@@ -30,7 +30,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $setting = cache()->remember('system_setting:first', 60, fn () => SystemSetting::first());
+        try {
+            $setting = cache()->remember('system_setting:first', 60, fn () => SystemSetting::first());
+        } catch (\Throwable $e) {
+            // Log the error if needed, but allow the app to proceed with default settings
+            // Log::error('Failed to fetch system settings: ' . $e->getMessage());
+            $setting = null;
+        }
 
         return [
             ...parent::share($request),
@@ -52,6 +58,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'system' => $setting ? [
                 'nombre_alcaldia' => $setting->nombre_alcaldia,
+                'alcaldesa' => $setting->alcaldesa,
+                'gerente' => $setting->gerente,
                 'moneda' => $setting->moneda,
                 'ano_fiscal' => $setting->ano_fiscal,
                 'logo_url' => $setting->logo_url,

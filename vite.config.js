@@ -17,4 +17,10 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: '0.0.0.0', // Listen on all addresses
+        hmr: {
+            host: 'localhost', // Use localhost for HMR
+        },
+    },
 });

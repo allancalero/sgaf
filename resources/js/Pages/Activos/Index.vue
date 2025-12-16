@@ -56,6 +56,10 @@ const createForm = useForm({
     color: '',
     serie: '',
     foto: '',
+    // Depreciation fields
+    vida_util_anos: '',
+    valor_residual: 0,
+    metodo_depreciacion: 'LINEAL',
 });
 
 const editForm = useForm({
@@ -81,6 +85,10 @@ const editForm = useForm({
     color: '',
     serie: '',
     foto: '',
+    // Depreciation fields
+    vida_util_anos: '',
+    valor_residual: 0,
+    metodo_depreciacion: 'LINEAL',
 });
 
 const showEditPanel = ref(false);
@@ -133,6 +141,39 @@ const activosFiltrados = computed(() => {
     );
 });
 
+const createDepreciacionPreview = computed(() => {
+    const precio = parseFloat(createForm.precio_adquisicion) || 0;
+    const vidaUtil = parseInt(createForm.vida_util_anos) || 0;
+    const valorResidual = parseFloat(createForm.valor_residual) || 0;
+    
+    if (precio <= 0 || vidaUtil <= 0) return null;
+    
+    const depreciacionAnual = (precio - valorResidual) / vidaUtil;
+    const depreciacionMensual = depreciacionAnual / 12;
+    
+    return {
+        anual: depreciacionAnual.toFixed(2),
+        mensual: depreciacionMensual.toFixed(2),
+    };
+});
+
+const editDepreciacionPreview = computed(() => {
+    const precio = parseFloat(editForm.precio_adquisicion) || 0;
+    const vidaUtil = parseInt(editForm.vida_util_anos) || 0;
+    const valorResidual = parseFloat(editForm.valor_residual) || 0;
+    
+    if (precio <= 0 || vidaUtil <= 0) return null;
+    
+    const depreciacionAnual = (precio - valorResidual) / vidaUtil;
+    const depreciacionMensual = depreciacionAnual / 12;
+    
+    return {
+        anual: depreciacionAnual.toFixed(2),
+        mensual: depreciacionMensual.toFixed(2),
+    };
+});
+
+
 const submitCreate = () => {
     createForm.post(route('activos.store'), {
         onSuccess: () => {
@@ -172,6 +213,9 @@ const startEdit = (activo) => {
     editForm.color = activo.color || '';
     editForm.serie = activo.serie || '';
     editForm.foto = activo.foto || '';
+    editForm.vida_util_anos = activo.vida_util_anos || '';
+    editForm.valor_residual = activo.valor_residual || 0;
+    editForm.metodo_depreciacion = activo.metodo_depreciacion || 'LINEAL';
     showEditPanel.value = true;
 };
 
@@ -415,6 +459,48 @@ watch(
                             </div>
                         </div>
 
+                        <!-- Depreciación Section -->
+                        <div class="space-y-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950">
+                            <div class="flex items-center justify-between text-sm">
+                                <p class="font-semibold text-emerald-800 dark:text-emerald-100">Configuración de Depreciación</p>
+                                <span class="text-emerald-600 dark:text-emerald-400">(Opcional - para cálculo automático)</span>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Vida Útil (años)</label>
+                                    <input v-model.number="createForm.vida_util_anos" type="number" min="1" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Ej: 5" />
+                                    <p v-if="createForm.errors.vida_util_anos" class="mt-1 text-sm text-red-600">{{ createForm.errors.vida_util_anos }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Residual</label>
+                                    <input v-model="createForm.valor_residual" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" />
+                                    <p v-if="createForm.errors.valor_residual" class="mt-1 text-sm text-red-600">{{ createForm.errors.valor_residual }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Método</label>
+                                    <select v-model="createForm.metodo_depreciacion" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                        <option value="LINEAL">Línea Recta</option>
+                                        <option value="SALDO_DECRECIENTE">Saldo Decreciente</option>
+                                        <option value="UNIDADES_PRODUCIDAS">Unidades Producidas</option>
+                                    </select>
+                                    <p v-if="createForm.errors.metodo_depreciacion" class="mt-1 text-sm text-red-600">{{ createForm.errors.metodo_depreciacion }}</p>
+                                </div>
+                            </div>
+                            <div v-if="createDepreciacionPreview" class="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-800 dark:bg-gray-800">
+                                <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Vista Previa de Depreciación:</p>
+                                <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Anual:</span>
+                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(createDepreciacionPreview.anual) }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Mensual:</span>
+                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(createDepreciacionPreview.mensual) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex items-center justify-between text-sm">
                                 <p class="font-semibold text-gray-800 dark:text-gray-100">Detalles opcionales</p>
@@ -567,6 +653,15 @@ watch(
                                         >
                                             QR
                                         </a>
+                                        <a
+                                            v-if="activo.responsable"
+                                            :href="route('activos.acta-asignacion', activo.id)"
+                                            target="_blank"
+                                            class="text-purple-600 hover:underline"
+                                            title="Generar Acta de Asignación"
+                                        >
+                                            Acta
+                                        </a>
                                     </td>
                                 </tr>
                                 <tr v-if="!props.activos.length">
@@ -715,6 +810,51 @@ watch(
                                 <input v-model="editForm.monto_cheque_utilizado" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Monto asignado de este cheque" />
                                 <p v-if="editForm.errors.monto_cheque_utilizado" class="mt-1 text-sm text-red-600">{{ editForm.errors.monto_cheque_utilizado }}</p>
                             </div>
+                        </div>
+
+                        <!-- Depreciación Section -->
+                        <div class="space-y-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950">
+                            <div class="flex items-center justify-between text-sm">
+                                <p class="font-semibold text-emerald-800 dark:text-emerald-100">Configuración de Depreciación</p>
+                                <span class="text-emerald-600 dark:text-emerald-400">(Opcional - para cálculo automático)</span>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Vida Útil (años)</label>
+                                    <input v-model.number="editForm.vida_util_anos" type="number" min="1" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Ej: 5" />
+                                    <p v-if="editForm.errors.vida_util_anos" class="mt-1 text-sm text-red-600">{{ editForm.errors.vida_util_anos }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Residual</label>
+                                    <input v-model="editForm.valor_residual" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" />
+                                    <p v-if="editForm.errors.valor_residual" class="mt-1 text-sm text-red-600">{{ editForm.errors.valor_residual }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Método</label>
+                                    <select v-model="editForm.metodo_depreciacion" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                        <option value="LINEAL">Línea Recta</option>
+                                        <option value="SALDO_DECRECIENTE">Saldo Decreciente</option>
+                                        <option value="UNIDADES_PRODUCIDAS">Unidades Producidas</option>
+                                    </select>
+                                    <p v-if="editForm.errors.metodo_depreciacion" class="mt-1 text-sm text-red-600">{{ editForm.errors.metodo_depreciacion }}</p>
+                                </div>
+                            </div>
+                            <div v-if="editDepreciacionPreview" class="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-800 dark:bg-gray-800">
+                                <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Vista Previa de Depreciación:</p>
+                                <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Anual:</span>
+                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(editDepreciacionPreview.anual) }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Mensual:</span>
+                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(editDepreciacionPreview.mensual) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Marca</label>
                                 <input v-model="editForm.marca" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />

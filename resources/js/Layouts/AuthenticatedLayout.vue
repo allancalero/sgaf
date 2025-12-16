@@ -54,7 +54,7 @@ onMounted(() => {
                     <Link :href="route('dashboard')" class="flex items-center gap-2">
                         <ApplicationLogo v-if="!displayLogo" class="h-9 w-auto fill-current text-indigo-500 dark:text-indigo-300" />
                         <img v-else :src="displayLogo" alt="Logo" class="h-9 w-auto" />
-                        <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ displayName }}</span>
+                        <span class="text-sm font-semibold text-gray-800 dark:text-gray-100">SGAF</span>
                     </Link>
                 </div>
 
@@ -115,6 +115,31 @@ onMounted(() => {
                                     <span>Catálogos de Activos</span>
                                 </span>
                             </NavLink>
+                            <NavLink v-if="can('activos.manage')" :href="route('reasignaciones.index')" :active="route().current('reasignaciones.*')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                    </svg>
+                                    <span>Reasignación de Activos</span>
+                                </span>
+                            </NavLink>
+                            <NavLink :href="route('activos.reportes')" :active="route().current('activos.reportes')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600 dark:text-rose-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                    </svg>
+                                    <span>Reportes</span>
+                                </span>
+                            </NavLink>
+                            <NavLink :href="route('activos.depreciacion')" :active="route().current('activos.depreciacion')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 dark:text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>Depreciación</span>
+                                </span>
+                            </NavLink>
                         </div>
                     </template>
 
@@ -170,6 +195,18 @@ onMounted(() => {
                                     <span>Seguridad</span>
                                 </span>
                             </NavLink>
+                            <NavLink
+                                v-if="can('sistema.manage')"
+                                :href="route('sistema.auditoria')"
+                                :active="route().current('sistema.auditoria')"
+                            >
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600 dark:text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    <span>Auditoría</span>
+                                </span>
+                            </NavLink>
                         </div>
                     </template>
                 </nav>
@@ -220,11 +257,9 @@ onMounted(() => {
                 <nav class="border-b border-gray-100 bg-white transition-colors dark:border-gray-800 dark:bg-gray-900/80">
                     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                         <div class="flex items-center gap-3">
-                            <Link :href="route('dashboard')" class="flex items-center gap-2">
-                                <ApplicationLogo v-if="!displayLogo" class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-100" />
-                                <img v-else :src="displayLogo" alt="Logo" class="h-9 w-auto" />
-                                <span class="hidden text-sm font-semibold text-gray-800 dark:text-gray-100 sm:inline">{{ displayName }}</span>
-                            </Link>
+                            <h1 class="hidden text-lg font-semibold text-indigo-600 dark:text-indigo-400 sm:block" style="font-family: 'Inter', 'Segoe UI', sans-serif; letter-spacing: 0.02em;">
+                                {{ displayName }}
+                            </h1>
                             <button
                                 class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none sm:hidden"
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"
@@ -338,6 +373,19 @@ onMounted(() => {
                             >
                                 Catálogos de Activos
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                v-if="can('activos.manage')"
+                                :href="route('reasignaciones.index')"
+                                :active="route().current('reasignaciones.*')"
+                            >
+                                Reasignación de Activos
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('activos.reportes')"
+                                :active="route().current('activos.reportes')"
+                            >
+                                Reportes
+                            </ResponsiveNavLink>
 
                             <!-- Sección: Gestionar Sistema -->
                             <p v-if="canAny(['sistema.manage', 'respaldos.download', 'seguridad.manage'])" class="px-4 pt-4 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Gestionar Sistema</p>
@@ -368,6 +416,13 @@ onMounted(() => {
                                 :active="route().current('sistema.seguridad')"
                             >
                                 Seguridad
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                v-if="can('sistema.manage')"
+                                :href="route('sistema.auditoria')"
+                                :active="route().current('sistema.auditoria')"
+                            >
+                                Auditoría
                             </ResponsiveNavLink>
 
                         </div>

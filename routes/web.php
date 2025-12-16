@@ -19,6 +19,8 @@ use App\Http\Controllers\ChequeController;
 use App\Http\Controllers\RecursosHumanosController;
 use App\Http\Controllers\UbicacionesController;
 use App\Http\Controllers\ActivosFijoController;
+use App\Http\Controllers\ReasignacionController;
+use App\Http\Controllers\AuditController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -107,11 +109,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/sistema/seguridad/{user}/accesos', [SistemaController::class, 'actualizarAccesos'])->middleware(['permission:seguridad.manage', 'audit:seguridad.update'])->name('sistema.seguridad.actualizar');
     Route::get('/sistema/respaldo/descargar', [SistemaController::class, 'descargarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.download'])->name('sistema.respaldo.descargar');
     
+    // Auditoría
+    Route::get('/sistema/auditoria', [AuditController::class, 'index'])->middleware('permission:sistema.manage')->name('sistema.auditoria');
+    
     // New backup management routes
     Route::post('/sistema/respaldo/crear', [SistemaController::class, 'crearRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.create'])->name('sistema.respaldo.crear');
     Route::get('/sistema/respaldo/{backup}/descargar-sql', [SistemaController::class, 'descargarRespaldoSQL'])->middleware(['permission:respaldos.download', 'audit:respaldos.download-sql'])->name('sistema.respaldo.descargar-sql');
     Route::post('/sistema/respaldo/{backup}/restaurar', [SistemaController::class, 'restaurarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.restore'])->name('sistema.respaldo.restaurar');
     Route::delete('/sistema/respaldo/{backup}', [SistemaController::class, 'eliminarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.delete'])->name('sistema.respaldo.eliminar');
+    
+    // Reasignaciones de Activos
+    Route::resource('reasignaciones', ReasignacionController::class)->middleware('permission:activos.manage');
+    Route::get('/reasignaciones/{reasignacion}/acta-pdf', [ReasignacionController::class, 'generarActaPdf'])
+        ->middleware('permission:activos.view')
+        ->name('reasignaciones.acta-pdf');
 
     Route::get('/activos/resumen', function () {
         $stats = [
@@ -143,9 +154,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:activos.view')
         ->name('activos.reportes.trazabilidad.export');
 
+    Route::get('/activos/reportes/inventario/pdf', [ActivoFijoController::class, 'exportInventarioPdf'])
+        ->middleware('permission:activos.view')
+        ->name('activos.reportes.inventario.pdf');
+
+    Route::get('/activos/reportes/trazabilidad/pdf', [ActivoFijoController::class, 'exportTrazabilidadPdf'])
+        ->middleware('permission:activos.view')
+        ->name('activos.reportes.trazabilidad.pdf');
+
     Route::post('/activos/{activo}/trazabilidad', [ActivoFijoController::class, 'actualizarTrazabilidad'])
         ->middleware(['permission:activos.manage', 'audit:activos.trazabilidad'])
         ->name('activos.trazabilidad.actualizar');
+
+    // Depreciación de Activos
+    Route::get('/activos/depreciacion', [\App\Http\Controllers\DepreciacionController::class, 'index'])
+        ->middleware('permission:activos.view')
+        ->name('activos.depreciacion');
+    
+    Route::post('/activos/depreciacion/calcular', [\App\Http\Controllers\DepreciacionController::class, 'calcular'])
+        ->middleware('permission:activos.manage')
+        ->name('activos.depreciacion.calcular');
+    
+    Route::get('/activos/depreciacion/pdf', [\App\Http\Controllers\DepreciacionController::class, 'exportPdf'])
+        ->middleware('permission:activos.view')
+        ->name('activos.depreciacion.pdf');
+
+    // Acta de Asignación
+    Route::get('/activos/{activo}/acta-asignacion', [ActivoFijoController::class, 'generarActaAsignacion'])
+        ->middleware('permission:activos.view')
+        ->name('activos.acta-asignacion');
 
     Route::get('/activos', [ActivoFijoController::class, 'index'])->middleware('permission:activos.view')->name('activos.index');
     Route::post('/activos', [ActivoFijoController::class, 'store'])->middleware(['permission:activos.manage', 'audit:activos.store'])->name('activos.store');

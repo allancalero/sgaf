@@ -11,6 +11,8 @@ class SystemSetting extends Model
 
     protected $fillable = [
         'nombre_alcaldia',
+        'alcaldesa',
+        'gerente',
         'moneda',
         'ano_fiscal',
         'logo_url',
