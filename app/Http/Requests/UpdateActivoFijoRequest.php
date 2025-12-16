@@ -22,7 +22,7 @@ class UpdateActivoFijoRequest extends FormRequest
             'modelo' => ['nullable', 'string', 'max:255'],
             'color' => ['nullable', 'string', 'max:50'],
             'serie' => ['nullable', 'string', 'max:255'],
-            'foto' => ['nullable', 'string', 'max:255'],
+            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'descripcion' => ['nullable', 'string'],
             'cantidad' => ['required', 'integer', 'min:1'],
             'precio_unitario' => ['nullable', 'numeric', 'min:0'],

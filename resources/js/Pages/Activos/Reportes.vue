@@ -29,8 +29,16 @@ const filtroInventario = useForm({
 
 // Computed Filters
 const filteredPersonal = computed(() => {
-    if (!filtroInventario.area_id) return props.personal;
-    return props.personal.filter(p => p.area_id == filtroInventario.area_id);
+    if (!filtroInventario.area_id) {
+        return props.personal;
+    }
+    // Convert to numbers for strict comparison
+    const areaIdNumber = Number(filtroInventario.area_id);
+    const filtered = props.personal.filter(p => {
+        const personalAreaId = Number(p.area_id);
+        return personalAreaId === areaIdNumber;
+    });
+    return filtered;
 });
 
 const filteredUbicaciones = computed(() => {
@@ -40,12 +48,16 @@ const filteredUbicaciones = computed(() => {
 });
 
 // Watch Area Change
-watch(() => filtroInventario.area_id, (newVal) => {
-    // Reset dependant filters if area changes but only if triggered by user (not initial load)
-    // We can just reset them always on change, user expects this behavior
-    if (newVal !== props.filters?.area_id) { 
+watch(() => filtroInventario.area_id, (newVal, oldVal) => {
+    // Reset dependant filters if area changes
+    if (newVal !== oldVal && newVal !== props.filters?.area_id) { 
         filtroInventario.ubicacion_id = '';
         filtroInventario.personal_id = '';
+        // Optional: Log only on actual changes
+        if (newVal) {
+            const filtered = props.personal.filter(p => Number(p.area_id) === Number(newVal));
+            console.log(`🔍 Área seleccionada: ${newVal} → ${filtered.length} responsable(s) disponible(s)`);
+        }
     }
 });
 
@@ -87,6 +99,7 @@ const chartStatus = ref(null);
 const chartArea = ref(null);
 
 onMounted(() => {
+    
     // Assets by Status
     const statusCounts = props.activos.reduce((acc, curr) => {
         acc[curr.estado] = (acc[curr.estado] || 0) + 1;
@@ -162,6 +175,12 @@ onMounted(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                         Trazabilidad
+                    </a>
+                    <a :href="route('activos.etiquetas-qr')" class="inline-flex items-center gap-2 rounded-md border border-purple-200 px-3 py-2 text-purple-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        Etiquetas QR
                     </a>
                 </div>
             </div>
@@ -242,7 +261,7 @@ onMounted(() => {
                             <label class="text-xs font-semibold text-gray-700">Área</label>
                             <select v-model="filtroInventario.area_id" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Todas</option>
-                                <option v-for="area in areas" :key="area.id" :value="area.id">{{ area.nombre }}</option>
+                                <option v-for="area in areas" :key="area.id" :value="area.id">{{ String(area.id).padStart(2, '0') }} - {{ area.nombre }}</option>
                             </select>
                         </div>
                         <div>
@@ -256,6 +275,7 @@ onMounted(() => {
                             <label class="text-xs font-semibold text-gray-700">Responsable</label>
                             <select v-model="filtroInventario.personal_id" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Todos</option>
+                                <option v-if="filteredPersonal.length === 0 && filtroInventario.area_id" disabled>No hay personal en esta área</option>
                                 <option v-for="per in filteredPersonal" :key="per.id" :value="per.id">{{ per.nombre }} {{ per.apellido }}</option>
                             </select>
                         </div>
@@ -263,7 +283,7 @@ onMounted(() => {
                             <label class="text-xs font-semibold text-gray-700">Clasificación</label>
                             <select v-model="filtroInventario.clasificacion_id" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Todas</option>
-                                <option v-for="clas in clasificaciones" :key="clas.id" :value="clas.id">{{ clas.nombre }}</option>
+                                <option v-for="clas in clasificaciones" :key="clas.id" :value="clas.id">{{ String(clas.id).padStart(3, '0') }} - {{ clas.nombre }}</option>
                             </select>
                         </div>
                         <div>
@@ -296,6 +316,7 @@ onMounted(() => {
                                     <th class="px-4 py-3">Responsable</th>
                                     <th class="px-4 py-3">Estado</th>
                                     <th class="px-4 py-3">Precio</th>
+                                    <th class="px-4 py-3">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -309,9 +330,35 @@ onMounted(() => {
                                     <td class="px-4 py-3 text-gray-700">{{ a.responsable || 'No asignado' }}</td>
                                     <td class="px-4 py-3 text-gray-700">{{ a.estado }}</td>
                                     <td class="px-4 py-3 text-gray-900">{{ formatCurrency(a.precio_adquisicion) }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex gap-2">
+                                            <a 
+                                                :href="`/activos/${a.id}/acta-asignacion`" 
+                                                target="_blank"
+                                                class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-blue-700"
+                                                title="Descargar Acta de Asignación"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                Acta
+                                            </a>
+                                            <a 
+                                                :href="`/activos/${a.id}/qr`" 
+                                                target="_blank"
+                                                class="inline-flex items-center gap-1 rounded-md bg-purple-600 px-2 py-1 text-xs font-medium text-white shadow-sm transition hover:bg-purple-700"
+                                                title="Ver Código QR"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                </svg>
+                                                QR
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr v-if="!props.activos.length">
-                                    <td colspan="9" class="px-4 py-4 text-center text-gray-500">Sin registros con los filtros aplicados</td>
+                                    <td colspan="10" class="px-4 py-4 text-center text-gray-500">Sin registros con los filtros aplicados</td>
                                 </tr>
                             </tbody>
                         </table>

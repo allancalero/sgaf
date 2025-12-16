@@ -26,6 +26,30 @@ const formatCurrency = (value) => {
 };
 
 const busqueda = ref('');
+const filtroArea = ref('');
+const filtroClasificacion = ref('');
+const filtroResponsable = ref('');
+const createPhotoPreview = ref(null);
+const editPhotoPreview = ref(null);
+
+// Computed: Personal filtered by selected area
+const filteredPersonalByArea = computed(() => {
+    if (!filtroArea.value) {
+        return props.personal;
+    }
+    const areaId = Number(filtroArea.value);
+    const filtered = props.personal.filter(p => Number(p.area_id) === areaId);
+    console.log(`🔍 Área seleccionada ID: ${areaId}, Personal encontrado: ${filtered.length}`);
+    if (filtered.length === 0) {
+        console.log('Personal disponible:', props.personal.map(p => ({ id: p.id, nombre: p.nombre, area_id: p.area_id })));
+    }
+    return filtered;
+});
+
+// Watch: Reset responsable when area changes
+watch(() => filtroArea.value, () => {
+    filtroResponsable.value = '';
+});
 
 const estadoOptions = [
     { value: 'BUENO', label: 'Bueno' },
@@ -124,21 +148,41 @@ const buildCodigoInventario = (clasificacionId) => {
 };
 
 const activosFiltrados = computed(() => {
+    let filtered = props.activos;
+    
+    // Filter by área
+    if (filtroArea.value) {
+        filtered = filtered.filter(a => a.area_id == filtroArea.value);
+    }
+    
+    // Filter by clasificación
+    if (filtroClasificacion.value) {
+        filtered = filtered.filter(a => a.clasificacion_id == filtroClasificacion.value);
+    }
+    
+    // Filter by responsable
+    if (filtroResponsable.value) {
+        filtered = filtered.filter(a => a.personal_id == filtroResponsable.value);
+    }
+    
+    // Filter by search term
     const term = busqueda.value.trim().toLowerCase();
-    if (!term) return props.activos;
-
-    return props.activos.filter((a) =>
-        [
-            a.codigo_inventario,
-            a.nombre_activo,
-            a.area,
-            a.ubicacion,
-            a.clasificacion,
-            a.responsable,
-        ]
-            .filter(Boolean)
-            .some((value) => value.toLowerCase().includes(term))
-    );
+    if (term) {
+        filtered = filtered.filter((a) =>
+            [
+                a.codigo_inventario,
+                a.nombre_activo,
+                a.area,
+                a.ubicacion,
+                a.clasificacion,
+                a.responsable,
+            ]
+                .filter(Boolean)
+                .some((value) => value.toLowerCase().includes(term))
+        );
+    }
+    
+    return filtered;
 });
 
 const createDepreciacionPreview = computed(() => {
@@ -175,10 +219,20 @@ const editDepreciacionPreview = computed(() => {
 
 
 const submitCreate = () => {
+    const formData = new FormData();
+    Object.keys(createForm.data()).forEach(key => {
+        if (createForm[key] !== null && createForm[key] !== '' && createForm[key] !== undefined) {
+            formData.append(key, createForm[key]);
+        }
+    });
+    
     createForm.post(route('activos.store'), {
+        data: formData,
+        forceFormData: true,
         onSuccess: () => {
             createForm.reset();
             createCodigoTouched.value = false;
+            createPhotoPreview.value = null;
         },
     });
 };
@@ -221,12 +275,24 @@ const startEdit = (activo) => {
 
 const submitEdit = () => {
     if (!selectedActivo.value) return;
-    editForm.put(route('activos.update', selectedActivo.value.id), {
+    
+    const formData = new FormData();
+    Object.keys(editForm.data()).forEach(key => {
+        if (editForm[key] !== null && editForm[key] !== '' && editForm[key] !== undefined) {
+            formData.append(key, editForm[key]);
+        }
+    });
+    formData.append('_method', 'PUT');
+    
+    editForm.post(route('activos.update', selectedActivo.value.id), {
+        data: formData,
+        forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
             showEditPanel.value = false;
             selectedActivo.value = null;
             editForm.reset();
+            editPhotoPreview.value = null;
         },
     });
 };
@@ -237,6 +303,31 @@ const closeEditPanel = () => {
     editForm.reset();
     editForm.clearErrors();
     editCodigoTouched.value = false;
+    editPhotoPreview.value = null;
+};
+
+const handleCreatePhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        createForm.foto = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            createPhotoPreview.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const handleEditPhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        editForm.foto = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            editPhotoPreview.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 };
 
 const onCreateCodigoInput = () => {
@@ -528,9 +619,15 @@ watch(
                                     <p v-if="createForm.errors.serie" class="mt-1 text-sm text-red-600">{{ createForm.errors.serie }}</p>
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto (URL)</label>
-                                    <input v-model="createForm.foto" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del activo <span class="text-xs text-gray-500">(JPG/PNG, max 2MB)</span></label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/jpeg,image/png,image/jpg"
+                                        @change="handleCreatePhotoChange"
+                                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-gray-200"
+                                    />
                                     <p v-if="createForm.errors.foto" class="mt-1 text-sm text-red-600">{{ createForm.errors.foto }}</p>
+                                    <img v-if="createPhotoPreview" :src="createPhotoPreview" class="mt-2 h-32 w-32 object-cover rounded shadow" alt="Preview" />
                                 </div>
                                 <div class="sm:col-span-2 lg:col-span-3">
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
@@ -562,21 +659,64 @@ watch(
                 </div>
 
                 <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventario</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Consulta rápida, elimina registros o descarga el QR.</p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                            <input
-                                v-model="busqueda"
-                                type="search"
-                                placeholder="Buscar por código, nombre, área, ubicación..."
-                                class="w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-72 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                            />
-                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 font-medium text-indigo-700">
+                    <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventario</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Consulta rápida, elimina registros o descarga el QR.</p>
+                            </div>
+                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                                 {{ activosFiltrados.length }} / {{ props.activos.length }} activos
                             </span>
+                        </div>
+                        
+                        <!-- Filtros -->
+                        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                            <div>
+                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Área</label>
+                                <select v-model="filtroArea" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                    <option value="">Todas las áreas</option>
+                                    <option v-for="area in props.areas" :key="area.id" :value="area.id">{{ String(area.id).padStart(2, '0') }} - {{ area.nombre }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Clasificación</label>
+                                <select v-model="filtroClasificacion" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                    <option value="">Todas las clasificaciones</option>
+                                    <option v-for="clas in props.clasificaciones" :key="clas.id" :value="clas.id">{{ String(clas.id).padStart(3, '0') }} - {{ clas.nombre }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Responsable</label>
+                                <select v-model="filtroResponsable" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                    <option value="">Todos los responsables</option>
+                                    <option v-if="filtroArea && filteredPersonalByArea.length === 0" disabled>-- No hay personal en esta área --</option>
+                                    <option v-for="per in filteredPersonalByArea" :key="per.id" :value="per.id">{{ per.nombre }} {{ per.apellido }}</option>
+                                </select>
+                            </div>
+                            <div class="lg:col-span-2">
+                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Buscar</label>
+                                <div class="mt-1 flex gap-2">
+                                    <input
+                                        v-model="busqueda"
+                                        type="search"
+                                        placeholder="Código, nombre, ubicación..."
+                                        class="w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                    />
+                                    <button
+                                        v-if="filtroArea || filtroClasificacion || filtroResponsable || busqueda"
+                                        type="button"
+                                        @click="filtroArea = ''; filtroClasificacion = ''; filtroResponsable = ''; busqueda = '';"
+                                        class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                                        title="Limpiar filtros"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-auto">
@@ -876,9 +1016,17 @@ watch(
                                 <p v-if="editForm.errors.serie" class="mt-1 text-sm text-red-600">{{ editForm.errors.serie }}</p>
                             </div>
                             <div class="lg:col-span-2">
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto (URL)</label>
-                                <input v-model="editForm.foto" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del activo</label>
+                                <input 
+                                    type="file" 
+                                    accept="image/jpeg,image/png,image/jpg"
+                                    @change="handleEditPhotoChange"
+                                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-gray-200"
+                                />
                                 <p v-if="editForm.errors.foto" class="mt-1 text-sm text-red-600">{{ editForm.errors.foto }}</p>
+                                <div v-if="editPhotoPreview || selectedActivo?.foto" class="mt-2">
+                                    <img :src="editPhotoPreview || `/storage/${selectedActivo.foto}`" class="h-32 w-32 object-cover rounded shadow" alt="Foto actual" />
+                                </div>
                             </div>
                             <div class="sm:col-span-2 lg:col-span-3">
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>

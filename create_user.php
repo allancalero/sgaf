@@ -1,25 +1,18 @@
 <?php
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+$user = new App\Models\User();
+$user->nombre = 'SGAF';
+$user->apellido = 'Admin';
+$user->email = 'sgaf@example.com';
+$user->password = Hash::make('7777');
+$user->created_at = now();
+$user->updated_at = now();
+$user->save();
 
-// Crear usuario
-$user = User::create([
-    'nombre' => 'SGAF',
-    'apellido' => 'Admin',
-    'email' => 'sgaf@example.com',
-    'password' => Hash::make('1111'),
-    'rol' => 'ADMIN',
-    'estado' => 'ACTIVO',
-]);
-
-// Asignar rol admin
-$admin = Role::where('name', 'admin')->first();
-if ($admin) {
-    $user->assignRole($admin);
-}
-
-echo "Usuario creado exitosamente:\n";
-echo "Email: " . $user->email . "\n";
-echo "Rol: " . $user->rol . "\n";
+echo "✅ Usuario creado exitosamente!\n";
+echo "Nombre: SGAF Admin\n";
+echo "Email: sgaf@example.com\n";
+echo "Password: 7777\n";

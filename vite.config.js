@@ -20,7 +20,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0', // Listen on all addresses
         hmr: {
-            host: 'localhost', // Use localhost for HMR
+            host: '192.168.2.83', // Use local IP for HMR on network access
         },
     },
 });

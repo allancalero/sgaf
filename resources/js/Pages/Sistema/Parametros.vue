@@ -14,7 +14,9 @@ const form = useForm({
     nombre_alcaldia: props.setting?.nombre_alcaldia || '',
     alcaldesa: props.setting?.alcaldesa || '',
     gerente: props.setting?.gerente || '',
-    moneda: props.setting?.moneda || 'USD',
+    responsable_activo_fijo: props.setting?.responsable_activo_fijo || '',
+    director_administrativo: props.setting?.director_administrativo || '',
+    moneda: props.setting?.moneda || 'NIO',
     ano_fiscal: props.setting?.ano_fiscal || '',
     logo_file: null,
 });
@@ -108,6 +110,31 @@ const onFileChange = (event) => {
                                     placeholder="Nombre completo del gerente"
                                 />
                                 <p v-if="form.errors.gerente" class="mt-1 text-sm text-red-600">{{ form.errors.gerente }}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Responsable de Activo Fijo</label>
+                                <input
+                                    v-model="form.responsable_activo_fijo"
+                                    type="text"
+                                    class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    maxlength="255"
+                                    placeholder="Nombre completo del responsable"
+                                />
+                                <p v-if="form.errors.responsable_activo_fijo" class="mt-1 text-sm text-red-600">{{ form.errors.responsable_activo_fijo }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700">Director Administrativo</label>
+                                <input
+                                    v-model="form.director_administrativo"
+                                    type="text"
+                                    class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    maxlength="255"
+                                    placeholder="Nombre completo del director"
+                                />
+                                <p v-if="form.errors.director_administrativo" class="mt-1 text-sm text-red-600">{{ form.errors.director_administrativo }}</p>
                             </div>
                         </div>
 

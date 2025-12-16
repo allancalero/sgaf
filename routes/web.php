@@ -162,6 +162,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:activos.view')
         ->name('activos.reportes.trazabilidad.pdf');
 
+    Route::get('/activos/etiquetas-qr', [ActivoFijoController::class, 'etiquetasQr'])
+        ->middleware('permission:activos.view')
+        ->name('activos.etiquetas-qr');
+
+    Route::get('/activos/etiquetas-qr/pdf', [ActivoFijoController::class, 'generarEtiquetasQrPdf'])
+        ->middleware('permission:activos.view')
+        ->name('activos.etiquetas-qr.pdf');
+
     Route::post('/activos/{activo}/trazabilidad', [ActivoFijoController::class, 'actualizarTrazabilidad'])
         ->middleware(['permission:activos.manage', 'audit:activos.trazabilidad'])
         ->name('activos.trazabilidad.actualizar');

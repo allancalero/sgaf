@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 // Configuration (in milliseconds)
-const INACTIVITY_TIMEOUT = 10 * 1000; // 10 seconds for testing
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes until warning shows
 const WARNING_DURATION = 60; // 60 seconds countdown
 
 // State

@@ -71,7 +71,7 @@ class ActivoFijoController extends Controller
         $tipos = TipoActivo::orderBy('nombre')->get(['id', 'nombre', 'clasificacion_id']);
         $fuentes = FuenteFinanciamiento::orderBy('nombre')->get(['id', 'nombre']);
         $proveedores = Proveedor::orderBy('nombre')->get(['id', 'nombre']);
-        $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido']);
+        $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido', 'area_id']);
         $cheques = \App\Models\Cheque::orderBy('numero_cheque')->get(['id', 'numero_cheque', 'banco', 'saldo_disponible']);
 
         return Inertia::render('Activos/Index', [
@@ -412,20 +412,50 @@ class ActivoFijoController extends Controller
 
     public function store(StoreActivoFijoRequest $request): RedirectResponse
     {
-        ActivoFijo::create($request->validated());
+        $data = $request->validated();
+        
+        // Handle photo upload
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $filename = time() . '_' . $foto->getClientOriginalName();
+            $path = $foto->storeAs('activos', $filename, 'public');
+            $data['foto'] = $path;
+        }
+        
+        ActivoFijo::create($data);
 
         return redirect()->route('activos.index')->with('success', 'Activo creado');
     }
 
     public function update(UpdateActivoFijoRequest $request, ActivoFijo $activo): RedirectResponse
     {
-        $activo->update($request->validated());
+        $data = $request->validated();
+        
+        // Handle photo upload
+        if ($request->hasFile('foto')) {
+            // Delete old photo if exists
+            if ($activo->foto && \Storage::disk('public')->exists($activo->foto)) {
+                \Storage::disk('public')->delete($activo->foto);
+            }
+            
+            $foto = $request->file('foto');
+            $filename = time() . '_' . $foto->getClientOriginalName();
+            $path = $foto->storeAs('activos', $filename, 'public');
+            $data['foto'] = $path;
+        }
+        
+        $activo->update($data);
 
         return redirect()->route('activos.index')->with('success', 'Activo actualizado');
     }
 
     public function destroy(ActivoFijo $activo): RedirectResponse
     {
+        // Delete photo if exists
+        if ($activo->foto && \Storage::disk('public')->exists($activo->foto)) {
+            \Storage::disk('public')->delete($activo->foto);
+        }
+        
         $activo->delete();
 
         return redirect()->route('activos.index')->with('success', 'Activo eliminado');
@@ -542,7 +572,9 @@ class ActivoFijoController extends Controller
         
         $pdf->setPaper('letter', 'landscape');
 
-        return $pdf->download('inventario.pdf');
+        return $pdf->stream('inventario.pdf', [
+            'Attachment' => true
+        ]);
     }
 
     public function exportTrazabilidadPdf(Request $request)
@@ -600,7 +632,9 @@ class ActivoFijoController extends Controller
         
         $pdf->setPaper('letter', 'landscape');
 
-        return $pdf->download('trazabilidad.pdf');
+        return $pdf->stream('trazabilidad.pdf', [
+            'Attachment' => true
+        ]);
     }
 
     /**
@@ -644,10 +678,171 @@ class ActivoFijoController extends Controller
 
         $pdf->setPaper('letter', 'portrait');
 
-        $filename = "acta-asignacion-{$activo->codigo_inventario}.pdf";
-        
-        return response($pdf->output(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+        // Sanitize filename to avoid issues with special characters
+    $safeCode = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '-', $activo->codigo_inventario);
+    $filename = "acta-asignacion-{$safeCode}.pdf";
+    
+    return $pdf->stream($filename, [
+        'Attachment' => true  // Force download instead of inline display
+    ]);
+    }
+
+    /**
+     * Vista para seleccionar activos y generar etiquetas QR
+     */
+    public function etiquetasQr(Request $request): Response
+    {
+        $filters = $request->validate([
+            'area_id' => ['nullable', 'integer'],
+            'ubicacion_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
+            'clasificacion_id' => ['nullable', 'integer'],
+            'estado' => ['nullable', 'string'],
+        ]);
+
+        $query = ActivoFijo::query()
+            ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
+            ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
+            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
+            ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+            ->select(
+                'activos_fijos.id',
+                'activos_fijos.codigo_inventario',
+                'activos_fijos.nombre_activo',
+                'activos_fijos.estado',
+                'areas.nombre as area',
+                'ubicaciones.nombre as ubicacion',
+                'clasificaciones.nombre as clasificacion',
+                DB::raw("CONCAT_WS(' ', personal.nombre, personal.apellido) as responsable"),
+            );
+
+        if ($filters['area_id'] ?? false) {
+            $query->where('activos_fijos.area_id', $filters['area_id']);
+        }
+        if ($filters['ubicacion_id'] ?? false) {
+            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('activos_fijos.personal_id', $filters['personal_id']);
+        }
+        if ($filters['clasificacion_id'] ?? false) {
+            $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
+        }
+        if ($filters['estado'] ?? false) {
+            $query->where('activos_fijos.estado', $filters['estado']);
+        }
+
+        $activos = $query->orderBy('activos_fijos.codigo_inventario')->get();
+
+        $areas = Area::orderBy('nombre')->get(['id', 'nombre']);
+        $ubicaciones = Ubicacion::where('estado', 'activo')->orderBy('nombre')->get(['id', 'nombre']);
+        $clasificaciones = Clasificacion::orderBy('codigo')->get(['id', 'codigo', 'nombre']);
+        $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido', 'area_id']);
+
+        // Mapa de ubicaciones usadas por area
+        $areaLocationMap = ActivoFijo::select('area_id', 'ubicacion_id')
+            ->whereNotNull('area_id')
+            ->whereNotNull('ubicacion_id')
+            ->distinct()
+            ->get()
+            ->groupBy('area_id')
+            ->map(fn($items) => $items->pluck('ubicacion_id')->unique()->values()->all())
+            ->all();
+
+        return Inertia::render('Activos/EtiquetasQr', [
+            'activos' => $activos,
+            'areas' => $areas,
+            'ubicaciones' => $ubicaciones,
+            'clasificaciones' => $clasificaciones,
+            'personal' => $personal,
+            'filters' => $filters,
+            'areaLocationMap' => $areaLocationMap,
+        ]);
+    }
+
+    /**
+     * Generar PDF con etiquetas QR para impresión
+     */
+    public function generarEtiquetasQrPdf(Request $request)
+    {
+        $filters = $request->validate([
+            'area_id' => ['nullable', 'integer'],
+            'ubicacion_id' => ['nullable', 'integer'],
+            'personal_id' => ['nullable', 'integer'],
+            'clasificacion_id' => ['nullable', 'integer'],
+            'estado' => ['nullable', 'string'],
+        ]);
+
+        $query = ActivoFijo::query()
+            ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
+            ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
+            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
+            ->select(
+                'activos_fijos.id',
+                'activos_fijos.codigo_inventario',
+                'activos_fijos.nombre_activo',
+                'areas.nombre as area',
+                'ubicaciones.nombre as ubicacion',
+                'clasificaciones.nombre as clasificacion'
+            );
+
+        if ($filters['area_id'] ?? false) {
+            $query->where('activos_fijos.area_id', $filters['area_id']);
+        }
+        if ($filters['ubicacion_id'] ?? false) {
+            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+        }
+        if ($filters['personal_id'] ?? false) {
+            $query->where('activos_fijos.personal_id', $filters['personal_id']);
+        }
+        if ($filters['clasificacion_id'] ?? false) {
+            $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
+        }
+        if ($filters['estado'] ?? false) {
+            $query->where('activos_fijos.estado', $filters['estado']);
+        }
+
+        $activos = $query->orderBy('activos_fijos.codigo_inventario')->get();
+
+        // Generar QR codes para cada activo
+        $activosConQr = $activos->map(function($activo) {
+            // Crear nuevo renderer y writer para cada QR
+            $renderer = new Svg();
+            $renderer->setHeight(100);
+            $renderer->setWidth(100);
+            $writer = new Writer($renderer);
+            
+            $qrSvg = $writer->writeString($activo->codigo_inventario);
+            $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+            
+            return [
+                'codigo' => $activo->codigo_inventario,
+                'nombre' => $activo->nombre_activo,
+                'area' => $activo->area,
+                'qr' => $qrBase64,
+            ];
+        });
+
+        $system = SystemSetting::first();
+
+        // Convertir logo a base64 para DomPDF
+        $logoPath = public_path('logo-alcaldia.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+
+        $pdf = Pdf::loadView('reportes.etiquetas-qr-pdf', [
+            'activos' => $activosConQr,
+            'system' => $system,
+            'logoBase64' => $logoBase64,
+        ]);
+
+        $pdf->setPaper('letter', 'portrait');
+
+        return $pdf->stream('etiquetas-qr.pdf', [
+            'Attachment' => true
+        ]);
     }
 }
