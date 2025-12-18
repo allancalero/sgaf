@@ -178,33 +178,13 @@ watch(() => props.activos, () => {
         <template #header>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <div class="flex items-center gap-2 text-xl font-semibold leading-tight text-gray-800">
+                    <div class="flex items-center gap-2 text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-6 6h12" />
                         </svg>
                         <span>Reportes de activos</span>
                     </div>
-                    <p class="text-sm text-gray-500">Inventario filtrable y exportaciones de trazabilidad.</p>
-                </div>
-                <div class="flex gap-2 text-sm">
-                    <a :href="route('activos.index')" class="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h18M9 3v2m6-2v2M5 9h14v10H5z" />
-                        </svg>
-                        Inventario
-                    </a>
-                    <a :href="route('activos.trazabilidad')" class="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                        Trazabilidad
-                    </a>
-                    <a :href="route('activos.etiquetas-qr')" class="inline-flex items-center gap-2 rounded-md border border-purple-200 px-3 py-2 text-purple-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                        Etiquetas QR
-                    </a>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Inventario filtrable y exportaciones.</p>
                 </div>
             </div>
         </template>

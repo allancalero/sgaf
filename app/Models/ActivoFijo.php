@@ -70,4 +70,24 @@ class ActivoFijo extends Model
     {
         return $this->belongsTo(Personal::class, 'personal_id');
     }
+
+    public function tipoActivo()
+    {
+        return $this->belongsTo(TipoActivo::class, 'tipo_activo_id');
+    }
+
+    public function fuenteFinanciamiento()
+    {
+        return $this->belongsTo(FuenteFinanciamiento::class, 'fuente_financiamiento_id');
+    }
+
+    public function proveedor()
+    {
+        return $this->belongsTo(Proveedor::class, 'proveedor_id');
+    }
+
+    public function cheque()
+    {
+        return $this->belongsTo(Cheque::class, 'cheque_id');
+    }
 }

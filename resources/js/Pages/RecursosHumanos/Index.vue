@@ -61,12 +61,13 @@ const createPersonalForm = useForm({
     email: '',
     numero_empleado: '',
     numero_cedula: '',
+    sexo: '',
     fecha_nac: '',
     edad: '',
     direccion: '',
     profesion: '',
     estado: 'ACTIVO',
-    foto: '',
+    foto: null,
 });
 
 const editPersonalForm = useForm({
@@ -80,15 +81,61 @@ const editPersonalForm = useForm({
     email: '',
     numero_empleado: '',
     numero_cedula: '',
+    sexo: '',
     fecha_nac: '',
     edad: '',
     direccion: '',
     profesion: '',
     estado: 'ACTIVO',
-    foto: '',
+    foto: null,
 });
 
 const editingPersonal = ref(false);
+const currentFoto = ref(null);
+const fotoPreview = ref(null);
+const viewingPersonal = ref(null);
+
+// File upload handlers
+const handleCreateFotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        createPersonalForm.foto = file;
+        fotoPreview.value = URL.createObjectURL(file);
+    }
+};
+
+const handleEditFotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        editPersonalForm.foto = file;
+        currentFoto.value = URL.createObjectURL(file);
+    }
+};
+
+// Auto-format cedula number (XXX-XXXXXX-XXXXX format)
+const formatCedula = (value, formField) => {
+    // Remove all non-alphanumeric characters
+    let cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    
+    // Apply format XXX-XXXXXX-XXXXX
+    let formatted = '';
+    if (cleaned.length > 0) {
+        formatted = cleaned.substring(0, 3);
+    }
+    if (cleaned.length > 3) {
+        formatted += '-' + cleaned.substring(3, 9);
+    }
+    if (cleaned.length > 9) {
+        formatted += '-' + cleaned.substring(9, 14);
+    }
+    
+    // Update the form field
+    if (formField === 'create') {
+        createPersonalForm.numero_cedula = formatted;
+    } else {
+        editPersonalForm.numero_cedula = formatted;
+    }
+};
 
 // Forms para Cargos
 const createCargoForm = useForm({
@@ -108,7 +155,11 @@ const editingCargo = ref(false);
 const submitCreatePersonal = () => {
     createPersonalForm.post(route('personal.store'), {
         preserveScroll: true,
-        onSuccess: () => createPersonalForm.reset(),
+        forceFormData: true,
+        onSuccess: () => {
+            createPersonalForm.reset();
+            fotoPreview.value = null;
+        },
     });
 };
 
@@ -124,12 +175,14 @@ const startEditPersonal = (persona) => {
     editPersonalForm.email = persona.email || '';
     editPersonalForm.numero_empleado = persona.numero_empleado || '';
     editPersonalForm.numero_cedula = persona.numero_cedula || '';
+    editPersonalForm.sexo = persona.sexo || '';
     editPersonalForm.fecha_nac = persona.fecha_nac || '';
     editPersonalForm.edad = persona.edad || '';
     editPersonalForm.direccion = persona.direccion || '';
     editPersonalForm.profesion = persona.profesion || '';
     editPersonalForm.estado = persona.estado || 'ACTIVO';
-    editPersonalForm.foto = persona.foto || '';
+    editPersonalForm.foto = null; // Reset foto for new upload
+    currentFoto.value = persona.foto || null;
 };
 
 const cancelEditPersonal = () => {
@@ -138,11 +191,14 @@ const cancelEditPersonal = () => {
 };
 
 const submitEditPersonal = () => {
-    editPersonalForm.put(route('personal.update', editPersonalForm.id), {
+    editPersonalForm.post(route('personal.update', editPersonalForm.id), {
         preserveScroll: true,
+        forceFormData: true,
+        _method: 'PUT',
         onSuccess: () => {
             editingPersonal.value = false;
             editPersonalForm.reset();
+            currentFoto.value = null;
         },
     });
 };
@@ -419,6 +475,56 @@ const deleteCargo = (id) => {
                                 </div>
 
                                 <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Número de Cédula</label>
+                                    <input
+                                        v-model="createPersonalForm.numero_cedula"
+                                        @input="formatCedula($event.target.value, 'create')"
+                                        type="text"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        maxlength="16"
+                                        placeholder="000-000000-0000X"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Sexo</label>
+                                    <select
+                                        v-model="createPersonalForm.sexo"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                    >
+                                        <option value="">Selecciona</option>
+                                        <option value="MASCULINO">Masculino</option>
+                                        <option value="FEMENINO">Femenino</option>
+                                    </select>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Dirección Domiciliar</label>
+                                    <textarea
+                                        v-model="createPersonalForm.direccion"
+                                        rows="2"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        maxlength="500"
+                                        placeholder="Dirección completa..."
+                                    ></textarea>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del Personal</label>
+                                    <div class="mt-1 flex items-center gap-4">
+                                        <div v-if="fotoPreview" class="shrink-0">
+                                            <img :src="fotoPreview" alt="Preview" class="h-16 w-16 rounded-full object-cover border-2 border-indigo-500" />
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            @change="handleCreateFotoChange"
+                                            class="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-indigo-900/50 dark:file:text-indigo-400"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label>
                                     <select
                                         v-model="createPersonalForm.estado"
@@ -483,6 +589,7 @@ const deleteCargo = (id) => {
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-900">
                                     <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Foto</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nombre</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Cargo</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Área</th>
@@ -492,6 +599,12 @@ const deleteCargo = (id) => {
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                                     <tr v-for="persona in personal.data" :key="persona.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td class="whitespace-nowrap px-6 py-4">
+                                            <img v-if="persona.foto" :src="`/storage/${persona.foto}`" :alt="persona.nombre" class="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" />
+                                            <div v-else class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm font-bold">
+                                                {{ persona.nombre?.charAt(0) }}{{ persona.apellido?.charAt(0) }}
+                                            </div>
+                                        </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                             {{ persona.nombre }} {{ persona.apellido }}
                                         </td>
@@ -511,9 +624,19 @@ const deleteCargo = (id) => {
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                             <button
+                                                @click="viewingPersonal = persona"
+                                                class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
+                                                title="Ver detalles"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button
                                                 v-if="canManage"
                                                 @click="startEditPersonal(persona)"
-                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                class="ml-3 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                                 title="Editar"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -702,6 +825,36 @@ const deleteCargo = (id) => {
                                             </select>
                                         </div>
                                         <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Número de Cédula</label>
+                                            <input v-model="editPersonalForm.numero_cedula" @input="formatCedula($event.target.value, 'edit')" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" maxlength="16" placeholder="000-000000-0000X" />
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Sexo</label>
+                                            <select v-model="editPersonalForm.sexo" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+                                                <option value="">Selecciona</option>
+                                                <option value="MASCULINO">Masculino</option>
+                                                <option value="FEMENINO">Femenino</option>
+                                            </select>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Dirección Domiciliar</label>
+                                            <textarea v-model="editPersonalForm.direccion" rows="2" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" maxlength="500" placeholder="Dirección completa..."></textarea>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del Personal</label>
+                                            <div class="mt-1 flex items-center gap-4">
+                                                <div v-if="currentFoto" class="shrink-0">
+                                                    <img :src="currentFoto.startsWith('blob:') ? currentFoto : `/storage/${currentFoto}`" alt="Foto actual" class="h-16 w-16 rounded-full object-cover border-2 border-indigo-500" />
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    @change="handleEditFotoChange"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-indigo-900/50 dark:file:text-indigo-400"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
                                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label>
                                             <select v-model="editPersonalForm.estado" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                                 <option value="ACTIVO">ACTIVO</option>
@@ -719,6 +872,61 @@ const deleteCargo = (id) => {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de Ver Personal -->
+                <div v-if="viewingPersonal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="viewingPersonal = null"></div>
+                        <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+                        <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                            <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                                <div class="flex flex-col items-center text-center">
+                                    <img v-if="viewingPersonal.foto" :src="`/storage/${viewingPersonal.foto}`" :alt="viewingPersonal.nombre" class="h-24 w-24 rounded-full object-cover border-4 border-indigo-500 shadow-lg" />
+                                    <div v-else class="h-24 w-24 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl font-bold shadow-lg">
+                                        {{ viewingPersonal.nombre?.charAt(0) }}{{ viewingPersonal.apellido?.charAt(0) }}
+                                    </div>
+                                    <h3 class="mt-4 text-xl font-bold text-gray-900 dark:text-gray-100">{{ viewingPersonal.nombre }} {{ viewingPersonal.apellido }}</h3>
+                                    <p class="text-indigo-600 dark:text-indigo-400 font-medium">{{ viewingPersonal.cargo }}</p>
+                                </div>
+                                <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Área</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.area || '—' }}</dd>
+                                    </div>
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Ubicación</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.ubicacion || '—' }}</dd>
+                                    </div>
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Cédula</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.numero_cedula || '—' }}</dd>
+                                    </div>
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Sexo</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.sexo || '—' }}</dd>
+                                    </div>
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Teléfono</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.telefono || '—' }}</dd>
+                                    </div>
+                                    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Email</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.email || '—' }}</dd>
+                                    </div>
+                                    <div class="sm:col-span-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                        <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Dirección</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ viewingPersonal.direccion || '—' }}</dd>
+                                    </div>
+                                </dl>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-3 dark:bg-gray-900 sm:flex sm:flex-row-reverse sm:px-6">
+                                <button type="button" @click="viewingPersonal = null" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600 sm:w-auto sm:text-sm">
+                                    Cerrar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

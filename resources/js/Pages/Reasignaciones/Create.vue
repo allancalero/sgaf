@@ -143,7 +143,7 @@ const removeFoto = () => {
                                 </div>
                                 <!-- Filtro por Responsable -->
                                 <div>
-                                    <label class="block text-xs font-medium text-indigo-600 dark:text-indigo-400 mb-1">Filtrar por Responsable Actual</label>
+                                    <label class="block text-xs font-medium text-indigo-600 dark:text-indigo-400 mb-1">Filtrar por Asignación Actual</label>
                                     <select v-model="filtroResponsable" class="block w-full rounded-md border-indigo-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-indigo-600 dark:bg-gray-700 dark:text-gray-100 text-sm" :disabled="!filtroArea">
                                         <option :value="null">{{ filtroArea ? 'Todos del área' : 'Selecciona un área primero' }}</option>
                                         <option v-for="persona in responsablesFiltrados" :key="persona.id" :value="persona.id">
@@ -198,7 +198,7 @@ const removeFoto = () => {
                                         <span class="ml-2 text-gray-900 dark:text-gray-100">{{ activoSeleccionado.ubicacion_actual || 'Sin asignar' }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500 dark:text-gray-400">Responsable:</span>
+                                        <span class="text-gray-500 dark:text-gray-400">Asignado a:</span>
                                         <span class="ml-2 text-gray-900 dark:text-gray-100">{{ activoSeleccionado.responsable_actual || 'Sin asignar' }}</span>
                                     </div>
                                 </div>
@@ -229,7 +229,7 @@ const removeFoto = () => {
 
                         <!-- Nuevo Responsable -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Responsable</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Asignado</label>
                             <select v-model="form.responsable_nuevo_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" :disabled="!form.area_nueva_id">
                                 <option :value="null">{{ form.area_nueva_id ? 'Sin cambios' : 'Selecciona un área primero' }}</option>
                                 <option v-for="persona in nuevoResponsableFiltrado" :key="persona.id" :value="persona.id">

@@ -18,6 +18,58 @@ const props = defineProps({
 const search = ref(props.filters.search);
 const subSearch = ref('');
 
+// Auto-format codigo inventario (adds dashes every 3 digits) - only if input is numeric
+const formatCodigoInventario = (value) => {
+    if (!value) return '';
+    
+    // Check if the input contains only digits and existing dashes (looks like a code)
+    const cleanForCheck = value.replace(/-/g, '');
+    const isNumericCode = /^\d+$/.test(cleanForCheck);
+    
+    // If it's not purely numeric, return as-is (user is searching by name)
+    if (!isNumericCode) {
+        return value;
+    }
+    
+    // Remove all non-digit characters
+    let digits = value.replace(/\D/g, '');
+    
+    // If no digits, return empty
+    if (!digits) return '';
+    
+    // Split into groups of 3
+    let groups = [];
+    for (let i = 0; i < digits.length; i += 3) {
+        groups.push(digits.substring(i, i + 3));
+    }
+    
+    // Join with dashes
+    return groups.join('-');
+};
+
+// Handle search input with auto-formatting
+const handleSearchInput = (event) => {
+    const cursorPos = event.target.selectionStart;
+    const prevValue = event.target.value;
+    const prevLength = prevValue.length;
+    
+    // Format the value
+    search.value = formatCodigoInventario(prevValue);
+    
+    // Adjust cursor position after formatting
+    const newLength = search.value.length;
+    const diff = newLength - prevLength;
+    
+    // Set cursor position after Vue updates the DOM
+    setTimeout(() => {
+        const newPos = Math.max(0, cursorPos + diff);
+        event.target.setSelectionRange(newPos, newPos);
+    }, 0);
+    
+    // Trigger search
+    handleSearch();
+};
+
 // Búsqueda en tiempo real con debounce
 let timeout;
 const handleSearch = () => {
@@ -76,10 +128,10 @@ const formatDate = (dateString) => {
                             </div>
                             <input
                                 v-model="search"
-                                @input="handleSearch"
+                                @input="handleSearchInput"
                                 type="text"
                                 class="block w-full rounded-2xl border-gray-300 bg-white py-4 pl-12 pr-4 text-lg shadow-lg focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                                placeholder="Búsqueda global (Servidor)..."
+                                placeholder="Código, nombre de activo o responsable..."
                                 autofocus
                             />
                         </div>

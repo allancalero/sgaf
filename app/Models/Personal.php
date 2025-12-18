@@ -21,6 +21,7 @@ class Personal extends Model
         'email',
         'numero_empleado',
         'numero_cedula',
+        'sexo',
         'fecha_nac',
         'edad',
         'direccion',

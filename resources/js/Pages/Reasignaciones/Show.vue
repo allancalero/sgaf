@@ -71,7 +71,7 @@ const props = defineProps({
                                             <td class="px-6 py-4 text-sm text-green-600 dark:text-green-400">{{ reasignacion.ubicacion_nueva?.nombre || 'Sin asignar' }}</td>
                                         </tr>
                                         <tr>
-                                            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">Responsable</td>
+                                            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">Asignado a:</td>
                                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                                 {{ reasignacion.responsable_anterior ? `${reasignacion.responsable_anterior.nombre} ${reasignacion.responsable_anterior.apellido}` : 'Sin asignar' }}
                                             </td>

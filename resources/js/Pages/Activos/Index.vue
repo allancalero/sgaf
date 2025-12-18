@@ -17,6 +17,7 @@ const props = defineProps({
     cheques: { type: Array, default: () => [] },
     totalActivos: { type: Number, default: 0 },
     areaLocationMap: { type: Object, default: () => ({}) },
+    lastCodigoByClasificacion: { type: Object, default: () => ({}) },
 });
 
 const page = usePage();
@@ -157,10 +158,28 @@ const filteredPersonalForEdit = computed(() => {
 const buildCodigoInventario = (clasificacionId) => {
     const cls = clasificacionById.value[clasificacionId];
     if (!cls?.codigo) return '';
+    
+    // Check if there's a last codigo for this classification
+    const lastCodigo = props.lastCodigoByClasificacion[clasificacionId];
+    
+    if (lastCodigo) {
+        // Increment the last numeric part of the existing code
+        const match = lastCodigo.match(/^(.*?)(\d+)$/);
+        if (match) {
+            const prefix = match[1];
+            let number = parseInt(match[2], 10) + 1;
+            const digitLength = match[2].length;
+            const newNumber = String(number).padStart(digitLength, '0');
+            return prefix + newNumber;
+        }
+        return lastCodigo; // Fallback: return last code as-is
+    }
+    
+    // Default template if no previous code exists
     const parts = cls.codigo.replace(/\s+/g, '-').split('-').filter(Boolean);
     const prefix = parts.slice(0, 3);
     if (!prefix.length) return '';
-    return `${prefix.join('-')}-000-000-000`;
+    return `${prefix.join('-')}-000-000-001`;
 };
 
 const activosFiltrados = computed(() => {
@@ -374,6 +393,51 @@ const onEditCodigoInput = () => {
     editCodigoTouched.value = true;
 };
 
+// Function to adjust the last numeric part of a codigo based on arrow keys
+const adjustCodigoDigits = (codigo, direction) => {
+    if (!codigo) return codigo;
+    
+    // Find the last sequence of digits in the code
+    const match = codigo.match(/^(.*?)(\d+)$/);
+    if (!match) return codigo;
+    
+    const prefix = match[1];
+    let number = parseInt(match[2], 10);
+    const digitLength = match[2].length;
+    
+    // Increment or decrement
+    number += direction;
+    if (number < 0) number = 0;
+    
+    // Pad with zeros to maintain the same length
+    const newNumber = String(number).padStart(digitLength, '0');
+    return prefix + newNumber;
+};
+
+const handleCreateCodigoKeydown = (event) => {
+    if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        createForm.codigo_inventario = adjustCodigoDigits(createForm.codigo_inventario, 1);
+        createCodigoTouched.value = true;
+    } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        createForm.codigo_inventario = adjustCodigoDigits(createForm.codigo_inventario, -1);
+        createCodigoTouched.value = true;
+    }
+};
+
+const handleEditCodigoKeydown = (event) => {
+    if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        editForm.codigo_inventario = adjustCodigoDigits(editForm.codigo_inventario, 1);
+        editCodigoTouched.value = true;
+    } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        editForm.codigo_inventario = adjustCodigoDigits(editForm.codigo_inventario, -1);
+        editCodigoTouched.value = true;
+    }
+};
+
 watch(
     () => createForm.clasificacion_id,
     (id) => {
@@ -454,35 +518,6 @@ watch(() => editForm.area_id, (newVal) => {
                     <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">Activos fijos</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Alta, control y consulta del inventario físico.</p>
                 </div>
-                <div class="flex gap-3 text-sm">
-                    <a
-                        :href="route('activos.trazabilidad')"
-                        class="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-gray-600 dark:text-gray-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h4m0 0h14M7 7v14m14-14v10m0 0h-4m4 0H7m0 0V7" />
-                        </svg>
-                        Trazabilidad
-                    </a>
-                    <a
-                        :href="route('activos.reportes')"
-                        class="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-gray-600 dark:text-gray-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-6 6h12" />
-                        </svg>
-                        Reportes
-                    </a>
-                    <a
-                        :href="route('activos.resumen')"
-                        class="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-gray-600 dark:text-gray-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16M4 12l4-4m-4 4l4 4" />
-                        </svg>
-                        Resumen
-                    </a>
-                </div>
             </div>
         </template>
 
@@ -510,7 +545,7 @@ watch(() => editForm.area_id, (newVal) => {
                                 <select v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                     <option value="" disabled>Selecciona clasificación</option>
                                     <option v-for="clas in props.clasificaciones" :key="clas.id" :value="clas.id">
-                                        {{ String(clas.id).padStart(3, '0') }} - {{ clas.nombre }}
+                                        {{ String(clas.id).padStart(2, '0') }} - {{ clas.nombre }}
                                     </option>
                                 </select>
                                 <p v-if="createForm.errors.clasificacion_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.clasificacion_id }}</p>
@@ -524,7 +559,10 @@ watch(() => editForm.area_id, (newVal) => {
                                     required
                                     maxlength="50"
                                     @input="onCreateCodigoInput"
+                                    @keydown="handleCreateCodigoKeydown"
+                                    title="Usa ↑ o ↓ para incrementar/decrementar"
                                 />
+                                <p class="mt-1 text-xs text-gray-400">Usa ↑ ↓ para ajustar</p>
                                 <p v-if="createForm.errors.codigo_inventario" class="mt-1 text-sm text-red-600">{{ createForm.errors.codigo_inventario }}</p>
                             </div>
                         </div>
@@ -588,7 +626,7 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="createForm.errors.proveedor_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.proveedor_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Responsable</label>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Asignado a:</label>
                                 <select v-model="createForm.personal_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                                     <option value="">(Opcional)</option>
                                     <option v-for="per in filteredPersonalForCreate" :key="per.id" :value="per.id">{{ per.nombre }} {{ per.apellido }}</option>
@@ -772,9 +810,9 @@ watch(() => editForm.area_id, (newVal) => {
                                 </select>
                             </div>
                             <div>
-                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Responsable</label>
+                                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Asignado a:</label>
                                 <select v-model="filtroResponsable" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
-                                    <option value="">Todos los responsables</option>
+                                    <option value="">Todos</option>
                                     <option v-if="filtroArea && filteredPersonalByArea.length === 0" disabled>-- No hay personal en esta área --</option>
                                     <option v-for="per in filteredPersonalByArea" :key="per.id" :value="per.id">{{ per.nombre }} {{ per.apellido }}</option>
                                 </select>
@@ -813,7 +851,7 @@ watch(() => editForm.area_id, (newVal) => {
                                     <th class="px-4 py-3">Clasificación</th>
                                     <th class="px-4 py-3">Área</th>
                                     <th class="px-4 py-3">Ubicación</th>
-                                    <th class="px-4 py-3">Responsable</th>
+                                    <th class="px-4 py-3">Asignado a:</th>
                                     <th class="px-4 py-3"># Cheque</th>
                                     <th class="px-4 py-3">Estado</th>
                                     <th class="px-4 py-3">Costo</th>
@@ -943,7 +981,7 @@ watch(() => editForm.area_id, (newVal) => {
                                 <select v-model="editForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                     <option value="" disabled>Selecciona clasificación</option>
                                     <option v-for="clas in props.clasificaciones" :key="clas.id" :value="clas.id">
-                                        {{ String(clas.id).padStart(3, '0') }} - {{ clas.nombre }}
+                                        {{ String(clas.id).padStart(2, '0') }} - {{ clas.nombre }}
                                     </option>
                                 </select>
                                 <p v-if="editForm.errors.clasificacion_id" class="mt-1 text-sm text-red-600">{{ editForm.errors.clasificacion_id }}</p>
@@ -957,7 +995,10 @@ watch(() => editForm.area_id, (newVal) => {
                                     required
                                     maxlength="50"
                                     @input="onEditCodigoInput"
+                                    @keydown="handleEditCodigoKeydown"
+                                    title="Usa ↑ o ↓ para incrementar/decrementar"
                                 />
+                                <p class="mt-1 text-xs text-gray-400">Usa ↑ ↓ para ajustar</p>
                                 <p v-if="editForm.errors.codigo_inventario" class="mt-1 text-sm text-red-600">{{ editForm.errors.codigo_inventario }}</p>
                             </div>
                             <div>
@@ -1015,7 +1056,7 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="editForm.errors.proveedor_id" class="mt-1 text-sm text-red-600">{{ editForm.errors.proveedor_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Responsable</label>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Asignado a:</label>
                                 <select v-model="editForm.personal_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                                     <option value="">(Opcional)</option>
                                     <option v-for="per in filteredPersonalForEdit" :key="per.id" :value="per.id">{{ per.nombre }} {{ per.apellido }}</option>

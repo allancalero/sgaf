@@ -23,12 +23,13 @@ class UpdatePersonalRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255'],
             'numero_empleado' => ['nullable', 'string', 'max:50'],
             'numero_cedula' => ['nullable', 'string', 'max:50'],
+            'sexo' => ['nullable', 'string', 'max:20'],
             'fecha_nac' => ['nullable', 'date'],
             'edad' => ['nullable', 'integer', 'min:0'],
-            'direccion' => ['nullable', 'string', 'max:255'],
+            'direccion' => ['nullable', 'string', 'max:500'],
             'profesion' => ['nullable', 'string', 'max:100'],
             'estado' => ['required', 'string', 'max:20'],
-            'foto' => ['nullable', 'string', 'max:255'],
+            'foto' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

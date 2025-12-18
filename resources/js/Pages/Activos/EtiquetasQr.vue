@@ -146,7 +146,7 @@ const urlPdf = computed(() => route('activos.etiquetas-qr.pdf', filtros.data()))
                             <label class="text-xs font-semibold text-gray-700">Área</label>
                             <select v-model="filtros.area_id" class="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm focus:border-purple-500 focus:ring-purple-500">
                                 <option value="">Todas</option>
-                                <option v-for="area in areas" :key="area.id" :value="area.id">{{ area.nombre }}</option>
+                                <option v-for="area in areas" :key="area.id" :value="area.id">{{ String(area.id).padStart(2, '0') }} - {{ area.nombre }}</option>
                             </select>
                         </div>
                         <div>

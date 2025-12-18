@@ -107,14 +107,6 @@ onMounted(() => {
                                     <span>Activos</span>
                                 </span>
                             </NavLink>
-                            <NavLink v-if="can('activos.view')" :href="route('activos.busqueda')" :active="route().current('activos.busqueda')">
-                                <span class="inline-flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <span>Búsqueda Rápida</span>
-                                </span>
-                            </NavLink>
                             <NavLink v-if="can('catalogos.manage')" :href="route('activos-fijo-vista.index')" :active="route().current('activos-fijo-vista.index')">
                                 <span class="inline-flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 dark:text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -146,6 +138,22 @@ onMounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                     </svg>
                                     <span>Depreciación</span>
+                                </span>
+                            </NavLink>
+                            <NavLink v-if="can('activos.view')" :href="route('activos.trazabilidad')" :active="route().current('activos.trazabilidad')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    <span>Trazabilidad</span>
+                                </span>
+                            </NavLink>
+                            <NavLink v-if="can('activos.view')" :href="route('activos.etiquetas-qr')" :active="route().current('activos.etiquetas-qr')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-violet-600 dark:text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                    </svg>
+                                    <span>Etiquetas QR</span>
                                 </span>
                             </NavLink>
                         </div>
@@ -291,24 +299,17 @@ onMounted(() => {
                             </button>
                         </div>
                         <div class="flex items-center gap-3">
-                            <!-- Quick Search (Restaurado) -->
-                            <div class="hidden md:flex relative items-center group">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 group-focus-within:text-indigo-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                    </svg>
-                                </div>
-                                <input 
-                                    @keyup.enter="$inertia.visit(route('activos.busqueda', { search: $event.target.value }))"
-                                    type="text" 
-                                    class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500 transition-all duration-300 w-64 focus:w-80" 
-                                    placeholder="Buscar activo (Enter)..." 
-                                >
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <span class="text-xs text-gray-400 border border-gray-300 rounded px-1.5 dark:border-gray-600">Enter</span>
-                                </div>
-                            </div>
-
+                            <!-- Búsqueda Rápida Button -->
+                            <Link
+                                v-if="can('activos.view')"
+                                :href="route('activos.busqueda')"
+                                class="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-indigo-100 hover:border-indigo-300 dark:border-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-900/70 dark:hover:border-indigo-500"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <span class="hidden sm:inline">Búsqueda Rápida</span>
+                            </Link>
                             <button
                                 type="button"
                                 class="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-indigo-400"

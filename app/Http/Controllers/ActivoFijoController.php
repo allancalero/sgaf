@@ -101,6 +101,16 @@ class ActivoFijoController extends Controller
             ->map(fn($items) => $items->pluck('ubicacion_id')->unique()->values()->all())
             ->all();
 
+        // Get last codigo_inventario for each clasificacion to suggest next code
+        $lastCodigoByClasificacion = ActivoFijo::query()
+            ->select('clasificacion_id', 'codigo_inventario')
+            ->whereNotNull('clasificacion_id')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('clasificacion_id')
+            ->pluck('codigo_inventario', 'clasificacion_id')
+            ->all();
+
         return Inertia::render('Activos/Index', [
             'activos' => $activos,
             'totalActivos' => $totalActivos,
@@ -113,6 +123,7 @@ class ActivoFijoController extends Controller
             'personal' => $personal,
             'cheques' => $cheques,
             'areaLocationMap' => $areaLocationMap,
+            'lastCodigoByClasificacion' => $lastCodigoByClasificacion,
         ]);
     }
 
@@ -168,13 +179,21 @@ class ActivoFijoController extends Controller
     {
         // Get activo_id from query parameter
         $activoId = request()->query('activo_id');
+        $search = request()->query('search');
         
-        $activos = ActivoFijo::query()
+        // Build query with pagination
+        $query = ActivoFijo::query()
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
             ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
-            ->when($activoId, function ($query, $activoId) {
-                return $query->where('activos_fijos.id', $activoId);
+            ->when($activoId, function ($q, $activoId) {
+                return $q->where('activos_fijos.id', $activoId);
+            })
+            ->when($search, function ($q, $search) {
+                return $q->where(function ($query) use ($search) {
+                    $query->where('activos_fijos.codigo_inventario', 'like', "%{$search}%")
+                          ->orWhere('activos_fijos.nombre_activo', 'like', "%{$search}%");
+                });
             })
             ->select(
                 'activos_fijos.id',
@@ -186,67 +205,72 @@ class ActivoFijoController extends Controller
                 'ubicaciones.nombre as ubicacion',
                 DB::raw("CONCAT_WS(' ', personal.nombre, personal.apellido) as responsable"),
             )
-            ->orderBy('activos_fijos.codigo_inventario')
-            ->get();
+            ->orderBy('activos_fijos.codigo_inventario');
+
+        // Paginate results (20 per page for better performance)
+        $activosPaginados = $query->paginate(20)->withQueryString();
+        $activoIds = $activosPaginados->pluck('id')->toArray();
 
         $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido']);
 
-        $historial = DB::table('historial_asignaciones as h')
-            ->join('activos_fijos as a', 'h.activo_id', '=', 'a.id')
-            ->leftJoin('personal as anterior', 'h.asignacion_anterior_id', '=', 'anterior.id')
-            ->join('personal as nuevo', 'h.asignacion_nuevo_id', '=', 'nuevo.id')
-            ->leftJoin('areas as area_anterior', 'anterior.area_id', '=', 'area_anterior.id')
-            ->leftJoin('areas as area_nuevo', 'nuevo.area_id', '=', 'area_nuevo.id')
-            ->when($activoId, function ($query, $activoId) {
-                return $query->where('h.activo_id', $activoId);
-            })
-            ->select(
-                'h.id',
-                'h.activo_id',
-                'h.fecha_asignacion',
-                'h.motivo',
-                DB::raw("CONCAT_WS(' ', anterior.nombre, anterior.apellido) as anterior_nombre"),
-                DB::raw("CONCAT_WS(' ', nuevo.nombre, nuevo.apellido) as nuevo_nombre"),
-                'area_anterior.nombre as area_anterior',
-                'area_nuevo.nombre as area_nuevo',
-            )
-            ->orderByDesc('h.fecha_asignacion')
-            ->orderByDesc('h.id')
-            ->get()
-            ->groupBy('activo_id');
+        // Only load historial for paginated activos
+        $historial = collect();
+        $reasignaciones = collect();
         
-        // Get reasignaciones
-        $reasignaciones = DB::table('reasignaciones as r')
-            ->join('activos_fijos as a', 'r.activo_id', '=', 'a.id')
-            ->leftJoin('ubicaciones as ub_ant', 'r.ubicacion_anterior_id', '=', 'ub_ant.id')
-            ->leftJoin('ubicaciones as ub_nue', 'r.ubicacion_nueva_id', '=', 'ub_nue.id')
-            ->leftJoin('personal as p_ant', 'r.responsable_anterior_id', '=', 'p_ant.id')
-            ->leftJoin('personal as p_nue', 'r.responsable_nuevo_id', '=', 'p_nue.id')
-            ->when($activoId, function ($query, $activoId) {
-                return $query->where('r.activo_id', $activoId);
-            })
-            ->select(
-                'r.id',
-                'r.activo_id',
-                'r.fecha_reasignacion as fecha_asignacion',
-                'r.motivo',
-                DB::raw("CONCAT_WS(' ', p_ant.nombre, p_ant.apellido) as anterior_nombre"),
-                DB::raw("CONCAT_WS(' ', p_nue.nombre, p_nue.apellido) as nuevo_nombre"),
-                'ub_ant.nombre as ubicacion_anterior',
-                'ub_nue.nombre as ubicacion_nueva',
-            )
-            ->orderByDesc('r.fecha_reasignacion')
-            ->orderByDesc('r.id')
-            ->get()
-            ->groupBy('activo_id');
+        if (!empty($activoIds)) {
+            $historial = DB::table('historial_asignaciones as h')
+                ->join('activos_fijos as a', 'h.activo_id', '=', 'a.id')
+                ->leftJoin('personal as anterior', 'h.asignacion_anterior_id', '=', 'anterior.id')
+                ->leftJoin('personal as nuevo', 'h.asignacion_nuevo_id', '=', 'nuevo.id')
+                ->leftJoin('areas as area_anterior', 'anterior.area_id', '=', 'area_anterior.id')
+                ->leftJoin('areas as area_nuevo', 'nuevo.area_id', '=', 'area_nuevo.id')
+                ->whereIn('h.activo_id', $activoIds)
+                ->select(
+                    'h.id',
+                    'h.activo_id',
+                    'h.fecha_asignacion',
+                    'h.motivo',
+                    DB::raw("CONCAT_WS(' ', anterior.nombre, anterior.apellido) as anterior_nombre"),
+                    DB::raw("CONCAT_WS(' ', nuevo.nombre, nuevo.apellido) as nuevo_nombre"),
+                    'area_anterior.nombre as area_anterior',
+                    'area_nuevo.nombre as area_nuevo',
+                )
+                ->orderByDesc('h.fecha_asignacion')
+                ->orderByDesc('h.id')
+                ->get()
+                ->groupBy('activo_id');
 
-        $activosConHistorial = $activos->map(function ($activo) use ($historial, $reasignaciones) {
+            $reasignaciones = DB::table('reasignaciones as r')
+                ->join('activos_fijos as a', 'r.activo_id', '=', 'a.id')
+                ->leftJoin('ubicaciones as ub_ant', 'r.ubicacion_anterior_id', '=', 'ub_ant.id')
+                ->leftJoin('ubicaciones as ub_nue', 'r.ubicacion_nueva_id', '=', 'ub_nue.id')
+                ->leftJoin('personal as p_ant', 'r.responsable_anterior_id', '=', 'p_ant.id')
+                ->leftJoin('personal as p_nue', 'r.responsable_nuevo_id', '=', 'p_nue.id')
+                ->whereIn('r.activo_id', $activoIds)
+                ->select(
+                    'r.id',
+                    'r.activo_id',
+                    'r.fecha_reasignacion as fecha_asignacion',
+                    'r.motivo',
+                    DB::raw("CONCAT_WS(' ', p_ant.nombre, p_ant.apellido) as anterior_nombre"),
+                    DB::raw("CONCAT_WS(' ', p_nue.nombre, p_nue.apellido) as nuevo_nombre"),
+                    'ub_ant.nombre as ubicacion_anterior',
+                    'ub_nue.nombre as ubicacion_nueva',
+                )
+                ->orderByDesc('r.fecha_reasignacion')
+                ->orderByDesc('r.id')
+                ->get()
+                ->groupBy('activo_id');
+        }
+
+        $activosConHistorial = $activosPaginados->through(function ($activo) use ($historial, $reasignaciones) {
             $movimientosHistorial = $historial->get($activo->id, collect());
             $movimientosReasignaciones = $reasignaciones->get($activo->id, collect());
             
-            // Combine and sort by date
+            // Combine and sort by date (limit to last 10 movements for performance)
             $todosMovimientos = $movimientosHistorial->concat($movimientosReasignaciones)
-                ->sortByDesc('fecha_asignacion');
+                ->sortByDesc('fecha_asignacion')
+                ->take(10);
 
             return [
                 'id' => $activo->id,
@@ -274,6 +298,10 @@ class ActivoFijoController extends Controller
         return Inertia::render('Activos/Trazabilidad', [
             'activos' => $activosConHistorial,
             'personal' => $personal,
+            'filters' => [
+                'search' => $search,
+                'activo_id' => $activoId,
+            ],
         ]);
     }
 
@@ -816,12 +844,17 @@ class ActivoFijoController extends Controller
 
         $pdf->setPaper('letter', 'portrait');
 
-        // Sanitize filename to avoid issues with special characters
+    // Sanitize filename to avoid issues with special characters
     $safeCode = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '-', $activo->codigo_inventario);
     $filename = "acta-asignacion-{$safeCode}.pdf";
     
+    // Limpiar cualquier salida previa para evitar errores en el PDF
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    
     return $pdf->stream($filename, [
-        'Attachment' => true  // Force download instead of inline display
+        'Attachment' => false  // Cambiado a false para ver si el navegador lo renderiza mejor inline primero
     ]);
     }
 

@@ -19,7 +19,7 @@ class StoreActivoFijoRequest extends FormRequest
                 'string', 
                 'max:50', 
                 'unique:activos_fijos,codigo_inventario',
-                'regex:/^\d{3}-\d{3}-\d{3}-\d{3}$/'
+                'regex:/^[\d]{1,3}(-[\d]{1,3}){2,5}$/'
             ],
             'nombre_activo' => ['required', 'string', 'max:255'],
             'marca' => ['nullable', 'string', 'max:255'],
@@ -49,7 +49,7 @@ class StoreActivoFijoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'codigo_inventario.regex' => 'El formato debe ser 000-000-000-000',
+            'codigo_inventario.regex' => 'El formato debe ser grupos de dígitos separados por guiones (ej: 001-002-003 o 123-002-007-000-067)',
             'codigo_inventario.unique' => 'El código ya existe',
         ];
     }
