@@ -416,5 +416,143 @@ const deleteResponsable = (id) => { if (confirm('¿Eliminar responsable?')) rout
                 </div>
             </div>
         </div>
+
+        <!-- Modal Editar Proveedor -->
+        <div v-if="editingProveedor" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditProveedor"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditProveedor">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Proveedor</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label><input v-model="editProveedorForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">RUC</label><input v-model="editProveedorForm.ruc" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Teléfono</label><input v-model="editProveedorForm.telefono" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" /></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editProveedorForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditProveedor" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Cheque -->
+        <div v-if="editingCheque" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditCheque"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditCheque">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Cheque</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label><input v-model="editChequeForm.numero_cheque" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Banco *</label><input v-model="editChequeForm.banco" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Monto *</label><input v-model="editChequeForm.monto_total" type="number" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label><select v-model="editChequeForm.estado" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required><option value="PENDIENTE">PENDIENTE</option><option value="COBRADO">COBRADO</option><option value="ANULADO">ANULADO</option></select></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editChequeForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditCheque" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Fuente -->
+        <div v-if="editingFuente" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditFuente"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditFuente">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Fuente de Financiamiento</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label><input v-model="editFuenteForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label><select v-model="editFuenteForm.estado" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required><option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option></select></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editFuenteForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditFuente" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Clasificación -->
+        <div v-if="editingClasificacion" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditClasificacion"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditClasificacion">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Clasificación</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label><input v-model="editClasificacionForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editClasificacionForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditClasificacion" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Tipo -->
+        <div v-if="editingTipo" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditTipo"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditTipo">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Tipo de Activo</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label><input v-model="editTipoForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editTipoForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditTipo" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Responsable -->
+        <div v-if="editingResponsable" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" @click="cancelEditResponsable"></div>
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle">&#8203;</span>
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                    <form @submit.prevent="submitEditResponsable">
+                        <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Editar Responsable</h3>
+                            <div class="mt-4 space-y-4">
+                                <div><label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label><input v-model="editResponsableForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required /></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 dark:bg-gray-700 sm:flex sm:flex-row-reverse sm:px-6">
+                            <button type="submit" :disabled="editResponsableForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Guardar</button>
+                            <button type="button" @click="cancelEditResponsable" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-600 dark:text-gray-100 dark:ring-gray-500 sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>

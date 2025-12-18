@@ -331,16 +331,11 @@ const startEdit = (activo) => {
 const submitEdit = () => {
     if (!selectedActivo.value) return;
     
-    const formData = new FormData();
-    Object.keys(editForm.data()).forEach(key => {
-        if (editForm[key] !== null && editForm[key] !== '' && editForm[key] !== undefined) {
-            formData.append(key, editForm[key]);
-        }
-    });
-    formData.append('_method', 'PUT');
-    
-    editForm.post(route('activos.update', selectedActivo.value.id), {
-        data: formData,
+    // Add _method to the form for Laravel's method spoofing
+    editForm.transform((data) => ({
+        ...data,
+        _method: 'PUT',
+    })).post(route('activos.update', selectedActivo.value.id), {
         forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
@@ -959,15 +954,26 @@ watch(() => editForm.area_id, (newVal) => {
                     />
                 </div>
 
-                <div v-if="showEditPanel" class="rounded-2xl border border-indigo-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex flex-wrap items-start justify-between gap-3 border-b border-indigo-50 px-6 py-4 dark:border-gray-700">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-indigo-500 dark:text-indigo-400">Edición</p>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Editar activo</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Actualiza los datos del activo seleccionado.</p>
-                        </div>
-                        <button type="button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" @click="closeEditPanel">Cerrar</button>
-                    </div>
+                <!-- Modal de Edición -->
+                <div v-if="showEditPanel" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                        <!-- Backdrop -->
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" aria-hidden="true" @click="closeEditPanel"></div>
+                        <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+                        <!-- Modal Content -->
+                        <div class="inline-block transform overflow-hidden rounded-2xl bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle">
+                            <div class="flex flex-wrap items-start justify-between gap-3 border-b border-indigo-50 px-6 py-4 dark:border-gray-700">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-500 dark:text-indigo-400">Edición</p>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Editar activo</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Actualiza los datos del activo seleccionado.</p>
+                                </div>
+                                <button type="button" class="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200" @click="closeEditPanel">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
 
                     <form class="space-y-6 p-6" @submit.prevent="submitEdit">
                         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1193,6 +1199,8 @@ watch(() => editForm.area_id, (newVal) => {
                             </button>
                         </div>
                     </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
