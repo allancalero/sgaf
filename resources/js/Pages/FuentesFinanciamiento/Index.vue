@@ -1,14 +1,20 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Pagination from '@/Components/Pagination.vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     fuentes: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
 });
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
@@ -50,7 +56,20 @@ const submitEdit = () => {
 };
 
 const destroyFuente = (id) => {
-    router.delete(route('fuentes.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('fuentes.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -134,7 +153,7 @@ const destroyFuente = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="fuente in props.fuentes"
+                                    v-for="fuente in props.fuentes.data"
                                     :key="fuente.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -152,6 +171,7 @@ const destroyFuente = (id) => {
                                     </td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(fuente)"
@@ -162,6 +182,7 @@ const destroyFuente = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyFuente(fuente.id)"
@@ -173,7 +194,7 @@ const destroyFuente = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.fuentes.length">
+                                <tr v-if="!props.fuentes.data.length">
                                     <td colspan="4" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -181,6 +202,14 @@ const destroyFuente = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="fuentes.links" 
+                        :from="fuentes.from" 
+                        :to="fuentes.to" 
+                        :total="fuentes.total" 
+                    />
                 </div>
             </div>
         </div>

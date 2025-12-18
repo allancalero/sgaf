@@ -16,7 +16,7 @@ class ChequeController extends Controller
     {
         $cheques = Cheque::with(['areaSolicitante:id,nombre', 'usuarioEmisor:id,nombre,apellido'])
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(10);
 
         $areas = Area::where('estado', 'ACTIVO')
             ->orderBy('nombre')

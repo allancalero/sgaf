@@ -194,11 +194,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:activos.view')
         ->name('activos.acta-asignacion');
 
+    // Búsqueda Rápida
+    Route::get('/activos/busqueda', [ActivoFijoController::class, 'busqueda'])
+        ->middleware('permission:activos.view')
+        ->name('activos.busqueda');
+
     Route::get('/activos', [ActivoFijoController::class, 'index'])->middleware('permission:activos.view')->name('activos.index');
     Route::post('/activos', [ActivoFijoController::class, 'store'])->middleware(['permission:activos.manage', 'audit:activos.store'])->name('activos.store');
     Route::put('/activos/{activo}', [ActivoFijoController::class, 'update'])->middleware(['permission:activos.manage', 'audit:activos.update'])->name('activos.update');
     Route::delete('/activos/{activo}', [ActivoFijoController::class, 'destroy'])->middleware(['permission:activos.manage', 'audit:activos.destroy'])->name('activos.destroy');
     Route::get('/activos/{activo}/qr', [ActivoFijoController::class, 'qr'])->middleware('permission:activos.view')->name('activos.qr');
+    Route::get('/activos/{activo}', [ActivoFijoController::class, 'show'])->middleware('permission:activos.view')->name('activos.show');
 });
 
 Route::middleware('auth')->group(function () {

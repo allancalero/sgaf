@@ -1,12 +1,18 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import Pagination from '@/Components/Pagination.vue';
+import Swal from 'sweetalert2';
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const props = defineProps({
     cheques: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
     areas: {
         type: Array,
@@ -105,9 +111,20 @@ const submitEdit = () => {
 };
 
 const destroyCheque = (id) => {
-    if (confirm('¿Estás seguro de eliminar este cheque?')) {
-        router.delete(route('cheques.destroy', id));
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('cheques.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -305,7 +322,7 @@ const destroyCheque = (id) => {
                     <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">Listado de Cheques</h3>
-                            <p class="text-sm text-gray-500">Total: {{ cheques.length }} cheques registrados</p>
+                            <p class="text-sm text-gray-500">Total: {{ cheques.total || 0 }} cheques registrados</p>
                         </div>
                     </div>
                     <div class="max-h-[600px] overflow-auto">
@@ -325,7 +342,7 @@ const destroyCheque = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="cheque in cheques"
+                                    v-for="cheque in cheques.data"
                                     :key="cheque.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -343,6 +360,7 @@ const destroyCheque = (id) => {
                                     <td class="px-4 py-3 text-gray-700">{{ cheque.area_solicitante?.nombre || '-' }}</td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(cheque)"
@@ -353,6 +371,7 @@ const destroyCheque = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyCheque(cheque.id)"
@@ -364,7 +383,7 @@ const destroyCheque = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!cheques.length">
+                                <tr v-if="!cheques.data.length">
                                     <td colspan="9" class="px-4 py-8 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -372,6 +391,14 @@ const destroyCheque = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="cheques.links" 
+                        :from="cheques.from" 
+                        :to="cheques.to" 
+                        :total="cheques.total" 
+                    />
                 </div>
             </div>
         </div>

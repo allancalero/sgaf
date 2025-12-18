@@ -1,14 +1,19 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     ubicaciones: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
 });
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
@@ -50,7 +55,20 @@ const submitEdit = () => {
 };
 
 const destroyUbicacion = (id) => {
-    router.delete(route('ubicaciones.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('ubicaciones.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -134,7 +152,7 @@ const destroyUbicacion = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="ubicacion in props.ubicaciones"
+                                    v-for="ubicacion in props.ubicaciones.data"
                                     :key="ubicacion.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -152,6 +170,7 @@ const destroyUbicacion = (id) => {
                                     </td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(ubicacion)"
@@ -162,6 +181,7 @@ const destroyUbicacion = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyUbicacion(ubicacion.id)"
@@ -173,13 +193,39 @@ const destroyUbicacion = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.ubicaciones.length">
+                                <tr v-if="!props.ubicaciones.data.length">
                                     <td colspan="4" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <div v-if="props.ubicaciones.links && props.ubicaciones.links.length > 3" class="border-t border-gray-100 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                Mostrando {{ props.ubicaciones.from }} a {{ props.ubicaciones.to }} de {{ props.ubicaciones.total }} registros
+                            </div>
+                            <div class="flex gap-1">
+                                <Link
+                                    v-for="(link, index) in props.ubicaciones.links"
+                                    :key="index"
+                                    :href="link.url || '#'"
+                                    :class="[
+                                        'px-3 py-1.5 text-sm border rounded-md transition',
+                                        link.active
+                                            ? 'bg-indigo-600 text-white border-indigo-600'
+                                            : link.url
+                                            ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                    ]"
+                                    v-html="link.label"
+                                    :preserve-scroll="true"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,15 +1,24 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import Pagination from '@/Components/Pagination.vue';
+import Swal from 'sweetalert2';
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const props = defineProps({
     personal: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
     cargos: {
+        type: Object,
+        default: () => ({ data: [] }),
+    },
+    todosLosCargos: {
         type: Array,
         default: () => [],
     },
@@ -21,6 +30,21 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    filters: {
+        type: Object,
+        default: () => ({}),
+    },
+});
+
+const search = ref(props.filters?.search || '');
+const filtroArea = ref(props.filters?.area_id || '');
+
+watch([search, filtroArea], ([newSearch, newArea]) => {
+    router.get(
+        route('recursos-humanos.index'),
+        { search: newSearch, area_id: newArea },
+        { preserveState: true, preserveScroll: true, replace: true }
+    );
 });
 
 // Tab activo
@@ -124,11 +148,22 @@ const submitEditPersonal = () => {
 };
 
 const deletePersonal = (id) => {
-    if (confirm('¿Estás seguro de eliminar este registro?')) {
-        router.delete(route('personal.destroy', id), {
-            preserveScroll: true,
-        });
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('personal.destroy', id), {
+                preserveScroll: true,
+            });
+        }
+    });
 };
 
 // Funciones Cargos
@@ -162,11 +197,22 @@ const submitEditCargo = () => {
 };
 
 const deleteCargo = (id) => {
-    if (confirm('¿Estás seguro de eliminar este cargo?')) {
-        router.delete(route('cargos.destroy', id), {
-            preserveScroll: true,
-        });
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('cargos.destroy', id), {
+                preserveScroll: true,
+            });
+        }
+    });
 };
 </script>
 
@@ -223,7 +269,7 @@ const deleteCargo = (id) => {
                                     'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                                 ]"
                             >
-                                {{ personal.length }}
+                                {{ personal.total || 0 }}
                             </span>
                         </button>
 
@@ -258,7 +304,7 @@ const deleteCargo = (id) => {
                                     'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                                 ]"
                             >
-                                {{ cargos.length }}
+                                {{ cargos.total || 0 }}
                             </span>
                         </button>
                     </nav>
@@ -309,7 +355,7 @@ const deleteCargo = (id) => {
                                         required
                                     >
                                         <option value="" disabled>Selecciona cargo</option>
-                                        <option v-for="cargo in cargos" :key="cargo.id" :value="cargo.id">
+                                        <option v-for="cargo in todosLosCargos" :key="cargo.id" :value="cargo.id">
                                             {{ cargo.nombre }}
                                         </option>
                                     </select>
@@ -397,12 +443,39 @@ const deleteCargo = (id) => {
                         </form>
                     </div>
 
+                    <!-- Filtros -->
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Buscar</label>
+                                <input
+                                    v-model="search"
+                                    type="text"
+                                    placeholder="Nombre, apellido o email..."
+                                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                />
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por Área</label>
+                                <select
+                                    v-model="filtroArea"
+                                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                >
+                                    <option value="">Todas las áreas</option>
+                                    <option v-for="area in areas" :key="area.id" :value="area.id">
+                                        {{ area.nombre }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Tabla Personal -->
                     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Listado de Personal</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ personal.length }} registros</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ personal.total || 0 }} registros</p>
                             </div>
                         </div>
 
@@ -418,7 +491,7 @@ const deleteCargo = (id) => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                                    <tr v-for="persona in personal" :key="persona.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <tr v-for="persona in personal.data" :key="persona.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                             {{ persona.nombre }} {{ persona.apellido }}
                                         </td>
@@ -438,6 +511,7 @@ const deleteCargo = (id) => {
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                             <button
+                                                v-if="canManage"
                                                 @click="startEditPersonal(persona)"
                                                 class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                                 title="Editar"
@@ -447,6 +521,7 @@ const deleteCargo = (id) => {
                                                 </svg>
                                             </button>
                                             <button
+                                                v-if="canManage"
                                                 @click="deletePersonal(persona.id)"
                                                 class="ml-3 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                                 title="Eliminar"
@@ -460,6 +535,12 @@ const deleteCargo = (id) => {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            :links="personal.links" 
+                            :from="personal.from" 
+                            :to="personal.to" 
+                            :total="personal.total" 
+                        />
                     </div>
                 </div>
 
@@ -516,7 +597,7 @@ const deleteCargo = (id) => {
                         <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Listado de Cargos</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ cargos.length }} cargos</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ cargos.total || 0 }} cargos</p>
                             </div>
                         </div>
 
@@ -531,7 +612,7 @@ const deleteCargo = (id) => {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                                    <tr v-for="cargo in cargos" :key="cargo.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <tr v-for="cargo in cargos.data" :key="cargo.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ cargo.id }}</td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ cargo.nombre }}</td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm">
@@ -548,6 +629,7 @@ const deleteCargo = (id) => {
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                             <button
+                                                v-if="canManage"
                                                 @click="startEditCargo(cargo)"
                                                 class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                                 title="Editar"
@@ -557,6 +639,7 @@ const deleteCargo = (id) => {
                                                 </svg>
                                             </button>
                                             <button
+                                                v-if="canManage"
                                                 @click="deleteCargo(cargo.id)"
                                                 class="ml-3 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                                 title="Eliminar"
@@ -570,6 +653,12 @@ const deleteCargo = (id) => {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            :links="cargos.links" 
+                            :from="cargos.from" 
+                            :to="cargos.to" 
+                            :total="cargos.total" 
+                        />
                     </div>
                 </div>
 
@@ -595,7 +684,7 @@ const deleteCargo = (id) => {
                                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Cargo *</label>
                                             <select v-model="editPersonalForm.cargo_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                                 <option value="">Selecciona cargo</option>
-                                                <option v-for="cargo in cargos" :key="cargo.id" :value="cargo.id">{{ cargo.nombre }}</option>
+                                                <option v-for="cargo in todosLosCargos" :key="cargo.id" :value="cargo.id">{{ cargo.nombre }}</option>
                                             </select>
                                         </div>
                                         <div>

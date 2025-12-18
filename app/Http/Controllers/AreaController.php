@@ -13,7 +13,7 @@ class AreaController extends Controller
 {
     public function index(): Response
     {
-        $areas = Area::orderBy('id')->get(['id', 'nombre', 'estado', 'created_at']);
+        $areas = Area::orderBy('id')->paginate(10, ['id', 'nombre', 'estado', 'created_at']);
         return Inertia::render('Areas/Index', [
             'areas' => $areas,
         ]);

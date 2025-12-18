@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { reactive, watch } from 'vue';
 
 const props = defineProps({
@@ -51,6 +51,12 @@ watch(
                     <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">Seguridad y roles</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Definición de roles, permisos y políticas de acceso.</p>
                 </div>
+                <Link :href="route('usuarios.create')" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                    </svg>
+                    Crear usuario
+                </Link>
             </div>
         </template>
 

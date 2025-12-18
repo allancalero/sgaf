@@ -18,7 +18,7 @@ class TipoActivoController extends Controller
             ->select('tipos_activos.id', 'tipos_activos.nombre', 'clasificaciones.nombre as clasificacion', 'tipos_activos.clasificacion_id')
             ->leftJoin('clasificaciones', 'tipos_activos.clasificacion_id', '=', 'clasificaciones.id')
             ->orderBy('tipos_activos.id')
-            ->get();
+            ->paginate(10);
 
         $clasificaciones = Clasificacion::orderBy('nombre')->get(['id', 'nombre']);
 

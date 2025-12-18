@@ -1,12 +1,18 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Pagination from '@/Components/Pagination.vue';
+import Swal from 'sweetalert2';
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const props = defineProps({
     responsables: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
     cargos: {
         type: Array,
@@ -64,7 +70,20 @@ const submitEdit = () => {
 };
 
 const destroyResponsable = (id) => {
-    router.delete(route('responsables.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('responsables.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -187,7 +206,7 @@ const destroyResponsable = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="responsable in props.responsables"
+                                    v-for="responsable in props.responsables.data"
                                     :key="responsable.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -207,6 +226,7 @@ const destroyResponsable = (id) => {
                                     </td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(responsable)"
@@ -217,6 +237,7 @@ const destroyResponsable = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyResponsable(responsable.id)"
@@ -228,7 +249,7 @@ const destroyResponsable = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.responsables.length">
+                                <tr v-if="!props.responsables.data.length">
                                     <td colspan="6" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -236,6 +257,14 @@ const destroyResponsable = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="responsables.links" 
+                        :from="responsables.from" 
+                        :to="responsables.to" 
+                        :total="responsables.total" 
+                    />
                 </div>
             </div>
         </div>

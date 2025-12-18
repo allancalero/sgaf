@@ -17,29 +17,15 @@ const props = defineProps({
     },
 });
 
-const catalogs = [
-    { href: route('activos.index'), label: 'Activos fijos' },
-    { href: route('activos.resumen'), label: 'Resumen de activos' },
-    { href: route('sistema.index'), label: 'Sistema' },
-    { href: route('areas.index'), label: 'Áreas' },
-    { href: route('cargos.index'), label: 'Cargos' },
-    { href: route('ubicaciones.index'), label: 'Ubicaciones' },
-    { href: route('clasificaciones.index'), label: 'Clasificaciones' },
-    { href: route('fuentes.index'), label: 'Fuentes' },
-    { href: route('tipos.index'), label: 'Tipos' },
-    { href: route('proveedores.index'), label: 'Proveedores' },
-    { href: route('personal.index'), label: 'Personal' },
-    { href: route('responsables.index'), label: 'Responsables' },
-];
 
-const chartRefs = {
-    estado: ref(null),
-    area: ref(null),
-    responsable: ref(null),
-    asignaciones: ref(null),
-    clasificacion: ref(null),
-    valorArea: ref(null),
-};
+
+// Referencias individuales para cada canvas
+const estadoCanvas = ref(null);
+const areaCanvas = ref(null);
+const responsableCanvas = ref(null);
+const asignacionesCanvas = ref(null);
+const clasificacionCanvas = ref(null);
+const valorAreaCanvas = ref(null);
 
 const chartInstances = {};
 
@@ -50,8 +36,8 @@ const formatCurrency = (value) => `${currencySymbol.value}${Number(value || 0).t
 
 const palette = ['#6366F1', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#22D3EE', '#A855F7'];
 
-const buildChart = (key, type, labels, data, overrides = {}) => {
-    const ctx = chartRefs[key]?.value?.getContext('2d');
+const buildChart = (canvasRef, key, type, labels, data, overrides = {}) => {
+    const ctx = canvasRef?.value?.getContext('2d');
     if (!ctx) return;
 
     if (chartInstances[key]) {
@@ -96,14 +82,14 @@ const buildChart = (key, type, labels, data, overrides = {}) => {
 const renderCharts = () => {
     const estado = props.charts?.activosPorEstado || [];
     if (estado.length) {
-        buildChart('estado', 'doughnut', estado.map((i) => i.label), estado.map((i) => i.value), {
+        buildChart(estadoCanvas, 'estado', 'doughnut', estado.map((i) => i.label), estado.map((i) => i.value), {
             label: 'Activos por estado',
         });
     }
 
     const area = props.charts?.activosPorArea || [];
     if (area.length) {
-        buildChart('area', 'bar', area.map((i) => i.label), area.map((i) => i.value), {
+        buildChart(areaCanvas, 'area', 'bar', area.map((i) => i.label), area.map((i) => i.value), {
             label: 'Activos por área',
             legend: false,
             scales: {
@@ -115,7 +101,7 @@ const renderCharts = () => {
 
     const responsables = props.charts?.responsablesPorArea || [];
     if (responsables.length) {
-        buildChart('responsable', 'bar', responsables.map((i) => i.label), responsables.map((i) => i.value), {
+        buildChart(responsableCanvas, 'responsable', 'bar', responsables.map((i) => i.label), responsables.map((i) => i.value), {
             label: 'Responsables por área',
             legend: false,
             scales: {
@@ -127,7 +113,7 @@ const renderCharts = () => {
 
     const asignaciones = props.charts?.asignacionesPorMes || [];
     if (asignaciones.length) {
-        buildChart('asignaciones', 'line', asignaciones.map((i) => i.label), asignaciones.map((i) => i.value), {
+        buildChart(asignacionesCanvas, 'asignaciones', 'line', asignaciones.map((i) => i.label), asignaciones.map((i) => i.value), {
             label: 'Asignaciones por mes',
             legend: false,
             scales: {
@@ -139,14 +125,14 @@ const renderCharts = () => {
 
     const clasificacion = props.charts?.activosPorClasificacion || [];
     if (clasificacion.length) {
-        buildChart('clasificacion', 'doughnut', clasificacion.map((i) => i.label), clasificacion.map((i) => i.value), {
+        buildChart(clasificacionCanvas, 'clasificacion', 'doughnut', clasificacion.map((i) => i.label), clasificacion.map((i) => i.value), {
             label: 'Activos por clasificación',
         });
     }
 
     const valorArea = props.charts?.valorPorArea || [];
     if (valorArea.length) {
-        buildChart('valorArea', 'bar', valorArea.map((i) => i.label), valorArea.map((i) => i.value), {
+        buildChart(valorAreaCanvas, 'valorArea', 'bar', valorArea.map((i) => i.label), valorArea.map((i) => i.value), {
             label: 'Valor por área',
             legend: false,
             scales: {
@@ -259,7 +245,7 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.activosPorEstado)" :ref="chartRefs.estado"></canvas>
+                            <canvas v-if="hasData(charts.activosPorEstado)" ref="estadoCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Sin datos de activos aún.</p>
                         </div>
                     </div>
@@ -277,7 +263,7 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.activosPorArea)" :ref="chartRefs.area"></canvas>
+                            <canvas v-if="hasData(charts.activosPorArea)" ref="areaCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Sin datos de áreas aún.</p>
                         </div>
                     </div>
@@ -295,7 +281,7 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.responsablesPorArea)" :ref="chartRefs.responsable"></canvas>
+                            <canvas v-if="hasData(charts.responsablesPorArea)" ref="responsableCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Sin responsables cargados.</p>
                         </div>
                     </div>
@@ -313,7 +299,7 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.asignacionesPorMes)" :ref="chartRefs.asignaciones"></canvas>
+                            <canvas v-if="hasData(charts.asignacionesPorMes)" ref="asignacionesCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Aún no hay movimientos registrados.</p>
                         </div>
                     </div>
@@ -328,7 +314,7 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.activosPorClasificacion)" :ref="chartRefs.clasificacion"></canvas>
+                            <canvas v-if="hasData(charts.activosPorClasificacion)" ref="clasificacionCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Sin datos de clasificación.</p>
                         </div>
                     </div>
@@ -341,31 +327,13 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
                             </div>
                         </div>
                         <div class="h-72">
-                            <canvas v-if="hasData(charts.valorPorArea)" :ref="chartRefs.valorArea"></canvas>
+                            <canvas v-if="hasData(charts.valorPorArea)" ref="valorAreaCanvas"></canvas>
                             <p v-else class="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">Sin costos registrados.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100">Módulos</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Accesos rápidos a catálogos y activos.</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        <Link
-                            v-for="catalog in catalogs"
-                            :key="catalog.href"
-                            :href="catalog.href"
-                            class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-800 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-white hover:shadow dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-indigo-400 dark:hover:bg-gray-800"
-                        >
-                            <span class="font-semibold">{{ catalog.label }}</span>
-                            <span aria-hidden="true" class="text-indigo-400">→</span>
-                        </Link>
-                    </div>
-                </div>
+
             </div>
         </div>
     </AuthenticatedLayout>

@@ -13,7 +13,7 @@ class FuenteFinanciamientoController extends Controller
 {
     public function index(): Response
     {
-        $fuentes = FuenteFinanciamiento::orderBy('id')->get(['id', 'nombre', 'estado', 'created_at']);
+        $fuentes = FuenteFinanciamiento::orderBy('id')->paginate(10, ['id', 'nombre', 'estado', 'created_at']);
 
         return Inertia::render('FuentesFinanciamiento/Index', [
             'fuentes' => $fuentes,

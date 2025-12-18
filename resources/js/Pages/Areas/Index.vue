@@ -1,14 +1,20 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
     areas: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
 });
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
@@ -50,7 +56,20 @@ const submitEdit = () => {
 };
 
 const destroyArea = (id) => {
-    router.delete(route('areas.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('areas.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -138,7 +157,7 @@ const destroyArea = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="area in props.areas"
+                                    v-for="area in props.areas.data"
                                     :key="area.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -156,6 +175,7 @@ const destroyArea = (id) => {
                                     </td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(area)"
@@ -166,6 +186,7 @@ const destroyArea = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyArea(area.id)"
@@ -177,7 +198,7 @@ const destroyArea = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.areas.length">
+                                <tr v-if="!props.areas.data.length">
                                     <td colspan="4" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -185,6 +206,14 @@ const destroyArea = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="areas.links" 
+                        :from="areas.from" 
+                        :to="areas.to" 
+                        :total="areas.total" 
+                    />
                 </div>
             </div>
         </div>

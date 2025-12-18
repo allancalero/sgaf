@@ -94,58 +94,81 @@ const urlInventarioPdf = computed(() => route('activos.reportes.inventario.pdf',
 const urlTrazabilidad = computed(() => route('activos.reportes.trazabilidad.export', filtroTrazabilidad.data()));
 const urlTrazabilidadPdf = computed(() => route('activos.reportes.trazabilidad.pdf', filtroTrazabilidad.data()));
 
-// Chart References
-const chartStatus = ref(null);
-const chartArea = ref(null);
+// Chart instances  
+let chartStatusInstance = null;
+let chartAreaInstance = null;
 
-onMounted(() => {
-    
+const renderCharts = () => {
+    // Destroy existing charts
+    if (chartStatusInstance) chartStatusInstance.destroy();
+    if (chartAreaInstance) chartAreaInstance.destroy();
+
     // Assets by Status
     const statusCounts = props.activos.reduce((acc, curr) => {
         acc[curr.estado] = (acc[curr.estado] || 0) + 1;
         return acc;
     }, {});
     
-    new Chart(document.getElementById('chart-status'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(statusCounts),
-            datasets: [{
-                data: Object.values(statusCounts),
-                backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#6366F1'],
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
+    const statusCanvas = document.getElementById('chart-status');
+    if (statusCanvas) {
+        chartStatusInstance = new Chart(statusCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#6366F1'],
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
 
-    // Assets by Area (Top 5)
-    const areaCounts = props.activos.reduce((acc, curr) => {
-        const area = curr.area || 'Sin Área';
-        acc[area] = (acc[area] || 0) + 1;
+    // Assets by Classification
+    const clasificacionCounts = props.activos.reduce((acc, curr) => {
+        const clasificacion = curr.clasificacion || 'Sin Clasificación';
+        acc[clasificacion] = (acc[clasificacion] || 0) + 1;
         return acc;
     }, {});
     
-    // Sort by count
-    const sortedAreas = Object.entries(areaCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const areaCanvas = document.getElementById('chart-area');
+    if (areaCanvas) {
+        chartAreaInstance = new Chart(areaCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(clasificacionCounts),
+                datasets: [{
+                    data: Object.values(clasificacionCounts),
+                    backgroundColor: ['#6366F1', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#22D3EE', '#A855F7'],
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+};
 
-    new Chart(document.getElementById('chart-area'), {
-        type: 'bar',
-        data: {
-            labels: sortedAreas.map(a => a[0]),
-            datasets: [{
-                label: 'Cantidad de Activos',
-                data: sortedAreas.map(a => a[1]),
-                backgroundColor: '#6366F1',
-                borderRadius: 5,
-            }]
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-});
+onMounted(renderCharts);
+
+// Watch para actualizar los gráficos cuando cambian los datos filtrados
+watch(() => props.activos, () => {
+    renderCharts();
+}, { deep: true });
 </script>
 
 <template>
@@ -227,7 +250,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Áreas con más Activos</h3>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Activos por Clasificación</h3>
                         <div class="h-64">
                             <canvas id="chart-area"></canvas>
                         </div>

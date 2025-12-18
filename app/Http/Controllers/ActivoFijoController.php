@@ -27,7 +27,7 @@ class ActivoFijoController extends Controller
 {
     public function index(): Response
     {
-        $activos = ActivoFijo::query()
+        $query = ActivoFijo::query()
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
             ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
@@ -52,6 +52,7 @@ class ActivoFijoController extends Controller
                 'activos_fijos.proveedor_id',
                 'activos_fijos.personal_id',
                 'activos_fijos.cheque_id',
+                'activos_fijos.created_at',
                 'activos_fijos.updated_at',
                 'areas.nombre as area',
                 'ubicaciones.nombre as ubicacion',
@@ -61,9 +62,24 @@ class ActivoFijoController extends Controller
                 'proveedores.nombre as proveedor',
                 'cheques.numero_cheque',
                 DB::raw("CONCAT(personal.nombre, ' ', personal.apellido) as responsable")
-            )
-            ->orderByDesc('activos_fijos.id')
-            ->get();
+            );
+
+        // Aplicar filtro de búsqueda si existe
+        if (request('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('activos_fijos.codigo_inventario', 'like', "%{$search}%")
+                  ->orWhere('activos_fijos.nombre_activo', 'like', "%{$search}%")
+                  ->orWhere('personal.nombre', 'like', "%{$search}%")
+                  ->orWhere('personal.apellido', 'like', "%{$search}%");
+            });
+        }
+
+        $activos = $query->orderByDesc('activos_fijos.created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $totalActivos = ActivoFijo::count();
 
         $areas = Area::orderBy('nombre')->get(['id', 'nombre']);
         $ubicaciones = Ubicacion::orderBy('nombre')->get(['id', 'nombre']);
@@ -72,10 +88,22 @@ class ActivoFijoController extends Controller
         $fuentes = FuenteFinanciamiento::orderBy('nombre')->get(['id', 'nombre']);
         $proveedores = Proveedor::orderBy('nombre')->get(['id', 'nombre']);
         $personal = Personal::orderBy('nombre')->get(['id', 'nombre', 'apellido', 'area_id']);
-        $cheques = \App\Models\Cheque::orderBy('numero_cheque')->get(['id', 'numero_cheque', 'banco', 'saldo_disponible']);
+        $cheques = \App\Models\Cheque::orderBy('numero_cheque')->get(['id', 'numero_cheque', 'banco', 'beneficiario', 'saldo_disponible']);
+
+        // Get map for cascading filters (Area -> Ubicaciones used in assets)
+        $areaLocationMap = ActivoFijo::query()
+            ->select('area_id', 'ubicacion_id')
+            ->whereNotNull('area_id')
+            ->whereNotNull('ubicacion_id')
+            ->distinct()
+            ->get()
+            ->groupBy('area_id')
+            ->map(fn($items) => $items->pluck('ubicacion_id')->unique()->values()->all())
+            ->all();
 
         return Inertia::render('Activos/Index', [
             'activos' => $activos,
+            'totalActivos' => $totalActivos,
             'areas' => $areas,
             'ubicaciones' => $ubicaciones,
             'clasificaciones' => $clasificaciones,
@@ -84,6 +112,55 @@ class ActivoFijoController extends Controller
             'proveedores' => $proveedores,
             'personal' => $personal,
             'cheques' => $cheques,
+            'areaLocationMap' => $areaLocationMap,
+        ]);
+    }
+
+    /**
+     * Quick search for assets by inventory number, name, or responsible person
+     */
+    public function busqueda(Request $request): Response
+    {
+        $search = $request->input('search');
+        $activos = [];
+
+        if ($search) {
+            $activos = ActivoFijo::query()
+                ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
+                ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
+                ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
+                ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+                ->select(
+                    'activos_fijos.*',
+                    'areas.nombre as area',
+                    'ubicaciones.nombre as ubicacion',
+                    'clasificaciones.nombre as clasificacion',
+                    'clasificaciones.codigo as clasificacion_codigo',
+                    DB::raw("CONCAT(personal.nombre, ' ', personal.apellido) as responsable")
+                )
+                ->where(function($q) use ($search) {
+                    $q->where('activos_fijos.codigo_inventario', 'like', "%{$search}%")
+                      ->orWhere('activos_fijos.nombre_activo', 'like', "%{$search}%")
+                      ->orWhere('personal.nombre', 'like', "%{$search}%")
+                      ->orWhere('personal.apellido', 'like', "%{$search}%");
+                })
+                ->orderByDesc('activos_fijos.created_at')
+                ->take(500)
+                ->get();
+        }
+
+        return Inertia::render('Activos/Busqueda', [
+            'activos' => $activos,
+            'filters' => ['search' => $search],
+        ]);
+    }
+
+    public function show(ActivoFijo $activo): Response
+    {
+        $activo->load(['area', 'ubicacion', 'clasificacion', 'tipoActivo', 'fuenteFinanciamiento', 'proveedor', 'personal', 'cheque']);
+
+        return Inertia::render('Activos/Show', [
+            'activo' => $activo,
         ]);
     }
 

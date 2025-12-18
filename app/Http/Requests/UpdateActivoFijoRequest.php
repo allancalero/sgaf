@@ -16,7 +16,13 @@ class UpdateActivoFijoRequest extends FormRequest
         $id = $this->route('activo')?->id ?? $this->route('activo');
 
         return [
-            'codigo_inventario' => ['required', 'string', 'max:50', 'unique:activos_fijos,codigo_inventario,' . $id],
+            'codigo_inventario' => [
+                'required', 
+                'string', 
+                'max:50', 
+                'unique:activos_fijos,codigo_inventario,' . $id,
+                'regex:/^\d{3}-\d{3}-\d{3}-\d{3}$/'
+            ],
             'nombre_activo' => ['required', 'string', 'max:255'],
             'marca' => ['nullable', 'string', 'max:255'],
             'modelo' => ['nullable', 'string', 'max:255'],
@@ -24,7 +30,7 @@ class UpdateActivoFijoRequest extends FormRequest
             'serie' => ['nullable', 'string', 'max:255'],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'descripcion' => ['nullable', 'string'],
-            'cantidad' => ['required', 'integer', 'min:1'],
+            // 'cantidad' removed
             'precio_unitario' => ['nullable', 'numeric', 'min:0'],
             'precio_adquisicion' => ['nullable', 'numeric', 'min:0'],
             'fecha_adquisicion' => ['nullable', 'date'],
@@ -39,6 +45,14 @@ class UpdateActivoFijoRequest extends FormRequest
             'fuente_financiamiento_id' => ['required', 'integer', 'exists:fuentes_financiamiento,id'],
             'proveedor_id' => ['nullable', 'integer', 'exists:proveedores,id'],
             'personal_id' => ['nullable', 'integer', 'exists:personal,id'],
+        ];
+    }
+    
+    public function messages(): array
+    {
+        return [
+            'codigo_inventario.regex' => 'El formato debe ser 000-000-000-000',
+            'codigo_inventario.unique' => 'El código ya existe',
         ];
     }
 }

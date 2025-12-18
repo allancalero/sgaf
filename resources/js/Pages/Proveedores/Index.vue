@@ -1,14 +1,20 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
     proveedores: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
 });
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
@@ -59,7 +65,20 @@ const submitEdit = () => {
 };
 
 const destroyProveedor = (id) => {
-    router.delete(route('proveedores.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('proveedores.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -184,7 +203,7 @@ const destroyProveedor = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="proveedor in props.proveedores"
+                                    v-for="proveedor in props.proveedores.data"
                                     :key="proveedor.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -195,6 +214,7 @@ const destroyProveedor = (id) => {
                                     <td class="px-4 py-3 text-gray-700">{{ proveedor.email || '-' }}</td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(proveedor)"
@@ -205,6 +225,7 @@ const destroyProveedor = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyProveedor(proveedor.id)"
@@ -216,7 +237,7 @@ const destroyProveedor = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.proveedores.length">
+                                <tr v-if="!props.proveedores.data.length">
                                     <td colspan="6" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -224,6 +245,14 @@ const destroyProveedor = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="proveedores.links" 
+                        :from="proveedores.from" 
+                        :to="proveedores.to" 
+                        :total="proveedores.total" 
+                    />
                 </div>
             </div>
         </div>

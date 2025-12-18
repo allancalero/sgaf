@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     personal: {
@@ -118,7 +119,20 @@ const submitEdit = () => {
 };
 
 const destroyPersonal = (id) => {
-    router.delete(route('personal.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('personal.destroy', id));
+        }
+    });
 };
 </script>
 

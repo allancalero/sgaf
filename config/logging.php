@@ -127,6 +127,63 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Canales organizados por módulo
+        'activos' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activos/activos.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'catalogos' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/catalogos/catalogos.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'cheques' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/cheques/cheques.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'sistema' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sistema/sistema.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'reportes' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/reportes/reportes.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'errors' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/errors/errors.log'),
+            'level' => 'error',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        'queries' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/queries/queries.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

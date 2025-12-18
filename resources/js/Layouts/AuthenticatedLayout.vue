@@ -107,6 +107,14 @@ onMounted(() => {
                                     <span>Activos</span>
                                 </span>
                             </NavLink>
+                            <NavLink v-if="can('activos.view')" :href="route('activos.busqueda')" :active="route().current('activos.busqueda')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <span>Búsqueda Rápida</span>
+                                </span>
+                            </NavLink>
                             <NavLink v-if="can('catalogos.manage')" :href="route('activos-fijo-vista.index')" :active="route().current('activos-fijo-vista.index')">
                                 <span class="inline-flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 dark:text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -283,6 +291,24 @@ onMounted(() => {
                             </button>
                         </div>
                         <div class="flex items-center gap-3">
+                            <!-- Quick Search (Restaurado) -->
+                            <div class="hidden md:flex relative items-center group">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 group-focus-within:text-indigo-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                    </svg>
+                                </div>
+                                <input 
+                                    @keyup.enter="$inertia.visit(route('activos.busqueda', { search: $event.target.value }))"
+                                    type="text" 
+                                    class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500 transition-all duration-300 w-64 focus:w-80" 
+                                    placeholder="Buscar activo (Enter)..." 
+                                >
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-xs text-gray-400 border border-gray-300 rounded px-1.5 dark:border-gray-600">Enter</span>
+                                </div>
+                            </div>
+
                             <button
                                 type="button"
                                 class="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-indigo-400"

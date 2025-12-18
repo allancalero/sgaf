@@ -24,11 +24,7 @@ class DepreciacionController extends Controller
      */
     public function index(Request $request): Response
     {
-        $filters = $request->validate([
-            'area_id' => ['nullable', 'integer'],
-            'clasificacion_id' => ['nullable', 'integer'],
-            'search' => ['nullable', 'string'],
-        ]);
+        $filters = $request->only(['area_id', 'clasificacion_id', 'search']);
 
         $query = ActivoFijo::query()
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
@@ -114,10 +110,7 @@ class DepreciacionController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        $filters = $request->validate([
-            'area_id' => ['nullable', 'integer'],
-            'clasificacion_id' => ['nullable', 'integer'],
-        ]);
+        $filters = $request->only(['area_id', 'clasificacion_id']);
 
         $query = ActivoFijo::query()
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')

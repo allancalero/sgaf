@@ -28,7 +28,7 @@ class ResponsableController extends Controller
                 'areas.nombre as area'
             )
             ->orderBy('responsables.id')
-            ->get();
+            ->paginate(10);
 
         $cargos = Cargo::orderBy('nombre')->get(['id', 'nombre']);
         $areas = Area::orderBy('nombre')->get(['id', 'nombre']);

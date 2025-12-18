@@ -13,7 +13,7 @@ class CargoController extends Controller
 {
     public function index(): Response
     {
-        $cargos = Cargo::orderBy('id')->get(['id', 'nombre', 'estado', 'created_at']);
+        $cargos = Cargo::orderBy('id')->paginate(10, ['id', 'nombre', 'estado', 'created_at']);
 
         return Inertia::render('Cargos/Index', [
             'cargos' => $cargos,

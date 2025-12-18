@@ -16,7 +16,7 @@ class BackupService
     public function createBackup(string $type = 'manual', ?int $userId = null): Backup
     {
         $timestamp = now()->format('Ymd_His');
-        $filename = "backup_{$timestamp}.sql";
+        $filename = "sgaftipitapa_backup_{$timestamp}.sql";
         $path = "backups/{$filename}";
         
         // Create backup record

@@ -20,6 +20,23 @@ const restoreForm = useForm({
     password: '',
 });
 
+// Función para formatear fecha en español
+function formatearFecha(fechaStr) {
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    
+    const fecha = new Date(fechaStr.replace(' ', 'T'));
+    const dia = fecha.getDate();
+    const mes = meses[fecha.getMonth()];
+    const anio = fecha.getFullYear();
+    const horas = String(fecha.getHours()).padStart(2, '0');
+    const minutos = String(fecha.getMinutes()).padStart(2, '0');
+    const segundos = String(fecha.getSeconds()).padStart(2, '0');
+    
+    return `${dia} ${mes} ${anio}, ${horas}:${minutos}:${segundos}`;
+}
+
+
 function crearRespaldo() {
     router.post(route('sistema.respaldo.crear'), {}, {
         preserveScroll: true,
@@ -147,7 +164,7 @@ function eliminarRespaldo(backup) {
                             <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                                 <tr v-for="backup in backups" :key="backup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                        {{ backup.created_at }}
+                                        {{ formatearFecha(backup.created_at) }}
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                                         {{ backup.filename }}

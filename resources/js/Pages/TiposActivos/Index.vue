@@ -1,18 +1,24 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
     tipos: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({ data: [] }),
     },
     clasificaciones: {
         type: Array,
         default: () => [],
     },
 });
+
+const page = usePage();
+const can = (permission) => page.props.auth.user?.permissions?.includes(permission);
+const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
@@ -54,7 +60,20 @@ const submitEdit = () => {
 };
 
 const destroyTipo = (id) => {
-    router.delete(route('tipos.destroy', id));
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('tipos.destroy', id));
+        }
+    });
 };
 </script>
 
@@ -144,7 +163,7 @@ const destroyTipo = (id) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="tipo in props.tipos"
+                                    v-for="tipo in props.tipos.data"
                                     :key="tipo.id"
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
@@ -153,6 +172,7 @@ const destroyTipo = (id) => {
                                     <td class="px-4 py-3 text-gray-700">{{ tipo.clasificacion || 'Sin clasificación' }}</td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-indigo-600 hover:bg-indigo-50 transition"
                                             type="button"
                                             @click="startEdit(tipo)"
@@ -163,6 +183,7 @@ const destroyTipo = (id) => {
                                             </svg>
                                         </button>
                                         <button
+                                            v-if="canManage"
                                             class="inline-flex items-center justify-center rounded-md p-1.5 text-red-600 hover:bg-red-50 transition"
                                             type="button"
                                             @click="destroyTipo(tipo.id)"
@@ -174,7 +195,7 @@ const destroyTipo = (id) => {
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="!props.tipos.length">
+                                <tr v-if="!props.tipos.data.length">
                                     <td colspan="4" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
@@ -182,6 +203,14 @@ const destroyTipo = (id) => {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Paginación -->
+                    <Pagination 
+                        :links="tipos.links" 
+                        :from="tipos.from" 
+                        :to="tipos.to" 
+                        :total="tipos.total" 
+                    />
                 </div>
             </div>
         </div>

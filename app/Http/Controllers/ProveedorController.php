@@ -13,7 +13,7 @@ class ProveedorController extends Controller
 {
     public function index(): Response
     {
-        $proveedores = Proveedor::orderBy('id')->get(['id', 'nombre', 'ruc', 'direccion', 'telefono', 'email', 'created_at']);
+        $proveedores = Proveedor::orderBy('id')->paginate(10, ['id', 'nombre', 'ruc', 'direccion', 'telefono', 'email', 'created_at']);
 
         return Inertia::render('Proveedores/Index', [
             'proveedores' => $proveedores,
