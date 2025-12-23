@@ -30,6 +30,14 @@ const formatCurrency = (value) => {
     return `${currencySymbol.value}${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2 })}`;
 };
 
+// Format number to 2 decimal places on blur
+const formatToDecimal = (form, field) => {
+    const value = form[field];
+    if (value !== null && value !== undefined && value !== '') {
+        form[field] = parseFloat(value).toFixed(2);
+    }
+};
+
 const busqueda = ref('');
 const filtroArea = ref('');
 const filtroUbicacion = ref('');
@@ -37,6 +45,21 @@ const filtroClasificacion = ref('');
 const filtroResponsable = ref('');
 const createPhotoPreview = ref(null);
 const editPhotoPreview = ref(null);
+const showImportModal = ref(false);
+
+const importForm = useForm({
+    file: null,
+});
+
+const submitImport = () => {
+    importForm.post(route('import.inventory'), {
+        forceFormData: true,
+        onSuccess: () => {
+            showImportModal.value = false;
+            importForm.reset();
+        },
+    });
+};
 
 // Computed: Personal filtered by selected area
 const filteredPersonalByArea = computed(() => {
@@ -629,8 +652,8 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="createForm.errors.personal_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.personal_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Costo adquisición</label>
-                                <input v-model="createForm.precio_adquisicion" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Costo adquisición (C$)</label>
+                                <input v-model="createForm.precio_adquisicion" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" @blur="formatToDecimal(createForm, 'precio_adquisicion')" />
                                 <p v-if="createForm.errors.precio_adquisicion" class="mt-1 text-sm text-red-600">{{ createForm.errors.precio_adquisicion }}</p>
                             </div>
                             <div>
@@ -654,53 +677,12 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="createForm.errors.cheque_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.cheque_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Monto del cheque utilizado</label>
-                                <input v-model="createForm.monto_cheque_utilizado" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Monto asignado de este cheque" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Monto del cheque utilizado (C$)</label>
+                                <input v-model="createForm.monto_cheque_utilizado" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" @blur="formatToDecimal(createForm, 'monto_cheque_utilizado')" />
                                 <p v-if="createForm.errors.monto_cheque_utilizado" class="mt-1 text-sm text-red-600">{{ createForm.errors.monto_cheque_utilizado }}</p>
                             </div>
                         </div>
 
-                        <!-- Depreciación Section -->
-                        <div class="space-y-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950">
-                            <div class="flex items-center justify-between text-sm">
-                                <p class="font-semibold text-emerald-800 dark:text-emerald-100">Configuración de Depreciación</p>
-                                <span class="text-emerald-600 dark:text-emerald-400">(Opcional - para cálculo automático)</span>
-                            </div>
-                            <div class="grid gap-4 sm:grid-cols-3">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Vida Útil (años)</label>
-                                    <input v-model.number="createForm.vida_util_anos" type="number" min="1" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Ej: 5" />
-                                    <p v-if="createForm.errors.vida_util_anos" class="mt-1 text-sm text-red-600">{{ createForm.errors.vida_util_anos }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Residual</label>
-                                    <input v-model="createForm.valor_residual" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" />
-                                    <p v-if="createForm.errors.valor_residual" class="mt-1 text-sm text-red-600">{{ createForm.errors.valor_residual }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Método</label>
-                                    <select v-model="createForm.metodo_depreciacion" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
-                                        <option value="LINEAL">Línea Recta</option>
-                                        <option value="SALDO_DECRECIENTE">Saldo Decreciente</option>
-                                        <option value="UNIDADES_PRODUCIDAS">Unidades Producidas</option>
-                                    </select>
-                                    <p v-if="createForm.errors.metodo_depreciacion" class="mt-1 text-sm text-red-600">{{ createForm.errors.metodo_depreciacion }}</p>
-                                </div>
-                            </div>
-                            <div v-if="createDepreciacionPreview" class="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-800 dark:bg-gray-800">
-                                <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Vista Previa de Depreciación:</p>
-                                <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Anual:</span>
-                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(createDepreciacionPreview.anual) }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Mensual:</span>
-                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(createDepreciacionPreview.mensual) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex items-center justify-between text-sm">
@@ -775,9 +757,22 @@ watch(() => editForm.area_id, (newVal) => {
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventario completo</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Listado general de activos fijos.</p>
                             </div>
-                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                {{ props.activos.total || 0 }} activos registrados
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <button
+                                    v-if="canManage"
+                                    type="button"
+                                    @click="showImportModal = true"
+                                    class="inline-flex items-center gap-2 rounded-md border border-emerald-600 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    Importar Excel
+                                </button>
+                                <span class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                    {{ props.activos.total || 0 }} activos registrados
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- Filtros -->
@@ -1070,8 +1065,8 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="editForm.errors.personal_id" class="mt-1 text-sm text-red-600">{{ editForm.errors.personal_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Costo adquisición</label>
-                                <input v-model="editForm.precio_adquisicion" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Costo adquisición (C$)</label>
+                                <input v-model="editForm.precio_adquisicion" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" @blur="formatToDecimal(editForm, 'precio_adquisicion')" />
                                 <p v-if="editForm.errors.precio_adquisicion" class="mt-1 text-sm text-red-600">{{ editForm.errors.precio_adquisicion }}</p>
                             </div>
                             <div>
@@ -1095,51 +1090,9 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="editForm.errors.cheque_id" class="mt-1 text-sm text-red-600">{{ editForm.errors.cheque_id }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Monto del cheque utilizado</label>
-                                <input v-model="editForm.monto_cheque_utilizado" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Monto asignado de este cheque" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Monto del cheque utilizado (C$)</label>
+                                <input v-model="editForm.monto_cheque_utilizado" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" @blur="formatToDecimal(editForm, 'monto_cheque_utilizado')" />
                                 <p v-if="editForm.errors.monto_cheque_utilizado" class="mt-1 text-sm text-red-600">{{ editForm.errors.monto_cheque_utilizado }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Depreciación Section -->
-                        <div class="space-y-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950">
-                            <div class="flex items-center justify-between text-sm">
-                                <p class="font-semibold text-emerald-800 dark:text-emerald-100">Configuración de Depreciación</p>
-                                <span class="text-emerald-600 dark:text-emerald-400">(Opcional - para cálculo automático)</span>
-                            </div>
-                            <div class="grid gap-4 sm:grid-cols-3">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Vida Útil (años)</label>
-                                    <input v-model.number="editForm.vida_util_anos" type="number" min="1" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="Ej: 5" />
-                                    <p v-if="editForm.errors.vida_util_anos" class="mt-1 text-sm text-red-600">{{ editForm.errors.vida_util_anos }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Residual</label>
-                                    <input v-model="editForm.valor_residual" type="number" min="0" step="0.01" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" placeholder="0.00" />
-                                    <p v-if="editForm.errors.valor_residual" class="mt-1 text-sm text-red-600">{{ editForm.errors.valor_residual }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Método</label>
-                                    <select v-model="editForm.metodo_depreciacion" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
-                                        <option value="LINEAL">Línea Recta</option>
-                                        <option value="SALDO_DECRECIENTE">Saldo Decreciente</option>
-                                        <option value="UNIDADES_PRODUCIDAS">Unidades Producidas</option>
-                                    </select>
-                                    <p v-if="editForm.errors.metodo_depreciacion" class="mt-1 text-sm text-red-600">{{ editForm.errors.metodo_depreciacion }}</p>
-                                </div>
-                            </div>
-                            <div v-if="editDepreciacionPreview" class="rounded-lg border border-emerald-200 bg-white p-3 dark:border-emerald-800 dark:bg-gray-800">
-                                <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Vista Previa de Depreciación:</p>
-                                <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Anual:</span>
-                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(editDepreciacionPreview.anual) }}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">Depreciación Mensual:</span>
-                                        <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(editDepreciacionPreview.mensual) }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -1200,6 +1153,50 @@ watch(() => editForm.area_id, (newVal) => {
                         </div>
                     </form>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Import Modal -->
+                <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showImportModal = false">
+                    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Importar Inventario desde Excel</h3>
+                            <button type="button" @click="showImportModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Suba un archivo Excel (.xlsx) con el formato de inventario estándar. El proceso se ejecutará en segundo plano.
+                        </p>
+                        <form class="mt-4 space-y-4" @submit.prevent="submitImport">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Archivo Excel *</label>
+                                <input
+                                    type="file"
+                                    accept=".xlsx,.xls"
+                                    @change="importForm.file = $event.target.files[0]"
+                                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-gray-700 dark:file:text-gray-200"
+                                    required
+                                />
+                                <p v-if="importForm.errors.file" class="mt-1 text-sm text-red-600">{{ importForm.errors.file }}</p>
+                            </div>
+                            <div class="flex justify-end gap-3 pt-2">
+                                <button type="button" class="rounded-md px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100" @click="showImportModal = false">Cancelar</button>
+                                <button
+                                    type="submit"
+                                    :disabled="importForm.processing || !importForm.file"
+                                    class="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
+                                >
+                                    <svg v-if="importForm.processing" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    {{ importForm.processing ? 'Procesando...' : 'Importar' }}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -15,6 +15,7 @@ class StoreUbicacionRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:255', 'unique:ubicaciones,nombre'],
+            'direccion' => ['nullable', 'string', 'max:500'],
             'estado' => ['required', 'string', 'max:20'],
         ];
     }

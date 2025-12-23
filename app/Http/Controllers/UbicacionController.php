@@ -13,7 +13,7 @@ class UbicacionController extends Controller
 {
     public function index(): Response
     {
-        $ubicaciones = Ubicacion::orderBy('id')->paginate(10, ['id', 'nombre', 'estado', 'created_at']);
+        $ubicaciones = Ubicacion::orderBy('id')->paginate(10, ['id', 'nombre', 'direccion', 'estado', 'created_at']);
 
         return Inertia::render('Ubicaciones/Index', [
             'ubicaciones' => $ubicaciones,

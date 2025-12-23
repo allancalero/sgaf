@@ -17,12 +17,14 @@ const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
     nombre: '',
+    direccion: '',
     estado: 'ACTIVO',
 });
 
 const editForm = useForm({
     id: null,
     nombre: '',
+    direccion: '',
     estado: 'ACTIVO',
 });
 
@@ -32,12 +34,13 @@ const startEdit = (ubicacion) => {
     editing.value = true;
     editForm.id = ubicacion.id;
     editForm.nombre = ubicacion.nombre;
+    editForm.direccion = ubicacion.direccion || '';
     editForm.estado = ubicacion.estado;
 };
 
 const cancelEdit = () => {
     editing.value = false;
-    editForm.reset('id', 'nombre', 'estado');
+    editForm.reset('id', 'nombre', 'direccion', 'estado');
 };
 
 const submitCreate = () => {
@@ -107,6 +110,20 @@ const destroyUbicacion = (id) => {
                             </div>
 
                             <div>
+                                <label class="text-sm font-medium text-gray-700">Dirección</label>
+                                <input
+                                    v-model="createForm.direccion"
+                                    type="text"
+                                    class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    maxlength="500"
+                                    placeholder="Ej: Calle Principal #123, Ciudad"
+                                />
+                                <p v-if="createForm.errors.direccion" class="mt-1 text-sm text-red-600">
+                                    {{ createForm.errors.direccion }}
+                                </p>
+                            </div>
+
+                            <div>
                                 <label class="text-sm font-medium text-gray-700">Estado</label>
                                 <select
                                     v-model="createForm.estado"
@@ -146,6 +163,7 @@ const destroyUbicacion = (id) => {
                                 <tr>
                                     <th class="px-4 py-3">ID</th>
                                     <th class="px-4 py-3">Nombre</th>
+                                    <th class="px-4 py-3">Dirección</th>
                                     <th class="px-4 py-3">Estado</th>
                                     <th class="px-4 py-3">Acciones</th>
                                 </tr>
@@ -158,6 +176,7 @@ const destroyUbicacion = (id) => {
                                 >
                                     <td class="px-4 py-3 text-gray-500">{{ ubicacion.id }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ ubicacion.nombre }}</td>
+                                    <td class="px-4 py-3 text-gray-600">{{ ubicacion.direccion || '-' }}</td>
                                     <td class="px-4 py-3">
                                         <span
                                             class="inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold"
@@ -194,7 +213,7 @@ const destroyUbicacion = (id) => {
                                     </td>
                                 </tr>
                                 <tr v-if="!props.ubicaciones.data.length">
-                                    <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+                                    <td colspan="5" class="px-4 py-4 text-center text-gray-500">
                                         Sin registros
                                     </td>
                                 </tr>

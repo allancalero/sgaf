@@ -21,6 +21,7 @@ class UpdateUbicacionRequest extends FormRequest
                 'max:255',
                 Rule::unique('ubicaciones', 'nombre')->ignore($this->route('ubicacion')),
             ],
+            'direccion' => ['nullable', 'string', 'max:500'],
             'estado' => ['required', 'string', 'max:20'],
         ];
     }

@@ -64,6 +64,12 @@ class HandleInertiaRequests extends Middleware
                 'ano_fiscal' => $setting->ano_fiscal,
                 'logo_url' => $setting->logo_url,
             ] : null,
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'warning' => fn () => $request->session()->get('warning'),
+                'info' => fn () => $request->session()->get('info'),
+            ],
         ];
     }
 }

@@ -21,6 +21,7 @@ use App\Http\Controllers\UbicacionesController;
 use App\Http\Controllers\ActivosFijoController;
 use App\Http\Controllers\ReasignacionController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\ImportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,11 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+// Import Inventory (Queued)
+Route::post('/import-inventory', [ImportController::class, 'store'])
+    ->middleware(['auth', 'verified', 'permission:activos.manage'])
+    ->name('import.inventory');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
@@ -188,6 +194,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/activos/depreciacion/pdf', [\App\Http\Controllers\DepreciacionController::class, 'exportPdf'])
         ->middleware('permission:activos.view')
         ->name('activos.depreciacion.pdf');
+    
+    Route::put('/activos/{activo}/depreciacion-config', [\App\Http\Controllers\DepreciacionController::class, 'configurar'])
+        ->middleware('permission:activos.manage')
+        ->name('activos.depreciacion.configurar');
+    
+    Route::post('/activos/depreciacion/masivo', [\App\Http\Controllers\DepreciacionController::class, 'configurarMasivo'])
+        ->middleware('permission:activos.manage')
+        ->name('activos.depreciacion.masivo');
 
     // Acta de Asignación
     Route::get('/activos/{activo}/acta-asignacion', [ActivoFijoController::class, 'generarActaAsignacion'])
