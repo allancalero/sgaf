@@ -726,31 +726,11 @@ watch(() => editForm.area_id, (newVal) => {
 
                         <div class="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex items-center justify-between text-sm">
-                                <p class="font-semibold text-gray-800 dark:text-gray-100">Detalles opcionales</p>
-                                <span class="text-gray-500 dark:text-gray-400">(Marca, modelo, color, serie, foto, descripción)</span>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Información adicional (opcional)</p>
+                                <span class="text-gray-500 dark:text-gray-400">(Foto y descripción)</span>
                             </div>
-                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Marca</label>
-                                    <input v-model="createForm.marca" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
-                                    <p v-if="createForm.errors.marca" class="mt-1 text-sm text-red-600">{{ createForm.errors.marca }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Modelo</label>
-                                    <input v-model="createForm.modelo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
-                                    <p v-if="createForm.errors.modelo" class="mt-1 text-sm text-red-600">{{ createForm.errors.modelo }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
-                                    <input v-model="createForm.color" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
-                                    <p v-if="createForm.errors.color" class="mt-1 text-sm text-red-600">{{ createForm.errors.color }}</p>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Serie</label>
-                                    <input v-model="createForm.serie" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
-                                    <p v-if="createForm.errors.serie" class="mt-1 text-sm text-red-600">{{ createForm.errors.serie }}</p>
-                                </div>
-                                <div class="lg:col-span-2">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del activo <span class="text-xs text-gray-500">(JPG/PNG, max 2MB)</span></label>
                                     <input 
                                         type="file" 
@@ -841,6 +821,19 @@ watch(() => editForm.area_id, (newVal) => {
                                             class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                                             :required="field.required"
                                         />
+                                    </div>
+                                    <!-- Campo textarea -->
+                                    <div v-else-if="field.field_type === 'textarea'" class="sm:col-span-2 lg:col-span-3">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ field.field_label }}
+                                            <span v-if="field.required" class="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            v-model="createForm.custom_fields[field.field_name]"
+                                            rows="3"
+                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                            :required="field.required"
+                                        ></textarea>
                                     </div>
                                 </div>
                             </div>

@@ -192,56 +192,56 @@ watch(() => props.activos, () => {
         <div class="py-8">
             <div class="mx-auto max-w-7xl space-y-8 sm:px-6 lg:px-8">
                 <div class="grid gap-4 sm:grid-cols-3">
-                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12l4-4m-4 4l4 4" />
                             </svg>
                             <span>Activos filtrados</span>
                         </div>
-                        <p class="text-2xl font-semibold text-gray-900">{{ totales.cantidad }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ totales.cantidad }}</p>
                     </div>
-                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 1.12-3 2.5S10.343 13 12 13s3 1.12 3 2.5S13.657 18 12 18m0-10v-2m0 12v2" />
                             </svg>
                             <span>Valor total</span>
                         </div>
-                        <p class="text-2xl font-semibold text-indigo-700">{{ formatCurrency(totales.valor || 0) }}</p>
+                        <p class="text-2xl font-semibold text-indigo-700 dark:text-indigo-400">{{ formatCurrency(totales.valor || 0) }}</p>
                     </div>
-                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16M4 12l4-4m-4 4l4 4" />
                             </svg>
                             <span>Promedio</span>
                         </div>
-                        <p class="text-2xl font-semibold text-amber-600">{{ formatCurrency(totales.cantidad ? (totales.valor || 0) / totales.cantidad : 0) }}</p>
+                        <p class="text-2xl font-semibold text-amber-600 dark:text-amber-400">{{ formatCurrency(totales.cantidad ? (totales.valor || 0) / totales.cantidad : 0) }}</p>
                     </div>
                 </div>
 
                 <!-- Charts Section -->
                 <div class="grid gap-6 md:grid-cols-2">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Estado de Activos</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Estado de Activos</h3>
                         <div class="h-64">
                             <canvas id="chart-status"></canvas>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Activos por Clasificación</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Activos por Clasificación</h3>
                         <div class="h-64">
                             <canvas id="chart-area"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Reporte de inventario</h3>
-                            <p class="text-sm text-gray-500">Filtra y exporta en CSV o PDF.</p>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Reporte de inventario</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Filtra y exporta en CSV o PDF.</p>
                         </div>
                         <div class="flex gap-2 text-sm">
                             <a :href="urlInventarioPdf" class="inline-flex items-center gap-2 rounded-md bg-red-600 px-3 py-2 font-semibold text-white shadow-sm transition hover:bg-red-700">

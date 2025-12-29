@@ -66,7 +66,7 @@ onMounted(() => {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h8V5H3v8zm0 6h8v-4H3v4zm10 0h8V11h-8v8zm0-12h8V5h-8v2z" />
                                 </svg>
-                                <span>Dashboard</span>
+                                <span>Vista General</span>
                             </span>
                         </NavLink>
                     </div>
@@ -105,6 +105,14 @@ onMounted(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
                                     <span>Activos</span>
+                                </span>
+                            </NavLink>
+                            <NavLink :href="route('mis-activos.index')" :active="route().current('mis-activos.*')">
+                                <span class="inline-flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span>Mis Activos</span>
                                 </span>
                             </NavLink>
                             <NavLink v-if="can('catalogos.manage')" :href="route('activos-fijo-vista.index')" :active="route().current('activos-fijo-vista.index')">
@@ -365,7 +373,7 @@ onMounted(() => {
 
                     <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                         <div class="space-y-1 pb-3 pt-2">
-                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Dashboard</ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">Vista General</ResponsiveNavLink>
 
                             <!-- Sección: Gestionar Catálogos -->
                             <p v-if="can('catalogos.manage')" class="px-4 pt-4 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Gestionar Catálogos</p>
@@ -392,6 +400,12 @@ onMounted(() => {
                                 :active="route().current('activos.index') || route().current('activos.resumen')"
                             >
                                 Activos
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('mis-activos.index')"
+                                :active="route().current('mis-activos.*')"
+                            >
+                                Mis Activos
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 v-if="can('catalogos.manage')"
@@ -487,6 +501,23 @@ onMounted(() => {
                 <main>
                     <slot />
                 </main>
+
+                <!-- Footer -->
+                <footer class="border-t border-gray-200 bg-white/80 backdrop-blur transition-colors dark:border-gray-800 dark:bg-gray-900/70">
+                    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+                        <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+                            <p>
+                                © {{ new Date().getFullYear() }} 
+                                <span class="font-semibold text-indigo-600 dark:text-indigo-400">
+                                    {{ system.nombre_alcaldia || 'SGAF' }}
+                                </span>
+                            </p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                                Sistema de Gestión de Activos Fijos
+                            </p>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </div>
     </div>

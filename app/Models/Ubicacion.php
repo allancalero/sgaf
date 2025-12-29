@@ -18,7 +18,7 @@ class Ubicacion extends Model
         'estado',
     ];
 
-    // Inverse relationship
+    // Relationships
     public function activosFijos()
     {
         return $this->hasMany(ActivoFijo::class, 'ubicacion_id');

@@ -12,6 +12,8 @@ const props = defineProps({
 
 const filtroArea = ref(null);
 const filtroResponsable = ref(null);
+const busquedaCodigo = ref('');
+const activoBuscado = ref(null);
 
 const form = useForm({
     activo_id: null,
@@ -82,6 +84,29 @@ watch([filtroArea, filtroResponsable], ([newArea, newResponsable]) => {
     form.activo_id = null;
 });
 
+// Watch para buscar por código de inventario
+watch(busquedaCodigo, (codigo) => {
+    if (!codigo) {
+        activoBuscado.value = null;
+        return;
+    }
+    
+    const activo = props.activos.find(a => 
+        a.codigo?.toLowerCase() === codigo.toLowerCase().trim()
+    );
+    
+    if (activo) {
+        activoBuscado.value = activo;
+        // Auto-cargar filtros
+        filtroArea.value = activo.area_id;
+        filtroResponsable.value = activo.responsable_actual_id;
+        // Auto-seleccionar el activo encontrado
+        form.activo_id = activo.id;
+    } else {
+        activoBuscado.value = null;
+    }
+});
+
 watch(() => form.activo_id, (newVal) => {
     activoSeleccionado.value = props.activos.find(a => a.id === newVal);
     if (activoSeleccionado.value) {
@@ -129,8 +154,39 @@ const removeFoto = () => {
                     <form @submit.prevent="submit" class="p-6 space-y-6">
                         <!-- Filtros -->
                         <div class="rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
-                            <h3 class="text-sm font-semibold text-indigo-700 dark:text-indigo-300 mb-3">🔍 Filtros de Búsqueda (opcional)</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <h3 class="text-sm font-semibold text-indigo-700 dark:text-indigo-300 mb-3">🔍 Búsqueda Rápida</h3>
+                            
+                            <!-- Búsqueda por Código -->
+                            <div class="mb-4">
+                                <label class="block text-xs font-medium text-indigo-600 dark:text-indigo-400 mb-1">Buscar por Código de Inventario</label>
+                                <div class="relative">
+                                    <input 
+                                        v-model="busquedaCodigo" 
+                                        type="text" 
+                                        placeholder="Ej: ACT-2024-001"
+                                        class="block w-full rounded-md border-indigo-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-indigo-600 dark:bg-gray-700 dark:text-gray-100 text-sm pr-10"
+                                    />
+                                    <svg v-if="activoBuscado" class="absolute right-3 top-2.5 h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <svg v-else-if="busquedaCodigo && !activoBuscado" class="absolute right-3 top-2.5 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <p v-if="activoBuscado" class="mt-1 text-xs text-green-600 dark:text-green-400">
+                                    ✓ Activo encontrado: {{ activoBuscado.descripcion }}
+                                </p>
+                                <p v-else-if="busquedaCodigo && !activoBuscado" class="mt-1 text-xs text-red-600 dark:text-red-400">
+                                    ✗ No se encontró el código "{{ busquedaCodigo }}"
+                                </p>
+                                <p v-else class="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
+                                    Escribe el código exacto para carga automática
+                                </p>
+                            </div>
+
+                            <div class="border-t border-indigo-200 dark:border-indigo-700 pt-4 mt-4">
+                                <h4 class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-3">O filtra manualmente:</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Filtro por Área -->
                                 <div>
                                     <label class="block text-xs font-medium text-indigo-600 dark:text-indigo-400 mb-1">Filtrar por Área</label>
@@ -152,6 +208,7 @@ const removeFoto = () => {
                                     </select>
                                     <p v-if="!filtroArea" class="mt-1 text-xs text-amber-600 dark:text-amber-400">Primero selecciona un área</p>
                                     <p v-else-if="responsablesFiltrados.length === 0" class="mt-1 text-xs text-amber-600 dark:text-amber-400">No hay responsables en esta área</p>
+                                </div>
                                 </div>
                             </div>
                             <p class="mt-2 text-xs text-indigo-600 dark:text-indigo-400">Usa estos filtros para encontrar activos específicos más rápidamente</p>

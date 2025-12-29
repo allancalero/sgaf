@@ -11,10 +11,16 @@ class Area extends Model
 
     protected $fillable = [
         'nombre',
+        'ubicacion_id',
         'estado',
     ];
 
-    // Inverse relationships
+    // Relationships
+    public function ubicacion()
+    {
+        return $this->belongsTo(Ubicacion::class);
+    }
+
     public function activosFijos()
     {
         return $this->hasMany(ActivoFijo::class, 'area_id');

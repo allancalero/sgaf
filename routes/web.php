@@ -20,6 +20,7 @@ use App\Http\Controllers\RecursosHumanosController;
 use App\Http\Controllers\UbicacionesController;
 use App\Http\Controllers\ActivosFijoController;
 use App\Http\Controllers\ReasignacionController;
+use App\Http\Controllers\MisActivosController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ImportController;
 use Illuminate\Foundation\Application;
@@ -146,6 +147,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('reasignaciones', ReasignacionController::class)
         ->parameters(['reasignaciones' => 'reasignacion'])
         ->middleware('permission:activos.manage');
+    
+    // Mis Activos - Delegación de activos
+    Route::get('/mis-activos', [MisActivosController::class, 'index'])->name('mis-activos.index');
+    Route::post('/mis-activos/delegar', [MisActivosController::class, 'delegar'])->name('mis-activos.delegar');
     Route::get('/reasignaciones/{reasignacion}/acta-pdf', [ReasignacionController::class, 'generarActaPdf'])
         ->middleware('permission:activos.view')
         ->name('reasignaciones.acta-pdf');

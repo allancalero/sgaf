@@ -1,0 +1,849 @@
+{
+    "edificios_e_instalaciones": [
+        {
+            "id": 2,
+            "nombre": "EDIFICIOS RESIDENCIALES E INSTALACIONES",
+            "campos": [
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción del Inmueble",
+                    "tipo": "textarea",
+                    "requerido": true,
+                    "orden": 1,
+                    "descripcion": "Descripción del inmueble, ubicación y estado de conservación"
+                },
+                {
+                    "nombre": "metros_cuadrados",
+                    "etiqueta": "Metros Cuadrados",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "estado_conservacion",
+                    "etiqueta": "Estado de Conservación",
+                    "tipo": "select",
+                    "opciones": [
+                        "Excelente",
+                        "Bueno",
+                        "Regular",
+                        "Malo"
+                    ],
+                    "requerido": false,
+                    "orden": 3
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "nombre": "EDIFICIOS NO RESIDENCIALES E INSTALACIONES",
+            "campos": [
+                {
+                    "nombre": "uso",
+                    "etiqueta": "Uso del Edificio",
+                    "tipo": "select",
+                    "opciones": [
+                        "Industrial",
+                        "Comercial",
+                        "Educativo",
+                        "Administrativo"
+                    ],
+                    "requerido": true,
+                    "orden": 1
+                },
+                {
+                    "nombre": "metros_cuadrados",
+                    "etiqueta": "Metros Cuadrados",
+                    "tipo": "number",
+                    "requerido": true,
+                    "orden": 2
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Áreas Específicas",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 3
+                }
+            ]
+        }
+    ],
+    "maquinaria_y_equipo": [
+        {
+            "id": 5,
+            "nombre": "EQUIPOS DE OFICINA",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 4,
+                    "descripcion": "Detalle de muebles, fotocopiadoras o mobiliario administrativo"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "nombre": "EQUIPO MÉDICO, SANITARIO Y DE LABORATORIO",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "especialidad_medica",
+                    "etiqueta": "Especialidad Médica",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "fecha_calibracion",
+                    "etiqueta": "Fecha de Calibración",
+                    "tipo": "date",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 6
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "nombre": "EQUIPO EDUCACIONAL Y RECREATIVO",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "tipo_equipo",
+                    "etiqueta": "Tipo de Equipo",
+                    "tipo": "select",
+                    "opciones": [
+                        "Material Didáctico",
+                        "Proyector",
+                        "Equipo Deportivo",
+                        "Otro"
+                    ],
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 4
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "nombre": "EQUIPO DE COMUNICACIONES",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "tipo_comunicacion",
+                    "etiqueta": "Tipo",
+                    "tipo": "select",
+                    "opciones": [
+                        "Radio",
+                        "Antena",
+                        "Central Telefónica",
+                        "Sistema de Red"
+                    ],
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 5
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "nombre": "EQUIPO DE COMPUTACIÓN",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "procesador",
+                    "etiqueta": "Procesador",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "ram",
+                    "etiqueta": "RAM (GB)",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "almacenamiento",
+                    "etiqueta": "Almacenamiento",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 6
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Periféricos",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 7
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "nombre": "EQUIPOS DE SEGURIDAD",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "tipo_seguridad",
+                    "etiqueta": "Tipo",
+                    "tipo": "select",
+                    "opciones": [
+                        "Cámara",
+                        "Alarma",
+                        "Blindaje",
+                        "Otro"
+                    ],
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 5
+                }
+            ]
+        }
+    ],
+    "vehiculos": [
+        {
+            "id": 18,
+            "nombre": "VEHÍCULOS LIVIANOS",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "color",
+                    "etiqueta": "Color",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "vin",
+                    "etiqueta": "VIN",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "placa",
+                    "etiqueta": "Placa",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 5
+                },
+                {
+                    "nombre": "tipo_combustible",
+                    "etiqueta": "Tipo de Combustible",
+                    "tipo": "select",
+                    "opciones": [
+                        "Gasolina",
+                        "Diesel",
+                        "Eléctrico",
+                        "Híbrido"
+                    ],
+                    "requerido": false,
+                    "orden": 6
+                },
+                {
+                    "nombre": "kilometraje",
+                    "etiqueta": "Kilometraje Inicial",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 7
+                },
+                {
+                    "nombre": "capacidad_pasajeros",
+                    "etiqueta": "Capacidad (Pasajeros)",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 8
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "nombre": "VEHÍCULOS PESADOS",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "color",
+                    "etiqueta": "Color",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "numero_chasis",
+                    "etiqueta": "Número de Chasis",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "numero_motor",
+                    "etiqueta": "Número de Motor",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "placa",
+                    "etiqueta": "Placa",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 6
+                },
+                {
+                    "nombre": "tonelaje",
+                    "etiqueta": "Tonelaje",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 7
+                },
+                {
+                    "nombre": "numero_ejes",
+                    "etiqueta": "Número de Ejes",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 8
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Descripción de Carga",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 9
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "nombre": "MOTOCICLETAS",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "color",
+                    "etiqueta": "Color",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "serie",
+                    "etiqueta": "Serie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "motor",
+                    "etiqueta": "Motor",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 5
+                },
+                {
+                    "nombre": "chasis",
+                    "etiqueta": "Chasis",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 6
+                },
+                {
+                    "nombre": "placa",
+                    "etiqueta": "Placa",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 7
+                },
+                {
+                    "nombre": "tipo_combustible",
+                    "etiqueta": "Tipo de Combustible",
+                    "tipo": "select",
+                    "opciones": [
+                        "Gasolina",
+                        "Diesel",
+                        "Eléctrico"
+                    ],
+                    "requerido": true,
+                    "orden": 8
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "nombre": "TRACTORES Y MAQUINARIA AGRÍCOLA",
+            "campos": [
+                {
+                    "nombre": "marca",
+                    "etiqueta": "Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "modelo",
+                    "etiqueta": "Modelo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "numero_motor",
+                    "etiqueta": "Número de Motor",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "potencia_hp",
+                    "etiqueta": "Potencia (HP)",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "horas_uso",
+                    "etiqueta": "Horas de Uso",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "descripcion",
+                    "etiqueta": "Implementos Incluidos",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 6
+                }
+            ]
+        }
+    ],
+    "activos_biologicos": [
+        {
+            "id": 27,
+            "nombre": "SEMOVIENTES",
+            "campos": [
+                {
+                    "nombre": "raza",
+                    "etiqueta": "Raza",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "color_pelaje",
+                    "etiqueta": "Color/Pelaje",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "fierro_marca",
+                    "etiqueta": "Fierro/Marca",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "identificacion",
+                    "etiqueta": "ID/Arete",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "edad",
+                    "etiqueta": "Edad",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "sexo",
+                    "etiqueta": "Sexo",
+                    "tipo": "select",
+                    "opciones": [
+                        "Macho",
+                        "Hembra"
+                    ],
+                    "requerido": false,
+                    "orden": 6
+                },
+                {
+                    "nombre": "peso",
+                    "etiqueta": "Peso (kg)",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 7
+                },
+                {
+                    "nombre": "fin_zootecnico",
+                    "etiqueta": "Fin Zootécnico",
+                    "tipo": "select",
+                    "opciones": [
+                        "Cría",
+                        "Engorde",
+                        "Trabajo",
+                        "Reproducción"
+                    ],
+                    "requerido": false,
+                    "orden": 8
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "nombre": "ÁRBOLES Y PLANTAS",
+            "campos": [
+                {
+                    "nombre": "especie",
+                    "etiqueta": "Especie",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 1
+                },
+                {
+                    "nombre": "variedad",
+                    "etiqueta": "Variedad Botánica",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "etapa",
+                    "etiqueta": "Etapa de Desarrollo",
+                    "tipo": "select",
+                    "opciones": [
+                        "Germinación",
+                        "Crecimiento",
+                        "Producción",
+                        "Decadencia"
+                    ],
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "lote",
+                    "etiqueta": "Lote",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "anio_plantacion",
+                    "etiqueta": "Año de Plantación",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "area_cultivo",
+                    "etiqueta": "Área de Cultivo (m²)",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 6
+                }
+            ]
+        }
+    ],
+    "otros_activos_tangibles": [
+        {
+            "id": 31,
+            "nombre": "LIBROS, REVISTAS Y COLECCIONABLES",
+            "campos": [
+                {
+                    "nombre": "titulo",
+                    "etiqueta": "Título",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 1
+                },
+                {
+                    "nombre": "autor",
+                    "etiqueta": "Autor",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "editorial",
+                    "etiqueta": "Editorial",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "anio_publicacion",
+                    "etiqueta": "Año de Publicación",
+                    "tipo": "number",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "isbn",
+                    "etiqueta": "ISBN",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "estado_fisico",
+                    "etiqueta": "Estado Físico",
+                    "tipo": "select",
+                    "opciones": [
+                        "Excelente",
+                        "Bueno",
+                        "Regular",
+                        "Malo"
+                    ],
+                    "requerido": false,
+                    "orden": 6
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "nombre": "OBRAS DE ARTE",
+            "campos": [
+                {
+                    "nombre": "titulo",
+                    "etiqueta": "Título de la Obra",
+                    "tipo": "text",
+                    "requerido": true,
+                    "orden": 1
+                },
+                {
+                    "nombre": "autor",
+                    "etiqueta": "Autor/Artista",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 2
+                },
+                {
+                    "nombre": "estilo",
+                    "etiqueta": "Estilo",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 3
+                },
+                {
+                    "nombre": "tecnica",
+                    "etiqueta": "Técnica",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 4
+                },
+                {
+                    "nombre": "dimensiones",
+                    "etiqueta": "Dimensiones",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 5
+                },
+                {
+                    "nombre": "numero_registro",
+                    "etiqueta": "Número de Registro",
+                    "tipo": "text",
+                    "requerido": false,
+                    "orden": 6
+                },
+                {
+                    "nombre": "certificado_autenticidad",
+                    "etiqueta": "Certificado de Autenticidad",
+                    "tipo": "select",
+                    "opciones": [
+                        "Sí",
+                        "No"
+                    ],
+                    "requerido": false,
+                    "orden": 7
+                },
+                {
+                    "nombre": "valor_historico",
+                    "etiqueta": "Valor Histórico",
+                    "tipo": "textarea",
+                    "requerido": false,
+                    "orden": 8
+                }
+            ]
+        }
+    ]
+}
