@@ -27,57 +27,65 @@ class ActivoFijoController extends Controller
 {
     public function index(): Response
     {
-        $query = ActivoFijo::query()
-            ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
-            ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
-            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
-            ->leftJoin('tipos_activos', 'activos_fijos.tipo_activo_id', '=', 'tipos_activos.id')
-            ->leftJoin('fuentes_financiamiento', 'activos_fijos.fuente_financiamiento_id', '=', 'fuentes_financiamiento.id')
-            ->leftJoin('proveedores', 'activos_fijos.proveedor_id', '=', 'proveedores.id')
-            ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
-            ->leftJoin('cheques', 'activos_fijos.cheque_id', '=', 'cheques.id')
-            ->select(
-                'activos_fijos.id',
-                'activos_fijos.codigo_inventario',
-                'activos_fijos.nombre_activo',
-                'activos_fijos.estado',
-                'activos_fijos.cantidad',
-                'activos_fijos.precio_adquisicion',
-                'activos_fijos.fecha_adquisicion',
-                'activos_fijos.area_id',
-                'activos_fijos.ubicacion_id',
-                'activos_fijos.clasificacion_id',
-                'activos_fijos.tipo_activo_id',
-                'activos_fijos.fuente_financiamiento_id',
-                'activos_fijos.proveedor_id',
-                'activos_fijos.personal_id',
-                'activos_fijos.cheque_id',
-                'activos_fijos.created_at',
-                'activos_fijos.updated_at',
-                'areas.nombre as area',
-                'ubicaciones.nombre as ubicacion',
-                'clasificaciones.nombre as clasificacion',
-                'tipos_activos.nombre as tipo',
-                'fuentes_financiamiento.nombre as fuente',
-                'proveedores.nombre as proveedor',
-                'cheques.numero_cheque',
-                DB::raw("CONCAT(personal.nombre, ' ', personal.apellido) as responsable")
-            );
+        // Build query with eager loading instead of manual joins
+        $query = ActivoFijo::with([
+            'area:id,nombre',
+            'ubicacion:id,nombre',
+            'clasificacion:id,codigo,nombre',
+            'tipoActivo:id,nombre',
+            'fuenteFinanciamiento:id,nombre',
+            'proveedor:id,nombre',
+            'personal:id,nombre,apellido',
+            'cheque:id,numero_cheque'
+        ]);
 
         // Aplicar filtro de búsqueda si existe
         if (request('search')) {
             $search = request('search');
             $query->where(function($q) use ($search) {
-                $q->where('activos_fijos.codigo_inventario', 'like', "%{$search}%")
-                  ->orWhere('activos_fijos.nombre_activo', 'like', "%{$search}%")
-                  ->orWhere('personal.nombre', 'like', "%{$search}%")
-                  ->orWhere('personal.apellido', 'like', "%{$search}%");
+                $q->where('codigo_inventario', 'like', "%{$search}%")
+                  ->orWhere('nombre_activo', 'like', "%{$search}%")
+                  ->orWhereHas('personal', function($q) use ($search) {
+                      $q->where('nombre', 'like', "%{$search}%")
+                        ->orWhere('apellido', 'like', "%{$search}%");
+                  });
             });
         }
 
-        $activos = $query->orderByDesc('activos_fijos.created_at')
+        $activos = $query->orderByDesc('created_at')
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($activo) {
+                return [
+                    'id' => $activo->id,
+                    'codigo_inventario' => $activo->codigo_inventario,
+                    'nombre_activo' => $activo->nombre_activo,
+                    'estado' => $activo->estado,
+                    'cantidad' => $activo->cantidad,
+                    'precio_adquisicion' => $activo->precio_adquisicion,
+                    'fecha_adquisicion' => $activo->fecha_adquisicion,
+                    'area_id' => $activo->area_id,
+                    'ubicacion_id' => $activo->ubicacion_id,
+                    'clasificacion_id' => $activo->clasificacion_id,
+                    'tipo_activo_id' => $activo->tipo_activo_id,
+                    'fuente_financiamiento_id' => $activo->fuente_financiamiento_id,
+                    'proveedor_id' => $activo->proveedor_id,
+                    'personal_id' => $activo->personal_id,
+                    'cheque_id' => $activo->cheque_id,
+                    'created_at' => $activo->created_at,
+                    'updated_at' => $activo->updated_at,
+                    'area' => $activo->area?->nombre,
+                    'ubicacion' => $activo->ubicacion?->nombre,
+                    'clasificacion' => $activo->clasificacion?->nombre,
+                    'tipo' => $activo->tipoActivo?->nombre,
+                    'fuente' => $activo->fuenteFinanciamiento?->nombre,
+                    'proveedor' => $activo->proveedor?->nombre,
+                    'numero_cheque' => $activo->cheque?->numero_cheque,
+                    'responsable' => $activo->personal 
+                        ? "{$activo->personal->nombre} {$activo->personal->apellido}" 
+                        : null,
+                ];
+            });
 
         $totalActivos = ActivoFijo::count();
 
@@ -344,40 +352,49 @@ class ActivoFijoController extends Controller
             'estado' => ['nullable', 'string'],
         ]);
 
-        $query = ActivoFijo::query()
-            ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
-            ->leftJoin('ubicaciones', 'activos_fijos.ubicacion_id', '=', 'ubicaciones.id')
-            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
-            ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
-            ->select(
-                'activos_fijos.id',
-                'activos_fijos.codigo_inventario',
-                'activos_fijos.nombre_activo',
-                'activos_fijos.estado',
-                'activos_fijos.precio_adquisicion',
-                'areas.nombre as area',
-                'ubicaciones.nombre as ubicacion',
-                'clasificaciones.nombre as clasificacion',
-                DB::raw("CONCAT_WS(' ', personal.nombre, personal.apellido) as responsable"),
-            );
+        // Use eager loading instead of joins
+        $query = ActivoFijo::with([
+            'area:id,nombre',
+            'ubicacion:id,nombre',
+            'clasificacion:id,nombre',
+            'personal:id,nombre,apellido',
+        ]);
 
+        // Apply filters
         if ($filters['area_id'] ?? false) {
-            $query->where('activos_fijos.area_id', $filters['area_id']);
+            $query->where('area_id', $filters['area_id']);
         }
         if ($filters['ubicacion_id'] ?? false) {
-            $query->where('activos_fijos.ubicacion_id', $filters['ubicacion_id']);
+            $query->where('ubicacion_id', $filters['ubicacion_id']);
         }
         if ($filters['personal_id'] ?? false) {
-            $query->where('activos_fijos.personal_id', $filters['personal_id']);
+            $query->where('personal_id', $filters['personal_id']);
         }
         if ($filters['clasificacion_id'] ?? false) {
-            $query->where('activos_fijos.clasificacion_id', $filters['clasificacion_id']);
+            $query->where('clasificacion_id', $filters['clasificacion_id']);
         }
         if ($filters['estado'] ?? false) {
-            $query->where('activos_fijos.estado', $filters['estado']);
+            $query->where('estado', $filters['estado']);
         }
 
-        $activos = $query->orderBy('activos_fijos.codigo_inventario')->get();
+        $activosRaw = $query->orderBy('codigo_inventario')->get();
+        
+        // Transform data for the report
+        $activos = $activosRaw->map(function ($activo) {
+            return (object) [
+                'id' => $activo->id,
+                'codigo_inventario' => $activo->codigo_inventario,
+                'nombre_activo' => $activo->nombre_activo,
+                'estado' => $activo->estado,
+                'precio_adquisicion' => $activo->precio_adquisicion,
+                'area' => $activo->area?->nombre,
+                'ubicacion' => $activo->ubicacion?->nombre,
+                'clasificacion' => $activo->clasificacion?->nombre,
+                'responsable' => $activo->personal 
+                    ? "{$activo->personal->nombre} {$activo->personal->apellido}" 
+                    : null,
+            ];
+        });
 
         $totales = [
             'cantidad' => $activos->count(),

@@ -29,4 +29,26 @@ class Personal extends Model
         'estado',
         'foto',
     ];
+
+    // Relationships
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class, 'cargo_id');
+    }
+
+    public function ubicacion()
+    {
+        return $this->belongsTo(Ubicacion::class, 'ubicacion_id');
+    }
+
+    // Inverse relationship
+    public function activosFijos()
+    {
+        return $this->hasMany(ActivoFijo::class, 'personal_id');
+    }
 }

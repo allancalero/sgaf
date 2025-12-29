@@ -15,4 +15,10 @@ class Clasificacion extends Model
         'codigo',
         'nombre',
     ];
+
+    // Relationship with custom fields
+    public function customFields()
+    {
+        return $this->hasMany(ClassificationField::class, 'clasificacion_id')->orderBy('order');
+    }
 }

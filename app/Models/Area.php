@@ -13,4 +13,15 @@ class Area extends Model
         'nombre',
         'estado',
     ];
+
+    // Inverse relationships
+    public function activosFijos()
+    {
+        return $this->hasMany(ActivoFijo::class, 'area_id');
+    }
+
+    public function personal()
+    {
+        return $this->hasMany(Personal::class, 'area_id');
+    }
 }

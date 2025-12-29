@@ -64,6 +64,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/clasificaciones', [ClasificacionController::class, 'store'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.store'])->name('clasificaciones.store');
     Route::put('/clasificaciones/{clasificacion}', [ClasificacionController::class, 'update'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.update'])->name('clasificaciones.update');
     Route::delete('/clasificaciones/{clasificacion}', [ClasificacionController::class, 'destroy'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.destroy'])->name('clasificaciones.destroy');
+    
+    // Classification Fields Configuration
+    Route::get('/clasificaciones/{clasificacion}/fields', [App\Http\Controllers\ClassificationFieldController::class, 'index'])
+        ->middleware('permission:catalogos.manage')
+        ->name('clasificaciones.fields.index');
+    Route::post('/clasificaciones/{clasificacion}/fields', [App\Http\Controllers\ClassificationFieldController::class, 'store'])
+        ->middleware('permission:catalogos.manage')
+        ->name('clasificaciones.fields.store');
+    Route::put('/classification-fields/{field}', [App\Http\Controllers\ClassificationFieldController::class, 'update'])
+        ->middleware('permission:catalogos.manage')
+        ->name('classification.fields.update');
+    Route::delete('/classification-fields/{field}', [App\Http\Controllers\ClassificationFieldController::class, 'destroy'])
+        ->middleware('permission:catalogos.manage')
+        ->name('classification.fields.destroy');
+    
+    // API endpoint for getting fields (without auth middleware for frontend)
+    Route::get('/api/clasificaciones/{clasificacion}/fields', [App\Http\Controllers\ClassificationFieldController::class, 'getFields'])
+        ->name('api.clasificaciones.fields');
 
     Route::get('/fuentes', [FuenteFinanciamientoController::class, 'index'])->middleware('permission:catalogos.manage')->name('fuentes.index');
     Route::post('/fuentes', [FuenteFinanciamientoController::class, 'store'])->middleware(['permission:catalogos.manage', 'audit:fuentes.store'])->name('fuentes.store');

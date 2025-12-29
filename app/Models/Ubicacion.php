@@ -17,4 +17,15 @@ class Ubicacion extends Model
         'direccion',
         'estado',
     ];
+
+    // Inverse relationship
+    public function activosFijos()
+    {
+        return $this->hasMany(ActivoFijo::class, 'ubicacion_id');
+    }
+
+    public function personal()
+    {
+        return $this->hasMany(Personal::class, 'ubicacion_id');
+    }
 }

@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
@@ -46,6 +47,10 @@ const filtroResponsable = ref('');
 const createPhotoPreview = ref(null);
 const editPhotoPreview = ref(null);
 const showImportModal = ref(false);
+
+// Custom fields for dynamic classification
+const customFields = ref([]);
+const loadingFields = ref(false);
 
 const importForm = useForm({
     file: null,
@@ -114,6 +119,8 @@ const createForm = useForm({
     vida_util_anos: '',
     valor_residual: 0,
     metodo_depreciacion: 'LINEAL',
+    // Custom fields
+    custom_fields: {},
 });
 
 const editForm = useForm({
@@ -143,6 +150,8 @@ const editForm = useForm({
     vida_util_anos: '',
     valor_residual: 0,
     metodo_depreciacion: 'LINEAL',
+    // Custom fields
+    custom_fields: {},
 });
 
 const showEditPanel = ref(false);
@@ -456,6 +465,34 @@ const handleEditCodigoKeydown = (event) => {
     }
 };
 
+// Load custom fields when classification changes
+const loadCustomFields = async (clasificacionId) => {
+    if (!clasificacionId) {
+        customFields.value = [];
+        createForm.custom_fields = {};
+        return;
+    }
+    
+    loadingFields.value = true;
+    try {
+        const response = await window.axios.get(`/api/clasificaciones/${clasificacionId}/fields`);
+        customFields.value = response.data;
+        // Initialize custom_fields object
+        createForm.custom_fields = {};
+        customFields.value.forEach(field => {
+            createForm.custom_fields[field.field_name] = '';
+        });
+    } catch (error) {
+        console.error('Error loading custom fields:', error);
+        if (error.response) {
+            console.error('Response:', error.response.status, error.response.data);
+        }
+        customFields.value = [];
+    } finally {
+        loadingFields.value = false;
+    }
+};
+
 watch(
     () => createForm.clasificacion_id,
     (id) => {
@@ -463,6 +500,8 @@ watch(
         if (plantilla && (!createForm.codigo_inventario || !createCodigoTouched.value)) {
             createForm.codigo_inventario = plantilla;
         }
+        // Load custom fields
+        loadCustomFields(id);
     }
 );
 
@@ -552,12 +591,8 @@ watch(() => editForm.area_id, (newVal) => {
                     </div>
 
                     <form class="mt-6 space-y-6" @submit.prevent="submitCreate">
-                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <div class="lg:col-span-2">
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre del activo *</label>
-                                <input v-model="createForm.nombre_activo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required maxlength="255" />
-                                <p v-if="createForm.errors.nombre_activo" class="mt-1 text-sm text-red-600">{{ createForm.errors.nombre_activo }}</p>
-                            </div>
+                        <!-- Primera fila: CLASIFICACIÓN, NOMBRE, CÓDIGO -->
+                        <div class="grid gap-4 sm:grid-cols-3">
                             <div>
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Clasificación *</label>
                                 <select v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
@@ -567,6 +602,11 @@ watch(() => editForm.area_id, (newVal) => {
                                     </option>
                                 </select>
                                 <p v-if="createForm.errors.clasificacion_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.clasificacion_id }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre del activo *</label>
+                                <input v-model="createForm.nombre_activo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required maxlength="255" />
+                                <p v-if="createForm.errors.nombre_activo" class="mt-1 text-sm text-red-600">{{ createForm.errors.nombre_activo }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Código inventario *</label>
@@ -729,6 +769,79 @@ watch(() => editForm.area_id, (newVal) => {
                                         class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                                     ></textarea>
                                     <p v-if="createForm.errors.descripcion" class="mt-1 text-sm text-red-600">{{ createForm.errors.descripcion }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campos Dinámicos por Clasificación -->
+                        <div v-if="customFields.length > 0" class="space-y-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
+                            <div class="flex items-center justify-between text-sm">
+                                <p class="font-semibold text-indigo-800 dark:text-indigo-200">
+                                    📋 Campos específicos ({{ clasificacionById[createForm.clasificacion_id]?.nombre }})
+                                </p>
+                                <span v-if="loadingFields" class="text-indigo-600 dark:text-indigo-400">
+                                    Cargando...
+                                </span>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div v-for="field in customFields" :key="field.id">
+                                    <!-- Campo de texto -->
+                                    <div v-if="field.field_type === 'text'">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ field.field_label }}
+                                            <span v-if="field.required" class="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            v-model="createForm.custom_fields[field.field_name]"
+                                            type="text"
+                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                            :required="field.required"
+                                        />
+                                    </div>
+                                    <!-- Campo numérico -->
+                                    <div v-else-if="field.field_type === 'number'">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ field.field_label }}
+                                            <span v-if="field.required" class="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            v-model="createForm.custom_fields[field.field_name]"
+                                            type="number"
+                                            step="any"
+                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                            :required="field.required"
+                                        />
+                                    </div>
+                                    <!-- Campo select -->
+                                    <div v-else-if="field.field_type === 'select'">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ field.field_label }}
+                                            <span v-if="field.required" class="text-red-500">*</span>
+                                        </label>
+                                        <select
+                                            v-model="createForm.custom_fields[field.field_name]"
+                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                            :required="field.required"
+                                        >
+                                            <option value="">Selecciona una opción</option>
+                                            <option v-for="option in field.field_options" :key="option" :value="option">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <!-- Campo fecha -->
+                                    <div v-else-if="field.field_type === 'date'">
+                                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ field.field_label }}
+                                            <span v-if="field.required" class="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            v-model="createForm.custom_fields[field.field_name]"
+                                            type="date"
+                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                            :required="field.required"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
