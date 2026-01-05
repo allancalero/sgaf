@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreUbicacionRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nombre' => ['required', 'string', 'max:255', 'unique:ubicaciones,nombre'],
+            'direccion' => ['nullable', 'string', 'max:500'],
+            'estado' => ['required', 'string', 'max:20'],
+        ];
+    }
+}
