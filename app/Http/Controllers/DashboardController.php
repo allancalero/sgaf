@@ -46,11 +46,17 @@ class DashboardController extends Controller
         $asignacionesPorMes = DB::table('historial_asignaciones')
             ->select(
                 DB::raw("CONCAT(YEAR(fecha_asignacion), '-', LPAD(MONTH(fecha_asignacion), 2, '0')) as label"),
-                DB::raw('COUNT(*) as value')
+                DB::raw('COUNT(*) as value'),
+                DB::raw('YEAR(fecha_asignacion) as year'),
+                DB::raw('MONTH(fecha_asignacion) as month')
             )
-            ->groupBy(DB::raw("CONCAT(YEAR(fecha_asignacion), '-', LPAD(MONTH(fecha_asignacion), 2, '0'))"))
-            ->orderBy(DB::raw('YEAR(fecha_asignacion)'))
-            ->orderBy(DB::raw('MONTH(fecha_asignacion)'))
+            ->groupBy(
+                DB::raw("CONCAT(YEAR(fecha_asignacion), '-', LPAD(MONTH(fecha_asignacion), 2, '0'))"),
+                DB::raw('YEAR(fecha_asignacion)'),
+                DB::raw('MONTH(fecha_asignacion)')
+            )
+            ->orderBy('year')
+            ->orderBy('month')
             ->get();
 
         return Inertia::render('Dashboard', [
