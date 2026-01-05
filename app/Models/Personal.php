@@ -29,7 +29,6 @@ class Personal extends Model
         'estado',
         'foto',
     ];
-<<<<<<< HEAD
 
     // Relationships
     public function area()
@@ -52,6 +51,4 @@ class Personal extends Model
     {
         return $this->hasMany(ActivoFijo::class, 'personal_id');
     }
-=======
->>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 }

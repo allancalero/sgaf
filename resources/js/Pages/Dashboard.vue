@@ -1,17 +1,10 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-<<<<<<< HEAD
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, DoughnutController, BarController, LineController } from 'chart.js';
 import { computed, onMounted, ref, watch } from 'vue';
 
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, DoughnutController, BarController, LineController);
-=======
-import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement } from 'chart.js';
-import { computed, onMounted, ref, watch } from 'vue';
-
-Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement);
->>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 
 const props = defineProps({
     totals: {

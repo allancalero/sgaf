@@ -112,19 +112,11 @@ const activosConHistorial = computed(() => activosList.value.filter((a) => (a.hi
                     </div>
                 </div>
 
-<<<<<<< HEAD
                 <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Historial por activo</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Filtra por código, nombre, responsable, área o ubicación.</p>
-=======
-                <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Historial por activo</h3>
-                            <p class="text-sm text-gray-500">Filtra por código, nombre, responsable, área o ubicación.</p>
->>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                         </div>
                         <div class="flex items-center gap-3">
                             <input
@@ -168,11 +160,7 @@ const activosConHistorial = computed(() => activosList.value.filter((a) => (a.hi
                                 <div
                                     v-for="mov in activo.historial"
                                     :key="mov.id"
-<<<<<<< HEAD
                                     class="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-700"
-=======
-                                    class="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
->>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                                 >
                                     <div class="mt-1 h-3 w-3 shrink-0 rounded-full bg-indigo-500" />
                                     <div class="flex-1 space-y-1">

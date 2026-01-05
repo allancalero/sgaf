@@ -11,7 +11,6 @@ class Area extends Model
 
     protected $fillable = [
         'nombre',
-<<<<<<< HEAD
         'ubicacion_id',
         'estado',
     ];
@@ -31,8 +30,4 @@ class Area extends Model
     {
         return $this->hasMany(Personal::class, 'area_id');
     }
-=======
-        'estado',
-    ];
->>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 }
