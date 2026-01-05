@@ -17,6 +17,7 @@ class Ubicacion extends Model
         'direccion',
         'estado',
     ];
+<<<<<<< HEAD
 
     // Relationships
     public function activosFijos()
@@ -28,4 +29,6 @@ class Ubicacion extends Model
     {
         return $this->hasMany(Personal::class, 'ubicacion_id');
     }
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 }

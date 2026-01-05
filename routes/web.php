@@ -65,7 +65,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/clasificaciones', [ClasificacionController::class, 'store'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.store'])->name('clasificaciones.store');
     Route::put('/clasificaciones/{clasificacion}', [ClasificacionController::class, 'update'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.update'])->name('clasificaciones.update');
     Route::delete('/clasificaciones/{clasificacion}', [ClasificacionController::class, 'destroy'])->middleware(['permission:catalogos.manage', 'audit:clasificaciones.destroy'])->name('clasificaciones.destroy');
-    
     // Classification Fields Configuration
     Route::get('/clasificaciones/{clasificacion}/fields', [App\Http\Controllers\ClassificationFieldController::class, 'index'])
         ->middleware('permission:catalogos.manage')
@@ -147,7 +146,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('reasignaciones', ReasignacionController::class)
         ->parameters(['reasignaciones' => 'reasignacion'])
         ->middleware('permission:activos.manage');
-    
     // Mis Activos - Delegación de activos
     Route::get('/mis-activos', [MisActivosController::class, 'index'])->name('mis-activos.index');
     Route::post('/mis-activos/delegar', [MisActivosController::class, 'delegar'])->name('mis-activos.delegar');

@@ -167,19 +167,34 @@ const urlPdf = computed(() => route('activos.depreciacion.pdf', filtros.data()))
                 
                 <!-- Stats Cards -->
                 <div class="grid gap-4 sm:grid-cols-4">
+<<<<<<< HEAD
                     <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+=======
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
                             <span>Total Activos</span>
                         </div>
+<<<<<<< HEAD
                         <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ totales.total_activos }}</p>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+=======
+                        <p class="text-2xl font-semibold text-gray-900">{{ totales.total_activos }}</p>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 1.12-3 2.5S10.343 13 12 13s3 1.12 3 2.5S13.657 18 12 18m0-10v-2m0 12v2" />
                             </svg>
                             <span>Valor Original</span>
@@ -209,8 +224,13 @@ const urlPdf = computed(() => route('activos.depreciacion.pdf', filtros.data()))
                 </div>
 
                 <!-- Filtros -->
+<<<<<<< HEAD
                 <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Filtros</h3>
+=======
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtros</h3>
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                     <form @submit.prevent="aplicarFiltros" class="grid gap-4 sm:grid-cols-4">
                         <div>
                             <label class="text-xs font-semibold text-gray-700">Área</label>
@@ -251,7 +271,11 @@ const urlPdf = computed(() => route('activos.depreciacion.pdf', filtros.data()))
                 </div>
 
                 <!-- Tab: Activos Configurados -->
+<<<<<<< HEAD
                 <div v-show="activeTab === 'configurados'" class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+=======
+                <div v-show="activeTab === 'configurados'" class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-100 text-left text-sm text-gray-700">
                             <thead class="bg-gray-50 text-xs uppercase text-gray-500">

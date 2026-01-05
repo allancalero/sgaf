@@ -3,7 +3,10 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import Swal from 'sweetalert2';
+<<<<<<< HEAD
 import axios from 'axios';
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
@@ -48,10 +51,13 @@ const createPhotoPreview = ref(null);
 const editPhotoPreview = ref(null);
 const showImportModal = ref(false);
 
+<<<<<<< HEAD
 // Custom fields for dynamic classification
 const customFields = ref([]);
 const loadingFields = ref(false);
 
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 const importForm = useForm({
     file: null,
 });
@@ -119,8 +125,11 @@ const createForm = useForm({
     vida_util_anos: '',
     valor_residual: 0,
     metodo_depreciacion: 'LINEAL',
+<<<<<<< HEAD
     // Custom fields
     custom_fields: {},
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 });
 
 const editForm = useForm({
@@ -150,8 +159,11 @@ const editForm = useForm({
     vida_util_anos: '',
     valor_residual: 0,
     metodo_depreciacion: 'LINEAL',
+<<<<<<< HEAD
     // Custom fields
     custom_fields: {},
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 });
 
 const showEditPanel = ref(false);
@@ -465,6 +477,7 @@ const handleEditCodigoKeydown = (event) => {
     }
 };
 
+<<<<<<< HEAD
 // Load custom fields when classification changes
 const loadCustomFields = async (clasificacionId) => {
     if (!clasificacionId) {
@@ -493,6 +506,8 @@ const loadCustomFields = async (clasificacionId) => {
     }
 };
 
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 watch(
     () => createForm.clasificacion_id,
     (id) => {
@@ -500,8 +515,11 @@ watch(
         if (plantilla && (!createForm.codigo_inventario || !createCodigoTouched.value)) {
             createForm.codigo_inventario = plantilla;
         }
+<<<<<<< HEAD
         // Load custom fields
         loadCustomFields(id);
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
     }
 );
 
@@ -591,8 +609,17 @@ watch(() => editForm.area_id, (newVal) => {
                     </div>
 
                     <form class="mt-6 space-y-6" @submit.prevent="submitCreate">
+<<<<<<< HEAD
                         <!-- Primera fila: CLASIFICACIÓN, NOMBRE, CÓDIGO -->
                         <div class="grid gap-4 sm:grid-cols-3">
+=======
+                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="lg:col-span-2">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre del activo *</label>
+                                <input v-model="createForm.nombre_activo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required maxlength="255" />
+                                <p v-if="createForm.errors.nombre_activo" class="mt-1 text-sm text-red-600">{{ createForm.errors.nombre_activo }}</p>
+                            </div>
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                             <div>
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Clasificación *</label>
                                 <select v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
@@ -604,11 +631,14 @@ watch(() => editForm.area_id, (newVal) => {
                                 <p v-if="createForm.errors.clasificacion_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.clasificacion_id }}</p>
                             </div>
                             <div>
+<<<<<<< HEAD
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre del activo *</label>
                                 <input v-model="createForm.nombre_activo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required maxlength="255" />
                                 <p v-if="createForm.errors.nombre_activo" class="mt-1 text-sm text-red-600">{{ createForm.errors.nombre_activo }}</p>
                             </div>
                             <div>
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Código inventario *</label>
                                 <input
                                     v-model="createForm.codigo_inventario"
@@ -726,11 +756,39 @@ watch(() => editForm.area_id, (newVal) => {
 
                         <div class="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex items-center justify-between text-sm">
+<<<<<<< HEAD
                                 <p class="font-semibold text-gray-800 dark:text-gray-100">Información adicional (opcional)</p>
                                 <span class="text-gray-500 dark:text-gray-400">(Foto y descripción)</span>
                             </div>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
+=======
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Detalles opcionales</p>
+                                <span class="text-gray-500 dark:text-gray-400">(Marca, modelo, color, serie, foto, descripción)</span>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Marca</label>
+                                    <input v-model="createForm.marca" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                    <p v-if="createForm.errors.marca" class="mt-1 text-sm text-red-600">{{ createForm.errors.marca }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Modelo</label>
+                                    <input v-model="createForm.modelo" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                    <p v-if="createForm.errors.modelo" class="mt-1 text-sm text-red-600">{{ createForm.errors.modelo }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
+                                    <input v-model="createForm.color" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                    <p v-if="createForm.errors.color" class="mt-1 text-sm text-red-600">{{ createForm.errors.color }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Serie</label>
+                                    <input v-model="createForm.serie" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                    <p v-if="createForm.errors.serie" class="mt-1 text-sm text-red-600">{{ createForm.errors.serie }}</p>
+                                </div>
+                                <div class="lg:col-span-2">
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Foto del activo <span class="text-xs text-gray-500">(JPG/PNG, max 2MB)</span></label>
                                     <input 
                                         type="file" 
@@ -753,6 +811,7 @@ watch(() => editForm.area_id, (newVal) => {
                             </div>
                         </div>
 
+<<<<<<< HEAD
                         <!-- Campos Dinámicos por Clasificación -->
                         <div v-if="customFields.length > 0" class="space-y-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
                             <div class="flex items-center justify-between text-sm">
@@ -839,6 +898,8 @@ watch(() => editForm.area_id, (newVal) => {
                             </div>
                         </div>
 
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
                         <div class="flex justify-end">
                             <button
                                 type="submit"

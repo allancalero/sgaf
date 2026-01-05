@@ -43,12 +43,15 @@ class ActivoFijo extends Model
         'depreciacion_acumulada',
         'valor_libros',
         'fecha_ultima_depreciacion',
+<<<<<<< HEAD
         // Custom fields for dynamic attributes
         'custom_fields',
     ];
 
     protected $casts = [
         'custom_fields' => 'array',
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
     ];
 
     // Relationships
@@ -96,6 +99,7 @@ class ActivoFijo extends Model
     {
         return $this->belongsTo(Cheque::class, 'cheque_id');
     }
+<<<<<<< HEAD
 
     // Scopes for common queries
     public function scopeConRelaciones($query)
@@ -126,4 +130,6 @@ class ActivoFijo extends Model
     {
         return $query->where('clasificacion_id', $clasificacionId);
     }
+=======
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
 }

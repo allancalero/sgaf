@@ -55,7 +55,11 @@ return [
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
+<<<<<<< HEAD
             'strict' => true,
+=======
+            'strict' => false,
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
@@ -147,7 +151,11 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
+<<<<<<< HEAD
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+=======
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
+>>>>>>> 8f3e0761afe5c74474f514ac2afef3e6d88db82c
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
