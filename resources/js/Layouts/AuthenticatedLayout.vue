@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -35,10 +35,24 @@ const toggleTheme = () => {
     applyTheme(theme.value === 'dark' ? 'light' : 'dark');
 };
 
+const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchBtn = document.getElementById('global-search-btn');
+        if (searchBtn) searchBtn.click();
+    }
+};
+
 onMounted(() => {
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+
+    window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 
@@ -311,12 +325,16 @@ onMounted(() => {
                             <Link
                                 v-if="can('activos.view')"
                                 :href="route('activos.busqueda')"
-                                class="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-indigo-100 hover:border-indigo-300 dark:border-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-900/70 dark:hover:border-indigo-500"
+                                id="global-search-btn"
+                                class="group inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50/50 px-3 py-2 text-sm font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 hover:border-indigo-300 dark:border-indigo-700/50 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/60 dark:hover:border-indigo-500"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <span class="hidden sm:inline">Búsqueda Rápida</span>
+                                <kbd class="hidden h-5 items-center gap-1 rounded border border-indigo-200 bg-white px-1.5 font-sans text-[10px] font-medium text-indigo-500 shadow-sm dark:border-indigo-800 dark:bg-gray-800 dark:text-indigo-400 sm:inline-flex">
+                                    <span class="text-xs">⌘</span>K
+                                </kbd>
                             </Link>
                             <button
                                 type="button"

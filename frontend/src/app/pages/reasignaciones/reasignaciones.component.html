@@ -1,0 +1,150 @@
+<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-black text-primary tracking-tight">Reasignaciones</h1>
+                <p class="text-secondary mt-1 tracking-tight">Gestión y control de cambios de custodia de activos.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button (click)="showForm = !showForm"
+                    class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <span>{{ showForm ? 'Cerrar Formulario' : 'Nueva Reasignación' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Integrated Top Form Section -->
+        <div *ngIf="showForm" class="mb-10 animate-fade-in">
+            <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
+                <div class="px-8 py-6 border-b border-white/5 bg-gray-500/5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Movimiento de
+                            Activos</div>
+                        <h3 class="text-2xl font-black text-primary tracking-tight">Procesar Reasignación</h3>
+                        <p class="text-xs text-muted mt-1">Transfiere la custodia de un activo a otro personal.</p>
+                    </div>
+                    <button (click)="showForm = false"
+                        class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="px-8 py-8">
+                    <form (submit)="submitForm()" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Activo a Reasignar <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="form.activo_id" name="activo_id"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Seleccionar Activo...</option>
+                                    <option *ngFor="let a of assets" [value]="a.id">
+                                        {{ a.codigo_inventario }} - {{ a.nombre_activo }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Nuevo Custodio <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="form.personal_nuevo_id" name="personal_nuevo_id"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Seleccionar Personal...</option>
+                                    <option *ngFor="let p of personal" [value]="p.id">
+                                        {{ p.nombre }} {{ p.apellido }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Motivo del Cambio <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="form.motivo" name="motivo"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Traslado de área...">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/5 mt-6">
+                            <button type="button" (click)="showForm = false"
+                                class="btn-secondary px-6 h-11">Cancelar</button>
+                            <button type="submit"
+                                class="btn-primary px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                                Confirmar Reasignación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead
+                        class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-5">Fecha</th>
+                            <th class="px-6 py-5">Activo</th>
+                            <th class="px-6 py-5">Custodio Anterior</th>
+                            <th class="px-6 py-5">Nuevo Custodio</th>
+                            <th class="px-6 py-5">Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 font-medium">
+                        <tr *ngIf="loading" class="animate-pulse">
+                            <td colspan="5" class="px-6 py-20 text-center text-muted">Cargando historial...</td>
+                        </tr>
+                        <tr *ngIf="!loading && reasignaciones.length === 0">
+                            <td colspan="5" class="px-6 py-20 text-center text-muted">No hay reasignaciones registradas.
+                            </td>
+                        </tr>
+                        <tr *ngFor="let item of reasignaciones" class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-5">
+                                <span class="text-xs font-mono text-muted">{{ formatDate(item.fecha_asignacion)
+                                    }}</span>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-primary">{{ item.nombre_activo }}</span>
+                                    <span class="text-[10px] text-blue-500 font-mono tracking-wider">{{
+                                        item.codigo_inventario }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-[10px] font-bold border border-red-500/20">
+                                        {{ item.personal_anterior?.charAt(0) || '?' }}
+                                    </div>
+                                    <span class="text-xs text-muted">{{ item.personal_anterior || 'Sin asignar'
+                                        }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 text-[10px] font-bold border border-emerald-500/20">
+                                        {{ item.personal_nuevo?.charAt(0) }}
+                                    </div>
+                                    <span class="text-xs font-bold text-primary">{{ item.personal_nuevo }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span class="text-xs text-muted truncate max-w-[200px] block">
+                                    {{ item.motivo }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

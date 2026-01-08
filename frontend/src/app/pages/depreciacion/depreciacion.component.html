@@ -1,0 +1,83 @@
+<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-black text-white tracking-tight">Depreciación de Activos</h1>
+                <p class="text-gray-400 mt-1">Cálculo contable y seguimiento del valor residual de bienes.</p>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card p-6 border-l-4 border-blue-500">
+                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Valor Adquisición Total</p>
+                <p class="text-2xl font-black text-white">{{ formatCurrency(totalValorOriginal) }}</p>
+            </div>
+            <div class="card p-6 border-l-4 border-red-500">
+                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Depreciación Acumulada</p>
+                <p class="text-2xl font-black text-white text-red-400">{{ formatCurrency(totalDepreciacion) }}</p>
+            </div>
+            <div class="card p-6 border-l-4 border-emerald-500">
+                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Valor en Libros Actual</p>
+                <p class="text-2xl font-black text-white text-emerald-400">{{ formatCurrency(totalValorActual) }}</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead
+                        class="bg-white/5 border-b border-white/10 uppercase text-[10px] font-bold tracking-widest text-gray-400">
+                        <tr>
+                            <th class="px-6 py-4">Activo / Código</th>
+                            <th class="px-6 py-4">Valor Original</th>
+                            <th class="px-6 py-4">Vence en</th>
+                            <th class="px-6 py-4">Estado de Vida Útil</th>
+                            <th class="px-6 py-4 text-right">Valor Libro</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr *ngIf="loading" class="animate-pulse">
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">Calculando depreciación...</td>
+                        </tr>
+                        <tr *ngIf="!loading && activos.length === 0">
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">No hay datos disponibles.</td>
+                        </tr>
+                        <tr *ngFor="let item of activos" class="hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-white font-medium">{{ item.nombre_activo }}</span>
+                                    <span class="text-xs text-blue-400 font-mono">{{ item.codigo_inventario }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-gray-300">{{ formatCurrency(item.valor_adquisicion) }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-gray-400">{{ item.anios_restantes }} años</span>
+                            </td>
+                            <td class="px-6 py-4 min-w-[200px]">
+                                <div class="flex flex-col gap-1.5">
+                                    <div class="flex justify-between text-[10px] font-bold uppercase">
+                                        <span class="text-gray-500">Depreciado</span>
+                                        <span class="text-white">{{ getDepreciationWidth(item) }}</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 rounded-full transition-all duration-1000"
+                                            [style.width]="getDepreciationWidth(item)"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="text-sm font-bold text-emerald-400">{{ formatCurrency(item.valor_libro)
+                                    }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

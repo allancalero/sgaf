@@ -1,0 +1,302 @@
+<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-primary tracking-tight">Recursos Humanos</h2>
+                <p class="text-secondary mt-1 tracking-tight">Gestión del personal y estructura de cargos.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button (click)="openForm('personal')"
+                    class="btn-secondary h-12 px-6 shadow-lg shadow-gray-500/10 hover:shadow-gray-500/20 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    <span>Nuevo Personal</span>
+                </button>
+                <button (click)="openForm('cargo')"
+                    class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                    <span>Nuevo Cargo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Integrated Top Form Section -->
+        <div *ngIf="showForm" class="mb-10 animate-fade-in">
+            <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
+                <!-- Form Tabs -->
+                <div class="flex border-b border-white/5 bg-gray-500/5">
+                    <button (click)="activeFormTab = 'personal'" [class.text-blue-500]="activeFormTab === 'personal'"
+                        [class.border-b-2]="activeFormTab === 'personal'"
+                        [class.border-blue-500]="activeFormTab === 'personal'"
+                        class="px-8 py-4 text-sm font-black uppercase tracking-widest hover:bg-white/5 transition-all">
+                        Registrar Personal
+                    </button>
+                    <button (click)="activeFormTab = 'cargo'" [class.text-blue-500]="activeFormTab === 'cargo'"
+                        [class.border-b-2]="activeFormTab === 'cargo'"
+                        [class.border-blue-500]="activeFormTab === 'cargo'"
+                        class="px-8 py-4 text-sm font-black uppercase tracking-widest hover:bg-white/5 transition-all">
+                        Registrar Cargo
+                    </button>
+                    <div class="flex-1 flex justify-end items-center px-4">
+                        <button (click)="closeForm()"
+                            class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-8 py-8">
+                    <!-- PERSONAL FORM -->
+                    <form *ngIf="activeFormTab === 'personal'" (ngSubmit)="savePersonal()" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Nombre <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="personalForm.nombre" name="nombre"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Juan">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Apellido <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="personalForm.apellido" name="apellido"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Pérez">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Cargo Responsable</label>
+                                <select [(ngModel)]="personalForm.cargo_id" name="cargo"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="undefined">Selecciona un cargo</option>
+                                    <option *ngFor="let c of allCargos" [value]="c.id">{{ c.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Área Asignada</label>
+                                <select [(ngModel)]="personalForm.area_id" name="area"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="undefined">Selecciona un área</option>
+                                    <option *ngFor="let a of areas" [value]="a.id">{{ a.nombre }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Estado</label>
+                                <select [(ngModel)]="personalForm.estado" name="estado"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option value="ACTIVO">Activo</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end mt-6">
+                                <button type="submit"
+                                    class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                                    {{ editingPersonalId ? 'Actualizar Personal' : 'Guardar Personal' }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- CARGO FORM -->
+                    <form *ngIf="activeFormTab === 'cargo'" (ngSubmit)="saveCargo()" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Nombre del Cargo <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="cargoForm.nombre" name="nombre_cargo"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Administrador">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Estado</label>
+                                <select [(ngModel)]="cargoForm.estado" name="estado_cargo"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option value="ACTIVO">Activo</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-4">
+                            <button type="submit"
+                                class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                                {{ editingCargoId ? 'Actualizar Cargo' : 'Guardar Cargo' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <!-- PERSONAL TABLE -->
+            <div class="xl:col-span-2 space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Listado de Personal</h3>
+
+                    <!-- Small Search for Personal -->
+                    <div class="relative w-64">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-muted">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </span>
+                        <input type="text" (input)="onSearch($event)" placeholder="Buscar personal..."
+                            class="input-field h-9 pl-9 text-xs">
+                    </div>
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr
+                                    class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                    <th class="px-6 py-4">Nombre Completo</th>
+                                    <th class="px-6 py-4">Cargo / Área</th>
+                                    <th class="px-6 py-4">Estado</th>
+                                    <th class="px-6 py-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5 font-medium">
+                                <tr *ngIf="loading" class="animate-pulse">
+                                    <td colspan="4" class="px-6 py-10 text-center text-muted">Cargando personal...</td>
+                                </tr>
+                                <tr *ngFor="let p of personal" class="hover:bg-gray-500/5 transition-colors group">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs border border-blue-500/20">
+                                                {{ p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}
+                                            </div>
+                                            <span class="text-sm font-bold text-primary">{{ p.nombre }} {{ p.apellido
+                                                }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-primary">{{ p.cargo || 'Sin Cargo'
+                                                }}</span>
+                                            <span class="text-[10px] text-muted">{{ p.area || 'General' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span [class]="p.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
+                                            {{ p.estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button (click)="startEditPersonal(p)"
+                                                class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button (click)="deletePersonal(p.id)"
+                                                class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="px-6 py-4 border-t border-white/5 flex items-center justify-between">
+                        <span class="text-[10px] text-muted uppercase tracking-wider">Total: {{ totalPersonal }}</span>
+                        <div class="flex gap-2">
+                            <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+                                class="btn-secondary h-8 w-8 p-0 flex items-center justify-center disabled:opacity-30">
+                                &lt;
+                            </button>
+                            <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
+                                class="btn-secondary h-8 w-8 p-0 flex items-center justify-center disabled:opacity-30">
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARGOS TABLE -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Cargos Institucionales</h3>
+                    <span class="badge-blue">{{ totalCargos }}</span>
+                </div>
+                <div class="card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr
+                                    class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                    <th class="px-6 py-4">Cargo</th>
+                                    <th class="px-6 py-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5 font-medium">
+                                <tr *ngFor="let c of cargos" class="hover:bg-gray-500/5 transition-colors group">
+                                    <td class="px-6 py-3">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-primary">{{ c.nombre }}</span>
+                                            <span [class]="c.estado === 'ACTIVO' ? 'text-emerald-500' : 'text-red-500'"
+                                                class="text-[10px] uppercase tracking-wider font-bold">
+                                                {{ c.estado }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-3 text-right">
+                                        <div
+                                            class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button (click)="startEditCargo(c)"
+                                                class="p-1.5 text-muted hover:text-blue-500 rounded-md transition-all">
+                                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button (click)="deleteCargo(c.id)"
+                                                class="p-1.5 text-muted hover:text-red-500 rounded-md transition-all">
+                                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

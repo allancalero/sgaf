@@ -1,0 +1,86 @@
+<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-white tracking-tight">Trazabilidad de Activos</h1>
+                <p class="text-gray-400 mt-1">Historial auditivo de movimientos y cambios de estado.</p>
+            </div>
+
+            <div class="relative w-full lg:w-96">
+                <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+                    placeholder="Buscar por código o activo..." class="input-field pl-12 h-14">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-4 text-gray-500" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto">
+            <div *ngIf="loading" class="space-y-6">
+                <div *ngFor="let i of [1,2,3]" class="card p-6 animate-pulse border-white/5">
+                    <div class="h-4 bg-white/5 rounded w-1/4 mb-4"></div>
+                    <div class="h-8 bg-white/5 rounded w-3/4"></div>
+                </div>
+            </div>
+
+            <div *ngIf="!loading && historial.length === 0"
+                class="text-center py-20 card bg-white/5 border-dashed border-white/10">
+                <p class="text-gray-500">No se encontraron registros de trazabilidad.</p>
+            </div>
+
+            <!-- Timeline -->
+            <div *ngIf="!loading && historial.length > 0"
+                class="space-y-8 relative before:absolute before:inset-0 before:ml-5 lg:before:ml-[25px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:via-white/5 before:to-transparent">
+
+                <div *ngFor="let item of historial" class="relative flex items-center justify-between group">
+                    <div class="flex items-center w-full">
+                        <!-- Icon -->
+                        <div
+                            class="flex items-center justify-center w-10 lg:w-[50px] h-10 lg:h-[50px] rounded-full border-4 border-slate-900 bg-blue-500 text-white z-10 shrink-0 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="card ml-6 flex-1 hover:border-blue-500/30 transition-all p-6">
+                            <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-2">
+                                <span class="text-xs font-bold text-blue-400 tracking-widest uppercase">{{
+                                    formatDate(item.fecha_asignacion) }}</span>
+                                <span class="badge-gray">{{ item.codigo_inventario }}</span>
+                            </div>
+
+                            <h3 class="text-lg font-bold text-white mb-4">{{ item.nombre_activo }}</h3>
+
+                            <div
+                                class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                <div class="space-y-1">
+                                    <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">De
+                                        (Anterior)</p>
+                                    <p class="text-sm text-gray-300">{{ item.personal_anterior || 'Sin custiodio previo'
+                                        }}</p>
+                                    <p class="text-xs text-gray-500">{{ item.area_anterior || '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider">A (Nuevo)
+                                    </p>
+                                    <p class="text-sm text-white font-bold">{{ item.personal_nuevo }}</p>
+                                    <p class="text-xs text-gray-400">{{ item.area_nueva || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 flex items-center gap-2">
+                                <span class="text-xs text-gray-500 italic">"{{ item.motivo }}"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

@@ -1,0 +1,135 @@
+<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Welcome Header -->
+        <div class="mb-10 animate-fade-in">
+            <h1 class="text-4xl font-black text-primary tracking-tight">Panel de Control</h1>
+            <p class="text-secondary mt-1 text-lg">Resumen estratégico del inventario institucional.</p>
+        </div>
+
+        <!-- Global Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="card-stat p-6 group hover:scale-[1.02]">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Total Activos</p>
+                <h3 class="text-3xl font-black text-primary mt-1">{{ stats?.totalActivos || 0 }}</h3>
+            </div>
+
+            <div class="card-stat p-6 group hover:scale-[1.02] border-emerald-500/20">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Estado Bueno</p>
+                <h3 class="text-3xl font-black text-emerald-500 mt-1">{{ getBuenosCount() }}</h3>
+            </div>
+
+            <div class="card-stat p-6 group hover:scale-[1.02] border-red-500/20">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Estado Malo</p>
+                <h3 class="text-3xl font-black text-red-500 mt-1">{{ getMalosCount() }}</h3>
+            </div>
+
+            <div class="card-stat p-6 group hover:scale-[1.02] border-blue-500/20 text-right">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Inversión Total</p>
+                <h3 class="text-2xl font-black text-primary mt-1">{{ formatCurrency(stats?.valorTotal || 0) }}</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Distribution -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Distribución por Área</h3>
+                </div>
+                <div class="card p-6">
+                    <div class="space-y-4">
+                        <div *ngFor="let area of stats?.activosPorArea" class="flex items-center gap-4">
+                            <div class="flex-1">
+                                <div class="flex justify-between text-xs mb-1.5">
+                                    <span class="text-primary font-bold">{{ area.area }}</span>
+                                    <span class="text-muted">{{ area.cantidad }} activos</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-500/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full"
+                                        [style.width]="(area.cantidad / (stats?.totalActivos || 1) * 100) + '%'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="space-y-6">
+                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Acciones Rápidas</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <a routerLink="/activos/etiquetas-qr"
+                        class="card p-6 flex items-center gap-4 hover:border-blue-500/40 transition-all group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 17h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-primary">Generar Etiquetas</p>
+                            <p class="text-xs text-muted">Impresión masiva de QR</p>
+                        </div>
+                    </a>
+
+                    <a routerLink="/activos/reportes"
+                        class="card p-6 flex items-center gap-4 hover:border-blue-500/40 transition-all group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-primary">Reporte General</p>
+                            <p class="text-xs text-muted">Exportar inventario a PDF</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

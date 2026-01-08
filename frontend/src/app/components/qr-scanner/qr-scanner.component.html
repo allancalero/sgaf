@@ -1,0 +1,79 @@
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div
+        class="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl animate-fade-in">
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-steel-500/20 rounded-xl flex items-center justify-center text-steel-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-1.17-12.29c.428-1.503 1.055-2.91 1.848-4.212m10.123 4.212c-.428-1.503-1.055-2.91-1.848-4.212M12 11c0-3.517 1.009-6.799 2.753-9.571m1.17 12.29c-.428 1.503-1.055 2.91-1.848 4.212M12 11V7m0 11v-4m0 4h.01m-6.938-4h13.856" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-orbitron font-bold">Escáner de Activos</h3>
+            </div>
+            <button (click)="onClose()"
+                class="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Scanner Body -->
+        <div class="relative aspect-square md:aspect-video bg-black flex items-center justify-center">
+            <zxing-scanner #scanner *ngIf="enabled" [formats]="allowedFormats" (scanSuccess)="onCodeResult($event)"
+                (permissionResponse)="onHasPermission($event)" (camerasFound)="onCamerasFound($event)"
+                (camerasNotFound)="onCamerasNotFound()" (scanError)="onScanError($event)"
+                class="w-full h-full object-cover"></zxing-scanner>
+
+            <!-- Overlay Scanner UI -->
+            <div class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                <div class="w-64 h-64 border-2 border-steel-500/50 rounded-3xl relative animate-pulse-glow">
+                    <div
+                        class="absolute inset-0 border-2 border-steel-500 scale-105 rounded-3xl animate-ping opacity-20">
+                    </div>
+
+                    <!-- Corner Accents -->
+                    <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-steel-500 rounded-tl-xl">
+                    </div>
+                    <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-steel-500 rounded-tr-xl">
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-steel-500 rounded-bl-xl">
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-steel-500 rounded-br-xl">
+                    </div>
+
+                    <!-- Scanning Line -->
+                    <div
+                        class="absolute top-0 left-0 w-full h-1 bg-steel-400/50 shadow-[0_0_15px_rgba(70,130,180,0.8)] animate-[scan_2s_ease-in-out_infinite]">
+                    </div>
+                </div>
+                <p class="mt-8 text-steel-400 font-orbitron text-sm tracking-widest animate-pulse">BUSCANDO CÓDIGO...
+                </p>
+            </div>
+
+            <!-- Messages -->
+            <div *ngIf="!hasPermission"
+                class="absolute inset-0 bg-slate-900/90 flex flex-col items-center justify-center p-8 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-orange-400 mb-4" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h4 class="text-xl font-bold mb-2">Permiso de Cámara Requerido</h4>
+                <p class="text-slate-400 mb-6">Por favor, permite el acceso a la cámara para escanear activos.</p>
+                <button (click)="scanner.askForPermission()"
+                    class="bg-steel-500 hover:bg-steel-600 px-6 py-2 rounded-xl font-bold transition-all">REINTENTAR</button>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="p-6 bg-slate-800/30 text-center">
+            <p class="text-xs text-slate-500 font-inter uppercase tracking-tighter">Apunta la cámara al código QR del
+                activo para identificarlo automáticamente.</p>
+        </div>
+    </div>
+</div>

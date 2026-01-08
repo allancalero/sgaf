@@ -178,56 +178,91 @@ const hasData = (items) => Array.isArray(items) && items.length > 0;
 
         <div class="py-10">
             <div class="mx-auto max-w-7xl space-y-8 sm:px-6 lg:px-8">
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-lg border border-indigo-100 bg-white px-4 py-5 shadow-sm dark:border-indigo-900/50 dark:bg-gray-800">
-                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-6 6h12" />
-                            </svg>
-                            <span>Activos</span>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Stat Card: Activos -->
+                    <div class="group relative overflow-hidden rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-indigo-500/20 dark:bg-gray-800">
+                        <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-indigo-50 transition-colors group-hover:bg-indigo-100 dark:bg-indigo-900/20 dark:group-hover:bg-indigo-900/30"></div>
+                        <div class="relative flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-lg shadow-indigo-500/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">Total Activos</p>
+                                <p class="text-3xl font-black text-gray-900 dark:text-gray-100">{{ totals.activos ?? 0 }}</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ totals.activos ?? 0 }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total registrados</p>
                     </div>
-                    <div class="rounded-lg border border-sky-100 bg-white px-4 py-5 shadow-sm dark:border-sky-900/50 dark:bg-gray-800">
-                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-500 dark:text-sky-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v5m0 0h5m-5 0h-5" />
-                            </svg>
-                            <span>Responsables</span>
+
+                    <!-- Stat Card: Responsables -->
+                    <div class="group relative overflow-hidden rounded-2xl border border-sky-100 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-sky-500/20 dark:bg-gray-800">
+                        <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-sky-50 transition-colors group-hover:bg-sky-100 dark:bg-sky-900/20 dark:group-hover:bg-sky-900/30"></div>
+                        <div class="relative flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-500 text-white shadow-lg shadow-sky-500/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-sky-500 dark:text-sky-400">Personal</p>
+                                <p class="text-3xl font-black text-gray-900 dark:text-gray-100">{{ totals.responsables ?? 0 }}</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ totals.responsables ?? 0 }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Con estado activo/inactivo</p>
                     </div>
-                    <div class="rounded-lg border border-emerald-100 bg-white px-4 py-5 shadow-sm dark:border-emerald-900/50 dark:bg-gray-800">
-                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-500 dark:text-emerald-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m-4 5h16M9 21v-7m6-7v12" />
-                            </svg>
-                            <span>Asignaciones</span>
+
+                    <!-- Stat Card: Asignaciones -->
+                    <div class="group relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-emerald-500/20 dark:bg-gray-800">
+                        <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-50 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/20 dark:group-hover:bg-emerald-900/30"></div>
+                        <div class="relative flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">Movimientos</p>
+                                <p class="text-3xl font-black text-gray-900 dark:text-gray-100">{{ totals.asignaciones ?? 0 }}</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ totals.asignaciones ?? 0 }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Movimientos registrados</p>
                     </div>
-                    <div class="rounded-lg border border-amber-100 bg-white px-4 py-5 shadow-sm dark:border-amber-900/50 dark:bg-gray-800">
-                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-amber-500 dark:text-amber-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a4 4 0 100-8 4 4 0 000 8zm-6 8a6 6 0 1112 0H6z" />
-                            </svg>
-                            <span>Sin responsable</span>
+
+                    <!-- Stat Card: Sin Responsable -->
+                    <div class="group relative overflow-hidden rounded-2xl border border-rose-100 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-rose-500/20 dark:bg-gray-800">
+                        <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-rose-50 transition-colors group-hover:bg-rose-100 dark:bg-rose-900/20 dark:group-hover:bg-rose-900/30"></div>
+                        <div class="relative flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-500/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-rose-500 dark:text-rose-400">Sin Asignar</p>
+                                <p class="text-3xl font-black text-gray-900 dark:text-gray-100">{{ totals.sin_responsable ?? 0 }}</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ totals.sin_responsable ?? 0 }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Activos sin asignar</p>
                     </div>
-                    <div class="rounded-lg border border-rose-100 bg-white px-4 py-5 shadow-sm lg:col-span-2 dark:border-rose-900/50 dark:bg-gray-800">
-                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-rose-500 dark:text-rose-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m0 0l-4-4m4 4l4-4M4 10h16" />
-                            </svg>
-                            <span>Costo total</span>
+
+                    <!-- Costo Total Card -->
+                    <div class="group relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30 p-8 shadow-sm transition-all hover:shadow-md sm:col-span-2 lg:col-span-4 dark:border-amber-500/20 dark:from-gray-800 dark:to-amber-900/10">
+                        <div class="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-amber-100/30 blur-3xl transition-colors group-hover:bg-amber-100/50 dark:bg-amber-900/10"></div>
+                        <div class="relative flex flex-col items-center justify-between gap-6 sm:flex-row">
+                            <div class="flex items-center gap-6">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-2xl shadow-amber-500/40">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Valor Total del Inventario</h3>
+                                    <p class="text-xs font-semibold uppercase tracking-widest text-amber-500 dark:text-amber-400">Patrimonio en Activos Fijos</p>
+                                </div>
+                            </div>
+                            <div class="text-center sm:text-right">
+                                <p class="text-5xl font-black tracking-tight text-gray-900 dark:text-gray-100">{{ formatCurrency(totals.costo_total) }}</p>
+                                <p class="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">Basado en el precio de adquisición registrado</p>
+                            </div>
                         </div>
-                        <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(totals.costo_total) }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Suma de precio de adquisición</p>
                     </div>
                 </div>
 

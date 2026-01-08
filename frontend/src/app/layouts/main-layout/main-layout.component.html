@@ -1,0 +1,135 @@
+<div class="flex h-screen overflow-hidden" style="background-color: var(--bg-primary);">
+    <!-- Sidebar -->
+    <aside [class]="sidebarOpen ? 'w-64' : 'w-20'" class="border-r transition-all duration-300 flex flex-col z-30"
+        style="background-color: var(--bg-secondary); border-color: var(--border-color);">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-4 h-20 border-b" style="border-color: var(--border-color);">
+            <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+            <div *ngIf="sidebarOpen" class="flex flex-col animate-fade-in">
+                <span class="font-black text-primary text-xl tracking-tighter">SGAF</span>
+                <span class="text-[10px] text-blue-500 font-bold uppercase tracking-widest leading-none">Activos
+                    Fijos</span>
+            </div>
+            <button (click)="toggleSidebar()" class="ml-auto text-muted hover:text-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Menu Navigation -->
+        <nav class="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar">
+            <ng-container *ngFor="let section of menuSections">
+                <p *ngIf="sidebarOpen"
+                    class="px-3 mb-3 mt-8 first:mt-0 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                    {{ section.title }}
+                </p>
+                <div class="space-y-1">
+                    <a *ngFor="let item of section.items" [routerLink]="item.route" routerLinkActive="active"
+                        class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
+                        </svg>
+                        <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
+                    </a>
+                </div>
+            </ng-container>
+        </nav>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col relative">
+        <!-- Top Header Navigation -->
+        <header class="h-20 border-b flex items-center justify-between px-8 sticky top-0 z-20"
+            style="background-color: var(--bg-header); border-color: var(--border-color); backdrop-filter: blur(8px);">
+
+            <div class="flex items-center gap-6">
+                <div class="hidden lg:block">
+                    <h1 class="text-lg font-bold text-primary tracking-tight">Alcaldía Municipal de Tipitapa</h1>
+                    <p class="text-[10px] text-muted font-bold uppercase tracking-widest">Gobierno Municipal • Gestión
+                        Administrativa</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- Global Search -->
+                <div class="relative hidden xl:block w-80">
+                    <input type="text" placeholder="Buscador inteligente..." class="input-field pl-12 h-11 text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-4 top-3.5 text-muted"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+
+                <!-- Theme Toggle Action -->
+                <div class="flex items-center bg-gray-500/5 rounded-2xl p-1 border border-white/5">
+                    <button (click)="toggleTheme()"
+                        class="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
+                        [class.bg-blue-600]="themeService.isDarkMode()" [class.text-white]="themeService.isDarkMode()"
+                        [class.shadow-lg]="themeService.isDarkMode()"
+                        [class.shadow-blue-500/40]="themeService.isDarkMode()"
+                        [class.text-muted]="!themeService.isDarkMode()" title="Cambiar a Modo Oscuro">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                    <button (click)="toggleTheme()"
+                        class="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
+                        [class.bg-blue-600]="!themeService.isDarkMode()" [class.text-white]="!themeService.isDarkMode()"
+                        [class.shadow-lg]="!themeService.isDarkMode()"
+                        [class.shadow-blue-500/40]="!themeService.isDarkMode()"
+                        [class.text-muted]="themeService.isDarkMode()" title="Cambiar a Modo Claro">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- User Profile & Actions -->
+                <div class="flex items-center gap-4 pl-6 border-l" style="border-color: var(--border-color);">
+                    <div class="flex flex-col items-end hidden sm:flex">
+                        <span class="text-sm font-bold text-primary leading-none">{{ user?.nombre }} {{ user?.apellido
+                            }}</span>
+                        <span class="text-[10px] text-muted font-bold tracking-widest mt-1 uppercase">{{ today |
+                            date:'dd MMM yyyy' }}</span>
+                    </div>
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-blue-500/30">
+                        {{ user?.nombre?.charAt(0) }}{{ user?.apellido?.charAt(0) }}
+                    </div>
+                    <button (click)="logout()"
+                        class="p-2.5 text-muted hover:text-red-500 transition-colors rounded-xl hover:bg-red-500/5 group"
+                        title="Cerrar sesión">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar">
+            <ng-content></ng-content>
+        </main>
+    </div>
+</div>
