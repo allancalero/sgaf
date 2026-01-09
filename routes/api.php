@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\DepreciacionController;
 use App\Http\Controllers\Api\TrazabilidadController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\SistemaController;
+use App\Http\Controllers\Api\CatalogoActivosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ubicaciones', [UbicacionController::class, 'storeUbicacion']);
     Route::put('/ubicaciones/{id}', [UbicacionController::class, 'updateUbicacion']);
     Route::delete('/ubicaciones/{id}', [UbicacionController::class, 'deleteUbicacion']);
+
+    // Catálogos de Activos Fijo
+    Route::get('/proveedores', [CatalogoActivosController::class, 'proveedores']);
+    Route::post('/proveedores', [CatalogoActivosController::class, 'storeProveedor']);
+    Route::put('/proveedores/{id}', [CatalogoActivosController::class, 'updateProveedor']);
+    Route::delete('/proveedores/{id}', [CatalogoActivosController::class, 'deleteProveedor']);
+
+    Route::get('/clasificaciones', [CatalogoActivosController::class, 'clasificaciones']);
+    Route::post('/clasificaciones', [CatalogoActivosController::class, 'storeClasificacion']);
+    Route::put('/clasificaciones/{id}', [CatalogoActivosController::class, 'updateClasificacion']);
+    Route::delete('/clasificaciones/{id}', [CatalogoActivosController::class, 'deleteClasificacion']);
+
+    Route::get('/fuentes', [CatalogoActivosController::class, 'fuentes']);
+    Route::post('/fuentes', [CatalogoActivosController::class, 'storeFuente']);
+    Route::put('/fuentes/{id}', [CatalogoActivosController::class, 'updateFuente']);
+    Route::delete('/fuentes/{id}', [CatalogoActivosController::class, 'deleteFuente']);
+
+    Route::get('/tipos', [CatalogoActivosController::class, 'tipos']);
+    Route::post('/tipos', [CatalogoActivosController::class, 'storeTipo']);
+    Route::put('/tipos/{id}', [CatalogoActivosController::class, 'updateTipo']);
+    Route::delete('/tipos/{id}', [CatalogoActivosController::class, 'deleteTipo']);
+
+    Route::get('/cheques', [CatalogoActivosController::class, 'cheques']);
+    Route::post('/cheques', [CatalogoActivosController::class, 'storeCheque']);
+    Route::put('/cheques/{id}', [CatalogoActivosController::class, 'updateCheque']);
+    Route::delete('/cheques/{id}', [CatalogoActivosController::class, 'deleteCheque']);
 
     // Personal y Cargos
     Route::get('/personal', [PersonalController::class, 'index']);

@@ -35,14 +35,26 @@
                     {{ section.title }}
                 </p>
                 <div class="space-y-1">
-                    <a *ngFor="let item of section.items" [routerLink]="item.route" routerLinkActive="active"
-                        class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
-                        </svg>
-                        <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
-                    </a>
+                    <ng-container *ngFor="let item of section.items">
+                        <!-- Enlace interno (Angular route) -->
+                        <a *ngIf="!item.route?.startsWith('http')" [routerLink]="item.route" routerLinkActive="active"
+                            class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
+                            </svg>
+                            <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
+                        </a>
+                        <!-- Enlace externo (URL absoluta) -->
+                        <a *ngIf="item.route?.startsWith('http')" [href]="item.route" target="_blank"
+                            class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
+                            </svg>
+                            <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
+                        </a>
+                    </ng-container>
                 </div>
             </ng-container>
         </nav>

@@ -37,8 +37,9 @@ export class MainLayoutComponent {
         {
             title: 'CATÁLOGOS',
             items: [
-                { label: 'Ubicación / Areas', icon: 'location', route: '/catalogos/ubicacion' }, // Ruta correcta
-                { label: 'Recursos Humanos', icon: 'users', route: '/catalogos/recursos-humanos' }
+                { label: 'Ubicación / Areas', icon: 'location', route: '/catalogos/ubicacion' },
+                { label: 'Recursos Humanos', icon: 'users', route: '/catalogos/recursos-humanos' },
+                { label: 'Catálogos de Activos', icon: 'box', route: '/catalogos/activos-fijo' }
             ]
         },
         {
