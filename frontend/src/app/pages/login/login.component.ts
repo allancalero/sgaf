@@ -46,4 +46,28 @@ export class LoginComponent {
             }
         });
     }
+
+    onForgotPassword() {
+        Swal.fire({
+            title: 'Recuperar Contraseña',
+            html: `
+                <div class="text-left space-y-4 font-inter">
+                    <p class="text-slate-700">Por motivos de seguridad, para restablecer su contraseña debe contactar con el <b>Administrador del Sistema</b>.</p>
+                    <div class="bg-slate-100 p-4 rounded-xl space-y-2 border border-slate-200">
+                        <p class="text-sm font-bold text-slate-800">Canales de soporte:</p>
+                        <p class="text-sm text-slate-600">📍 Departamento de Informática</p>
+                        <p class="text-sm text-slate-600">✉️ soporte@tipitapa.gob.ni</p>
+                    </div>
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#4682B4',
+            background: '#ffffff',
+            customClass: {
+                title: 'font-orbitron text-xl text-slate-800',
+                popup: 'rounded-2xl shadow-2xl border border-slate-200'
+            }
+        });
+    }
 }

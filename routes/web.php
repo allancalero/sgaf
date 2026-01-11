@@ -29,7 +29,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect('/SGAF2/login');
+});
+
+Route::get('/login', function () {
+    return redirect('/SGAF2/login');
 });
 
 // Import Inventory (Queued)
@@ -78,7 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/classification-fields/{field}', [App\Http\Controllers\ClassificationFieldController::class, 'destroy'])
         ->middleware('permission:catalogos.manage')
         ->name('classification.fields.destroy');
-    
+
     // API endpoint for getting fields (without auth middleware for frontend)
     Route::get('/api/clasificaciones/{clasificacion}/fields', [App\Http\Controllers\ClassificationFieldController::class, 'getFields'])
         ->name('api.clasificaciones.fields');
@@ -132,16 +136,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sistema/seguridad/asignar-super', [SistemaController::class, 'asignarTodosLosRoles'])->middleware(['permission:seguridad.manage', 'audit:seguridad.super'])->name('sistema.seguridad.asignar-super');
     Route::put('/sistema/seguridad/{user}/accesos', [SistemaController::class, 'actualizarAccesos'])->middleware(['permission:seguridad.manage', 'audit:seguridad.update'])->name('sistema.seguridad.actualizar');
     Route::get('/sistema/respaldo/descargar', [SistemaController::class, 'descargarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.download'])->name('sistema.respaldo.descargar');
-    
+
     // Auditoría
     Route::get('/sistema/auditoria', [AuditController::class, 'index'])->middleware('permission:sistema.manage')->name('sistema.auditoria');
-    
+
     // New backup management routes
     Route::post('/sistema/respaldo/crear', [SistemaController::class, 'crearRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.create'])->name('sistema.respaldo.crear');
     Route::get('/sistema/respaldo/{backup}/descargar-sql', [SistemaController::class, 'descargarRespaldoSQL'])->middleware(['permission:respaldos.download', 'audit:respaldos.download-sql'])->name('sistema.respaldo.descargar-sql');
     Route::post('/sistema/respaldo/{backup}/restaurar', [SistemaController::class, 'restaurarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.restore'])->name('sistema.respaldo.restaurar');
     Route::delete('/sistema/respaldo/{backup}', [SistemaController::class, 'eliminarRespaldo'])->middleware(['permission:respaldos.download', 'audit:respaldos.delete'])->name('sistema.respaldo.eliminar');
-    
+
     // Reasignaciones de Activos
     Route::resource('reasignaciones', ReasignacionController::class)
         ->parameters(['reasignaciones' => 'reasignacion'])
@@ -207,19 +211,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/activos/depreciacion', [\App\Http\Controllers\DepreciacionController::class, 'index'])
         ->middleware('permission:activos.view')
         ->name('activos.depreciacion');
-    
+
     Route::post('/activos/depreciacion/calcular', [\App\Http\Controllers\DepreciacionController::class, 'calcular'])
         ->middleware('permission:activos.manage')
         ->name('activos.depreciacion.calcular');
-    
+
     Route::get('/activos/depreciacion/pdf', [\App\Http\Controllers\DepreciacionController::class, 'exportPdf'])
         ->middleware('permission:activos.view')
         ->name('activos.depreciacion.pdf');
-    
+
     Route::put('/activos/{activo}/depreciacion-config', [\App\Http\Controllers\DepreciacionController::class, 'configurar'])
         ->middleware('permission:activos.manage')
         ->name('activos.depreciacion.configurar');
-    
+
     Route::post('/activos/depreciacion/masivo', [\App\Http\Controllers\DepreciacionController::class, 'configurarMasivo'])
         ->middleware('permission:activos.manage')
         ->name('activos.depreciacion.masivo');
@@ -248,7 +252,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// require __DIR__.'/auth.php'; // Deshabilitado para usar login de Angular en /SGAF2/
 
 // Gestión de usuarios (solo administradores)
 Route::middleware(['auth', 'verified', 'permission:usuarios.manage'])->group(function () {
