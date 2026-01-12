@@ -28,23 +28,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Redirección inicial
 Route::get('/', function () {
     return redirect('/SGAF2/login');
 });
-
-// Serve Angular App
-Route::get('/SGAF2/{any?}', function ($any = null) {
-    // If it's a request for a file that exists, let the server handle it or return 404
-    if ($any && file_exists(public_path("SGAF2/$any"))) {
-        return response()->file(public_path("SGAF2/$any"));
-    }
-    
-    $path = public_path('SGAF2/index.html');
-    if (file_exists($path)) {
-        return file_get_contents($path);
-    }
-    abort(404);
-})->where('any', '.*');
 
 // Import Inventory (Queued)
 Route::post('/import-inventory', [ImportController::class, 'store'])
@@ -278,3 +265,30 @@ Route::middleware(['auth', 'verified', 'permission:usuarios.manage'])->group(fun
     Route::put('/usuarios/{usuario}', [\App\Http\Controllers\UserController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{usuario}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('usuarios.destroy');
 });
+
+// Catch-all route for Angular (SPA) - Must be at the very end
+Route::get('/SGAF2/{any?}', function ($any = null) {
+    // 1. Check if it's a file that exists in /SGAF2/
+    $filePath = public_path("SGAF2/$any");
+    if ($any && is_file($filePath)) {
+        return response()->file($filePath);
+    }
+
+    // 2. Fallback to index.html for SPA routing
+    $paths = [
+        public_path('SGAF2/index.html'),
+        public_path('SGAF2/browser/index.html')
+    ];
+
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            return response()->file($path, [
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ]);
+        }
+    }
+
+    abort(404);
+})->where('any', '.*');

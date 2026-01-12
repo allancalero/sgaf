@@ -31,7 +31,7 @@ export class MainLayoutComponent {
         {
             title: 'MONITOREO',
             items: [
-                { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' }
+                { label: 'Panel de Control', icon: 'dashboard', route: '/dashboard' }
             ]
         },
         {

@@ -6,53 +6,36 @@
                 <h2 class="text-3xl font-black text-primary tracking-tight">Estructura Organizativa</h2>
                 <p class="text-secondary mt-1 tracking-tight">Gestión jerárquica de áreas y ubicaciones físicas.</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button (click)="openForm('area')"
-                    class="btn-secondary h-12 px-6 shadow-lg shadow-gray-500/10 hover:shadow-gray-500/20 active:scale-95 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <span>Nueva Área</span>
-                </button>
-                <button (click)="openForm('ubicacion')"
-                    class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>Nueva Ubicación</span>
-                </button>
-            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button (click)="activeTab = 'areas'" [class.bg-blue-600]="activeTab === 'areas'"
+                [class.text-white]="activeTab === 'areas'" [class.shadow-lg]="activeTab === 'areas'"
+                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
+                Departamentos / Áreas ({{ areas.length }})
+            </button>
+            <button (click)="activeTab = 'ubicaciones'" [class.bg-blue-600]="activeTab === 'ubicaciones'"
+                [class.text-white]="activeTab === 'ubicaciones'" [class.shadow-lg]="activeTab === 'ubicaciones'"
+                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
+                Ubicaciones Físicas ({{ ubicaciones.length }})
+            </button>
         </div>
 
         <!-- Integrated Data Entry Form -->
         <div *ngIf="showForm" class="mb-10 animate-fade-in">
             <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
-                <!-- Form Switcher Tabs (Only if creating new, or just nice to have) -->
-                <div class="flex border-b border-white/5 bg-gray-500/5">
-                    <button (click)="activeFormTab = 'area'" [class.text-blue-500]="activeFormTab === 'area'"
-                        [class.border-b-2]="activeFormTab === 'area'" [class.border-blue-500]="activeFormTab === 'area'"
-                        class="px-8 py-4 text-sm font-black uppercase tracking-widest hover:bg-white/5 transition-all">
-                        Registrar Área
+                <!-- Form Switcher Tabs -->
+                <div class="flex border-b border-white/5 bg-gray-500/5 justify-between items-center">
+                    <h3 class="px-8 py-4 text-sm font-black uppercase tracking-widest text-blue-500">
+                        {{ editingAreaId || editingUbicacionId ? 'Editar' : 'Nuevo' }} Registro
+                    </h3>
+                    <button (click)="closeForm()"
+                        class="p-2 mr-4 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
-                    <button (click)="activeFormTab = 'ubicacion'" [class.text-blue-500]="activeFormTab === 'ubicacion'"
-                        [class.border-b-2]="activeFormTab === 'ubicacion'"
-                        [class.border-blue-500]="activeFormTab === 'ubicacion'"
-                        class="px-8 py-4 text-sm font-black uppercase tracking-widest hover:bg-white/5 transition-all">
-                        Registrar Ubicación
-                    </button>
-                    <div class="flex-1 flex justify-end items-center px-4">
-                        <button (click)="closeForm()"
-                            class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
                 </div>
 
                 <div class="px-8 py-8">
@@ -132,120 +115,108 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <!-- Areas Section -->
-            <div class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Departamentos / Áreas</h3>
-                    <span class="badge-blue">{{ areas.length }} registros</span>
-                </div>
-
-                <div class="card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr
-                                    class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                                    <th class="px-6 py-4">Nombre del Área</th>
-                                    <th class="px-6 py-4">Ubicación</th>
-                                    <th class="px-6 py-4">Estado</th>
-                                    <th class="px-6 py-4 text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5 font-medium">
-                                <tr *ngFor="let area of areas" class="hover:bg-gray-500/5 transition-colors group">
-                                    <td class="px-6 py-4 text-sm font-bold text-primary">{{ area.nombre }}</td>
-                                    <td class="px-6 py-4 text-xs text-muted">{{ getUbicacionNombre(area.ubicacion_id) }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span [class]="area.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
-                                            {{ area.estado }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <button (click)="startEditArea(area)"
-                                                class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </button>
-                                            <button (click)="deleteArea(area.id)"
-                                                class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <!-- TAB CONTENT -->
+        
+        <!-- Areas Section -->
+        <div *ngIf="activeTab === 'areas'" class="animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Departamentos / Áreas Registradas</h3>
+                <button (click)="openForm('area')" class="btn-primary h-11 px-6 shadow-lg shadow-blue-500/20 active:scale-95 transition-all font-bold">
+                    Nuevo Área
+                </button>
             </div>
 
-            <!-- Locations Section -->
-            <div class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Ubicaciones Físicas</h3>
-                    <span class="badge-blue">{{ ubicaciones.length }} registros</span>
+            <div class="card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th class="px-6 py-4">Nombre del Área</th>
+                                <th class="px-6 py-4">Ubicación</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-medium">
+                            <tr *ngFor="let area of areas" class="hover:bg-gray-500/5 transition-colors group">
+                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ area.nombre }}</td>
+                                <td class="px-6 py-4 text-xs text-muted">{{ getUbicacionNombre(area.ubicacion_id) }}</td>
+                                <td class="px-6 py-4">
+                                    <span [class]="area.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
+                                        {{ area.estado }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        <button (click)="startEditArea(area)"
+                                            class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteArea(area.id)"
+                                            class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
 
-                <div class="card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr
-                                    class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                                    <th class="px-6 py-4">Ubicación / Sitio</th>
-                                    <th class="px-6 py-4">Dirección</th>
-                                    <th class="px-6 py-4">Estado</th>
-                                    <th class="px-6 py-4 text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5 font-medium">
-                                <tr *ngFor="let ubi of ubicaciones" class="hover:bg-gray-500/5 transition-colors group">
-                                    <td class="px-6 py-4 text-sm font-bold text-primary">{{ ubi.nombre }}</td>
-                                    <td class="px-6 py-4 text-xs text-muted truncate max-w-[150px]">{{ ubi.direccion ||
-                                        'N/A' }}</td>
-                                    <td class="px-6 py-4">
-                                        <span [class]="ubi.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
-                                            {{ ubi.estado }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <button (click)="startEditUbicacion(ubi)"
-                                                class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </button>
-                                            <button (click)="deleteUbicacion(ubi.id)"
-                                                class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- Locations Section -->
+        <div *ngIf="activeTab === 'ubicaciones'" class="animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Ubicaciones Físicas Registradas</h3>
+                <button (click)="openForm('ubicacion')" class="btn-primary h-11 px-6 shadow-lg shadow-blue-500/20 active:scale-95 transition-all font-bold">
+                    Nueva Ubicación
+                </button>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th class="px-6 py-4">Ubicación / Sitio</th>
+                                <th class="px-6 py-4">Dirección</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-medium">
+                            <tr *ngFor="let ubi of ubicaciones" class="hover:bg-gray-500/5 transition-colors group">
+                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ ubi.nombre }}</td>
+                                <td class="px-6 py-4 text-xs text-muted truncate max-w-[150px]">{{ ubi.direccion || 'N/A' }}</td>
+                                <td class="px-6 py-4">
+                                    <span [class]="ubi.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
+                                        {{ ubi.estado }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        <button (click)="startEditUbicacion(ubi)"
+                                            class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteUbicacion(ubi.id)"
+                                            class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
