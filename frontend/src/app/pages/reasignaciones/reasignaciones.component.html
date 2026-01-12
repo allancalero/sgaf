@@ -90,6 +90,7 @@
                     <thead
                         class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                         <tr>
+                            <th class="px-6 py-5 w-12">#</th>
                             <th class="px-6 py-5">Fecha</th>
                             <th class="px-6 py-5">Activo</th>
                             <th class="px-6 py-5">Custodio Anterior</th>
@@ -105,7 +106,10 @@
                             <td colspan="5" class="px-6 py-20 text-center text-muted">No hay reasignaciones registradas.
                             </td>
                         </tr>
-                        <tr *ngFor="let item of reasignaciones" class="hover:bg-gray-500/5 transition-colors group">
+                        <tr *ngFor="let item of reasignaciones; let i = index"
+                            class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-5 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i + 1
+                                }}</td>
                             <td class="px-6 py-5">
                                 <span class="text-xs font-mono text-muted">{{ formatDate(item.fecha_asignacion)
                                     }}</span>
@@ -144,6 +148,31 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <span class="pagination-label">
+                        Mostrando <span class="pagination-value">{{ reasignaciones.length }}</span> de <span
+                            class="pagination-value">{{ totalReasignaciones }}</span> registros
+                    </span>
+                </div>
+                <div class="pagination-nav" *ngIf="lastPage > 1">
+                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <span class="pagination-page">Pág {{ currentPage }} / {{ lastPage }}</span>
+                    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
+                        class="pagination-btn">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

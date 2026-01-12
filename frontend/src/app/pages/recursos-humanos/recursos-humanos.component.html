@@ -41,7 +41,37 @@
                 <div class="px-8 py-8">
                     <!-- PERSONAL FORM -->
                     <form *ngIf="activeFormTab === 'personal'" (ngSubmit)="savePersonal()" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col items-center justify-center mb-6">
+                            <label class="relative cursor-pointer group">
+                                <div
+                                    class="h-24 w-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors">
+                                    <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
+                                    <svg *ngIf="!imagePreview" class="h-8 w-8 text-gray-400 group-hover:text-blue-500"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0010.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <input type="file" (change)="onFileSelected($event)" class="hidden" accept="image/*">
+                                <div
+                                    class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 shadow-lg group-hover:scale-110 transition-transform">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </div>
+                            </label>
+                            <span class="text-xs text-muted mt-2">Foto de perfil</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">No. Empleado</label>
+                                <input type="text" [(ngModel)]="personalForm.numero_empleado" name="numero_empleado"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: 001">
+                            </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-muted">Nombre <span
                                         class="text-red-500">*</span></label>
@@ -152,6 +182,7 @@
                         <thead>
                             <tr
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th class="px-6 py-4 w-12">#</th>
                                 <th class="px-6 py-4">Nombre Completo</th>
                                 <th class="px-6 py-4">Cargo / Área</th>
                                 <th class="px-6 py-4">Estado</th>
@@ -162,15 +193,24 @@
                             <tr *ngIf="loading" class="animate-pulse">
                                 <td colspan="4" class="px-6 py-10 text-center text-muted">Cargando personal...</td>
                             </tr>
-                            <tr *ngFor="let p of personal" class="hover:bg-gray-500/5 transition-colors group">
+                            <tr *ngFor="let p of personal; let i = index"
+                                class="hover:bg-gray-500/5 transition-colors group">
+                                <td class="px-6 py-4 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i
+                                    + 1 }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div
-                                            class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs border border-blue-500/20">
-                                            {{ p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}
+                                            class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 overflow-hidden">
+                                            <img *ngIf="p.foto" [src]="p.foto" class="h-full w-full object-cover">
+                                            <span *ngIf="!p.foto" class="text-blue-500 font-bold text-xs">{{
+                                                p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}</span>
                                         </div>
-                                        <span class="text-sm font-bold text-primary">{{ p.nombre }} {{ p.apellido
-                                            }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-primary">{{ p.nombre }} {{ p.apellido
+                                                }}</span>
+                                            <span *ngIf="p.numero_empleado" class="text-[10px] text-muted font-mono">#{{
+                                                p.numero_empleado }}</span>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -206,17 +246,33 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination -->
-                <div class="px-6 py-4 border-t border-white/5 flex items-center justify-between">
-                    <span class="text-[10px] text-muted uppercase tracking-wider">Total: {{ totalPersonal }}</span>
-                    <div class="flex gap-2">
+                <!-- Pagination for Personal -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <div class="flex items-center gap-2">
+                            <span class="pagination-label">Por página:</span>
+                            <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="pagination-select">
+                                <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+                            </select>
+                        </div>
+                        <span class="pagination-label">Total: <span class="pagination-value">{{ totalPersonal
+                                }}</span></span>
+                    </div>
+                    <div class="pagination-nav" *ngIf="lastPage > 1">
                         <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
-                            class="btn-secondary h-8 w-8 p-0 flex items-center justify-center disabled:opacity-30">
-                            &lt;
+                            class="pagination-btn">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
                         </button>
+                        <span class="pagination-page">Pág {{ currentPage }} / {{ lastPage }}</span>
                         <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
-                            class="btn-secondary h-8 w-8 p-0 flex items-center justify-center disabled:opacity-30">
-                            &gt;
+                            class="pagination-btn">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -239,12 +295,16 @@
                         <thead>
                             <tr
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th class="px-6 py-4 w-12">#</th>
                                 <th class="px-6 py-4">Cargo</th>
                                 <th class="px-6 py-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let c of cargos" class="hover:bg-gray-500/5 transition-colors group">
+                            <tr *ngFor="let c of cargos; let i = index"
+                                class="hover:bg-gray-500/5 transition-colors group">
+                                <td class="px-6 py-3 text-xs font-black text-muted">{{ (cargoCurrentPage - 1) *
+                                    cargoPageSize + i + 1 }}</td>
                                 <td class="px-6 py-3">
                                     <div class="flex flex-col">
                                         <span class="text-sm font-bold text-primary">{{ c.nombre }}</span>
@@ -278,6 +338,37 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination for Cargos -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <div class="flex items-center gap-2">
+                            <span class="pagination-label">Por página:</span>
+                            <select [(ngModel)]="cargoPageSize" (change)="onCargoPageSizeChange()"
+                                class="pagination-select">
+                                <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+                            </select>
+                        </div>
+                        <span class="pagination-label">Total: <span class="pagination-value">{{ totalCargos
+                                }}</span></span>
+                    </div>
+                    <div class="pagination-nav" *ngIf="cargoLastPage > 1">
+                        <button (click)="changeCargoPage(cargoCurrentPage - 1)" [disabled]="cargoCurrentPage === 1"
+                            class="pagination-btn">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <span class="pagination-page">Pág {{ cargoCurrentPage }} / {{ cargoLastPage }}</span>
+                        <button (click)="changeCargoPage(cargoCurrentPage + 1)"
+                            [disabled]="cargoCurrentPage === cargoLastPage" class="pagination-btn">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

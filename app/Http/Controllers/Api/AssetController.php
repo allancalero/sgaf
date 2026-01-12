@@ -13,21 +13,24 @@ class AssetController extends Controller
         $query = DB::table('activos_fijos')
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
             ->select(
                 'activos_fijos.*',
                 'areas.nombre as area_nombre',
                 'personal.nombre as personal_nombre',
-                'personal.apellido as personal_apellido'
+                'personal.apellido as personal_apellido',
+                'clasificaciones.nombre as clasificacion_nombre'
             );
 
-        // Search
+        // Search with performance optimization
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('activos_fijos.nombre_activo', 'like', "%{$search}%")
                     ->orWhere('activos_fijos.codigo_inventario', 'like', "%{$search}%")
                     ->orWhere('activos_fijos.marca', 'like', "%{$search}%")
-                    ->orWhere('activos_fijos.serie', 'like', "%{$search}%");
+                    ->orWhere('activos_fijos.serie', 'like', "%{$search}%")
+                    ->orWhere('clasificaciones.nombre', 'like', "%{$search}%");
             });
         }
 
@@ -36,8 +39,26 @@ class AssetController extends Controller
             $query->where('activos_fijos.estado', $request->estado);
         }
 
+        // Filtering by area
+        $areaId = $request->get('area_id');
+        if (!empty($areaId)) {
+            $query->where('activos_fijos.area_id', $areaId);
+        }
+
+        // Filtering by personal
+        $personalId = $request->get('personal_id');
+        if (!empty($personalId)) {
+            $query->where('activos_fijos.personal_id', $personalId);
+        }
+
+        // Filtering by classification
+        $clasificacionId = $request->get('clasificacion_id');
+        if (!empty($clasificacionId)) {
+            $query->where('activos_fijos.clasificacion_id', $clasificacionId);
+        }
+
         $assets = $query->orderBy('activos_fijos.created_at', 'desc')
-            ->paginate($request->get('per_page', 10));
+            ->paginate((int) $request->get('per_page', 15));
 
         // Format for JSON Response to match TypeScript interface
         $assets->getCollection()->transform(function ($asset) {
@@ -56,6 +77,7 @@ class AssetController extends Controller
                     'nombre' => $asset->personal_nombre,
                     'apellido' => $asset->personal_apellido
                 ] : null,
+                'clasificacion' => $asset->clasificacion_nombre ? ['nombre' => $asset->clasificacion_nombre] : null,
             ];
         });
 

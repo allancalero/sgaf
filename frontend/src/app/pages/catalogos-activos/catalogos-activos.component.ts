@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
@@ -455,5 +455,24 @@ export class CatalogosActivosComponent implements OnInit {
                 });
             }
         });
+    }
+
+    // Keyboard Shortcuts
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.ctrlKey && event.altKey && event.key === 'n') {
+            event.preventDefault();
+            const map: { [key: string]: string } = {
+                'proveedores': 'proveedor',
+                'clasificaciones': 'clasificacion',
+                'fuentes': 'fuente',
+                'tipos': 'tipo',
+                'cheques': 'cheque'
+            };
+            const formType = map[this.activeTab];
+            if (formType) {
+                this.openForm(formType);
+            }
+        }
     }
 }

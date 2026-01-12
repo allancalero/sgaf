@@ -5,14 +5,7 @@
 
         <!-- Logo -->
         <div class="flex items-center gap-3 px-4 h-20 border-b" style="border-color: var(--border-color);">
-            <div
-                class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-            </div>
+            <img src="assets/logo-alcaldia.png" alt="Logo" class="w-11 h-11 object-contain drop-shadow-md">
             <div *ngIf="sidebarOpen" class="flex flex-col animate-fade-in">
                 <span class="font-black text-primary text-xl tracking-tighter">SGAF</span>
                 <span class="text-[10px] text-blue-500 font-bold uppercase tracking-widest leading-none">Activos
@@ -29,34 +22,62 @@
 
         <!-- Menu Navigation -->
         <nav class="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar">
-            <ng-container *ngFor="let section of menuSections">
-                <p *ngIf="sidebarOpen"
-                    class="px-3 mb-3 mt-8 first:mt-0 text-[10px] font-black text-muted uppercase tracking-[0.2em]">
-                    {{ section.title }}
-                </p>
-                <div class="space-y-1">
-                    <ng-container *ngFor="let item of section.items">
-                        <!-- Enlace interno (Angular route) -->
-                        <a *ngIf="!item.route?.startsWith('http')" [routerLink]="item.route" routerLinkActive="active"
-                            class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
+            <div class="space-y-1">
+                <ng-container *ngFor="let item of menuItems">
+                    <!-- Item con submenú -->
+                    <div *ngIf="item.children && item.children.length > 0">
+                        <button (click)="item.expanded = !item.expanded"
+                            class="w-full flex items-center gap-3 px-3 py-2 text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group select-none"
+                            [class.justify-center]="!sidebarOpen">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-muted" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
                             </svg>
-                            <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
-                        </a>
-                        <!-- Enlace externo (URL absoluta) -->
-                        <a *ngIf="item.route?.startsWith('http')" [href]="item.route" target="_blank"
-                            class="sidebar-link group" [class.justify-center]="!sidebarOpen" [title]="item.label">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
-                            </svg>
-                            <span *ngIf="sidebarOpen" class="text-sm tracking-tight">{{ item.label }}</span>
-                        </a>
-                    </ng-container>
-                </div>
-            </ng-container>
+                            <div *ngIf="sidebarOpen" class="flex-1 flex items-center justify-between overflow-hidden">
+                                <span class="text-sm font-medium tracking-tight whitespace-nowrap">{{ item.label
+                                    }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 text-muted transition-transform duration-200"
+                                    [class.rotate-90]="item.expanded" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </button>
+
+                        <!-- Submenú -->
+                        <div *ngIf="sidebarOpen && item.expanded" class="mt-1 space-y-1 pl-4 animate-fade-in-down">
+                            <ng-container *ngFor="let child of item.children">
+                                <a [routerLink]="child.route"
+                                    routerLinkActive="bg-blue-500 !text-white font-bold shadow-md"
+                                    #rla="routerLinkActive"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all group">
+                                    <!-- Dot indicator para hijos -->
+                                    <div class="w-1.5 h-1.5 rounded-full transition-colors"
+                                        [ngClass]="rla.isActive ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-gray-400 group-hover:bg-gray-600 dark:bg-gray-500 dark:group-hover:bg-white'">
+                                    </div>
+                                    <span class="truncate">{{ child.label }}</span>
+                                </a>
+                            </ng-container>
+                        </div>
+                    </div>
+
+                    <!-- Item simple (sin hijos) -->
+                    <a *ngIf="!item.children" [routerLink]="item.route"
+                        routerLinkActive="bg-blue-500 !text-white font-bold shadow-md"
+                        class="flex items-center gap-3 px-3 py-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all group"
+                        [class.justify-center]="!sidebarOpen" [title]="item.label">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 shrink-0 transition-colors group-hover:text-blue-500"
+                            [class.text-blue-500]="false" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
+                        </svg>
+                        <span *ngIf="sidebarOpen" class="text-sm font-medium tracking-tight">{{ item.label }}</span>
+                    </a>
+                </ng-container>
+            </div>
         </nav>
     </aside>
 
@@ -70,7 +91,7 @@
                 <div class="hidden lg:block">
                     <h1 class="text-lg font-bold text-primary tracking-tight">Alcaldía Municipal de Tipitapa</h1>
                     <p class="text-[10px] text-muted font-bold uppercase tracking-widest">Gobierno Municipal • Gestión
-                        Administrativa</p>
+                        Activo Fijo</p>
                 </div>
             </div>
 

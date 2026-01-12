@@ -17,6 +17,11 @@ export class UsuariosComponent implements OnInit {
     search = '';
     showForm = false;
 
+    currentPage = 1;
+    lastPage = 1;
+    pageSize = 10;
+    totalUsuarios = 0;
+
     userForm: any = {
         nombre: '',
         apellido: '',
@@ -33,13 +38,24 @@ export class UsuariosComponent implements OnInit {
 
     loadData() {
         this.loading = true;
-        this.usuarioService.getUsuarios(1, this.search).subscribe({
-            next: (res) => {
+        this.usuarioService.getUsuarios(this.currentPage, this.search).subscribe({
+            next: (res: any) => {
                 this.usuarios = res.data;
+                this.currentPage = res.current_page;
+                this.lastPage = res.last_page;
+                this.totalUsuarios = res.total;
+                this.pageSize = res.per_page;
                 this.loading = false;
             },
             error: () => this.loading = false
         });
+    }
+
+    changePage(page: number) {
+        if (page >= 1 && page <= this.lastPage) {
+            this.currentPage = page;
+            this.loadData();
+        }
     }
 
     onSearch() { this.loadData(); }

@@ -1,12 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AssetService } from '../../services/asset.service';
 import { UbicacionService } from '../../services/ubicacion.service';
 import { PersonalService } from '../../services/personal.service';
 import { QrScannerComponent } from '../../components/qr-scanner/qr-scanner.component';
 import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
+import { AuthService } from '../../services/auth.service';
 import { Asset } from '../../models/asset.model';
 import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -25,6 +26,11 @@ export class AssetsComponent implements OnInit {
     showScanner = false;
     showForm = false; // Changed from showModal to showForm for side-panel style
     searchTerm = '';
+    selectedAreaId: any = '';
+    selectedPersonalId: any = '';
+    selectedClasificacionId: any = '';
+    selectedEstado: string = '';
+    isMisActivos = false;
     searchUpdate = new Subject<string>();
 
     // Dependencies
@@ -64,15 +70,18 @@ export class AssetsComponent implements OnInit {
     };
     editingId: number | null = null;
 
-    // Pagination
     currentPage = 1;
     lastPage = 1;
+    pageSize = 15;
     totalAssets = 0;
+    pageSizeOptions = [10, 15, 25, 50, 100];
 
     constructor(
         private assetService: AssetService,
         private ubiService: UbicacionService,
         private personalService: PersonalService,
+        private authService: AuthService,
+        private route: ActivatedRoute,
         private cdr: ChangeDetectorRef
     ) {
         this.searchUpdate.pipe(
@@ -86,14 +95,26 @@ export class AssetsComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.loadAssets();
+        this.route.url.subscribe(url => {
+            this.isMisActivos = url.some(segment => segment.path === 'mis-activos');
+            if (this.isMisActivos) {
+                this.authService.currentUser.subscribe(user => {
+                    if (user && user.personal_id) {
+                        this.selectedPersonalId = user.personal_id;
+                    }
+                    this.loadAssets();
+                });
+            } else {
+                this.loadAssets();
+            }
+        });
         this.loadDependencies();
     }
 
     loadDependencies() {
         forkJoin({
-            areas: this.ubiService.getAreas(),
-            ubicaciones: this.ubiService.getUbicaciones(),
+            areas: this.ubiService.getAllAreas(),
+            ubicaciones: this.ubiService.getAllUbicaciones(),
             clasificaciones: this.assetService.getClasificaciones(),
             fuentes: this.assetService.getFuentes(),
             tipos: this.assetService.getTipos(),
@@ -117,20 +138,87 @@ export class AssetsComponent implements OnInit {
 
     loadAssets() {
         this.loading = true;
-        this.assetService.getAssets(this.currentPage, this.searchTerm).subscribe({
+        this.assetService.getAssets(
+            this.currentPage,
+            this.searchTerm,
+            this.selectedEstado,
+            this.pageSize,
+            this.selectedAreaId,
+            this.selectedPersonalId,
+            this.selectedClasificacionId
+        ).subscribe({
             next: (res) => {
                 this.assets = res.data;
                 this.currentPage = res.current_page;
                 this.lastPage = res.last_page;
                 this.totalAssets = res.total;
+                // Ensure pageSize is synced with response if available, or keep current
+                this.pageSize = (res as any).per_page || this.pageSize;
                 this.loading = false;
                 this.cdr.detectChanges();
             },
             error: (err) => {
+                console.error('Error loading assets:', err);
                 this.loading = false;
                 this.cdr.detectChanges();
             }
         });
+    }
+
+    onPageSizeChange() {
+        this.currentPage = 1;
+        this.loadAssets();
+    }
+
+    onAreaChange() {
+        if (!this.isMisActivos) {
+            this.selectedPersonalId = '';
+            this.loadFilteredPersonal();
+        }
+        this.onFilterChange();
+    }
+
+    loadFilteredPersonal() {
+        this.personalService.getAllPersonal(this.selectedAreaId).subscribe(data => {
+            this.personal = data;
+            this.cdr.detectChanges();
+        });
+    }
+
+    // Form specific logic
+    formPersonal: any[] = [];
+
+    onFormAreaChange() {
+        if (this.assetForm.area_id) {
+            this.assetForm.personal_id = null; // Clear selection
+            this.loadFormPersonal(this.assetForm.area_id);
+        } else {
+            this.formPersonal = [];
+        }
+    }
+
+    loadFormPersonal(areaId: number) {
+        this.personalService.getAllPersonal(areaId).subscribe(data => {
+            this.formPersonal = data;
+            this.cdr.detectChanges();
+        });
+    }
+
+    onFilterChange() {
+        this.currentPage = 1;
+        this.loadAssets();
+    }
+
+    resetFilters() {
+        this.searchTerm = '';
+        this.selectedAreaId = '';
+        if (!this.isMisActivos) {
+            this.selectedPersonalId = '';
+        }
+        this.selectedClasificacionId = '';
+        this.selectedEstado = '';
+        this.currentPage = 1;
+        this.loadAssets();
     }
 
     onSearch(event: any) {
@@ -182,6 +270,13 @@ export class AssetsComponent implements OnInit {
             monto_cheque_utilizado: 0
         };
         this.showForm = true;
+
+        // Initialize form personal list based on default area
+        if (this.assetForm.area_id) {
+            this.loadFormPersonal(this.assetForm.area_id);
+        } else {
+            this.formPersonal = [];
+        }
     }
 
     editAsset(asset: Asset) {
@@ -239,5 +334,14 @@ export class AssetsComponent implements OnInit {
                 });
             }
         });
+    }
+
+    // Keyboard Shortcuts
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.ctrlKey && event.altKey && event.key === 'n') {
+            event.preventDefault();
+            this.openCreateForm();
+        }
     }
 }

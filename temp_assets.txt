@@ -1,0 +1,347 @@
+﻿<app-main-layout>
+    <div class="p-6 lg:p-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-primary tracking-tight">Activos Fijos</h2>
+                <p class="text-secondary mt-1 tracking-tight">GestiÃ³n administrativa del inventario institucional.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button (click)="openCreateForm()"
+                    class="btn-secondary h-12 px-6 shadow-lg shadow-gray-500/10 hover:shadow-gray-500/20 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Nuevo Activo</span>
+                </button>
+                <button (click)="toggleScanner()"
+                    class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 17h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    <span>{{ showScanner ? 'Cerrar' : 'Escanear' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- QR Scanner (Full Width) -->
+        <div *ngIf="showScanner"
+            class="mb-8 animate-fade-in shadow-2xl rounded-2xl overflow-hidden border-2 border-blue-500/20">
+            <app-qr-scanner (scanSuccess)="handleScanSuccess($event)"></app-qr-scanner>
+        </div>
+
+        <!-- Integrated Top Form Section (Matching User's Request Layout) -->
+        <div *ngIf="showForm" class="mb-10 animate-fade-in">
+            <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
+                <div class="px-8 py-6 border-b border-white/5 bg-gray-500/5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Registro RÃ¡pido
+                        </div>
+                        <h3 class="text-2xl font-black text-primary tracking-tight">Registrar activo</h3>
+                        <p class="text-xs text-muted mt-1">Solo los campos clave son obligatorios; los demÃ¡s son
+                            opcionales.</p>
+                    </div>
+                    <button (click)="closeForm()"
+                        class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="px-8 py-8">
+                    <form (ngSubmit)="saveAsset()" class="space-y-6">
+                        <!-- Row 1: ClasificaciÃ³n, Nombre, CÃ³digo -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">ClasificaciÃ³n <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="assetForm.clasificacion_id" name="clas"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Selecciona clasificaciÃ³n</option>
+                                    <option *ngFor="let c of clasificaciones" [value]="c.id">{{ c.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Nombre del activo <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="assetForm.nombre_activo" name="nombre"
+                                    class="input-field h-11 text-sm placeholder:text-gray-500"
+                                    placeholder="Ej: Laptop Dell">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">CÃ³digo inventario <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="assetForm.codigo_inventario" name="codigo"
+                                    [disabled]="!!editingId" class="input-field h-11 text-sm placeholder:text-gray-500"
+                                    placeholder="">
+                                <p class="text-[10px] text-muted text-right">Usa â†‘ â†“ para ajustar</p>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Ãrea, UbicaciÃ³n, Estado -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Ãrea <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="assetForm.area_id" name="area"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Selecciona Ã¡rea</option>
+                                    <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">UbicaciÃ³n <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="assetForm.ubicacion_id" name="ubi"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Selecciona ubicaciÃ³n</option>
+                                    <option *ngFor="let ubi of ubicaciones" [value]="ubi.id">{{ ubi.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Estado <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="assetForm.estado" name="estado"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option value="BUENO">Bueno</option>
+                                    <option value="REGULAR">Regular</option>
+                                    <option value="MALO">Malo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Tipo (Optional) -->
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Tipo</label>
+                                <select [(ngModel)]="assetForm.tipo_activo_id" name="tipo"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null">(Opcional)</option>
+                                    <option *ngFor="let t of tipos" [value]="t.id">{{ t.nombre }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Fuente, Proveedor, Asignado a -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Fuente financiamiento <span
+                                        class="text-red-500">*</span></label>
+                                <select [(ngModel)]="assetForm.fuente_financiamiento_id" name="fuente"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null" disabled>Selecciona fuente</option>
+                                    <option *ngFor="let f of fuentes" [value]="f.id">{{ f.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Proveedor</label>
+                                <select [(ngModel)]="assetForm.proveedor_id" name="proveedor"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null">(Opcional)</option>
+                                    <option *ngFor="let p of proveedores" [value]="p.id">{{ p.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Asignado a:</label>
+                                <select [(ngModel)]="assetForm.personal_id" name="personal"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null">(Opcional)</option>
+                                    <option *ngFor="let p of personal" [value]="p.id">{{ p.nombre }} {{ p.apellido }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Costo, Fecha, Factura -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Costo adquisiciÃ³n (C$)</label>
+                                <input type="number" [(ngModel)]="assetForm.precio_adquisicion" name="p_compra"
+                                    class="input-field h-11 text-sm" placeholder="0.00">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Fecha adquisiciÃ³n</label>
+                                <div class="relative">
+                                    <input type="date" [(ngModel)]="assetForm.fecha_adquisicion" name="fecha"
+                                        class="input-field h-11 text-sm w-full">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Factura</label>
+                                <input type="text" [(ngModel)]="assetForm.numero_factura" name="factura"
+                                    class="input-field h-11 text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Row 6: Cheque, Monto Cheque -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Cheque</label>
+                                <select [(ngModel)]="assetForm.cheque_id" name="cheque"
+                                    class="input-field h-11 text-sm bg-gray-50/5">
+                                    <option [ngValue]="null">(Opcional)</option>
+                                    <option *ngFor="let c of cheques" [value]="c.id">{{ c.numero_cheque }} - {{
+                                        c.beneficiario }}</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Monto del cheque utilizado (C$)</label>
+                                <input type="number" [(ngModel)]="assetForm.monto_cheque_utilizado" name="monto_cheque"
+                                    class="input-field h-11 text-sm" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Row 7: Info Adicional (Foto) -->
+                        <div class="pt-6 border-t border-white/5">
+                            <h4 class="text-sm font-bold text-primary mb-4">InformaciÃ³n adicional (opcional)</h4>
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-muted">Foto del activo (URL o
+                                        DescripciÃ³n)</label>
+                                    <textarea [(ngModel)]="assetForm.descripcion" name="desc"
+                                        class="input-field h-20 text-sm"
+                                        placeholder="DescripciÃ³n detallada o observaciones..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center justify-end gap-3 pt-4">
+                            <button type="button" (click)="closeForm()"
+                                class="btn-secondary px-6 h-11">Cancelar</button>
+                            <button type="submit"
+                                class="btn-primary px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                                {{ editingId ? 'Actualizar' : 'Guardar Activo' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card p-4 mb-6">
+            <div class="relative max-w-2xl">
+                <span class="absolute inset-y-0 left-4 flex items-center text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" [value]="searchTerm" (input)="onSearch($event)"
+                    placeholder="Buscar por cÃ³digo, nombre o serie..." class="input-field pl-12 h-14">
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead
+                        class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-5">CÃ³digo</th>
+                            <th class="px-6 py-5 font-black">Activo / Detalle</th>
+                            <th class="px-6 py-5">Ãrea / Responsable</th>
+                            <th class="px-6 py-5 text-center">Estado</th>
+                            <th class="px-6 py-5 text-right">Valor</th>
+                            <th class="px-6 py-5 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 font-medium">
+                        <tr *ngIf="loading" class="animate-pulse">
+                            <td colspan="6" class="px-6 py-20 text-center text-muted">Cargando inventario...</td>
+                        </tr>
+                        <tr *ngFor="let asset of assets" class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-5">
+                                <span class="font-mono text-blue-500 font-black text-sm">{{ asset.codigo_inventario
+                                    }}</span>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-black text-primary">{{ asset.nombre_activo }}</span>
+                                    <span class="text-[10px] text-muted uppercase mt-0.5 tracking-tighter">{{
+                                        asset.marca || 'S/M' }} â€¢ {{ asset.modelo || 'S/M' }} â€¢ {{ asset.serie || 'S/S'
+                                        }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-primary">{{ asset.area?.nombre || 'General'
+                                        }}</span>
+                                    <span class="text-[10px] text-muted" *ngIf="asset.personal">
+                                        {{ asset.personal.nombre }} {{ asset.personal.apellido }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span [ngClass]="{
+                                        'badge-emerald': asset.estado === 'BUENO',
+                                        'badge-blue': asset.estado === 'REGULAR',
+                                        'badge-red': asset.estado === 'MALO'
+                                    }">{{ asset.estado }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <span class="font-black text-primary text-sm">NIO {{ asset.precio_adquisicion |
+                                    number:'1.2-2' }}</span>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button (click)="editAsset(asset)"
+                                        class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="deleteAsset(asset.id)"
+                                        class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-6 border-t border-white/5 flex items-center justify-between">
+                <span class="text-xs font-bold text-muted uppercase tracking-wider">
+                    Mostrando <span class="text-primary font-black">{{ assets.length }}</span> de <span
+                        class="text-primary font-black">{{ totalAssets }}</span> activos
+                </span>
+                <div class="flex items-center gap-2">
+                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+                        class="btn-secondary h-10 w-10 flex items-center justify-center p-0 disabled:opacity-30">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <span class="text-xs font-black px-4 py-2 bg-gray-500/10 rounded-lg text-primary">PÃ¡g {{ currentPage
+                        }} / {{ lastPage }}</span>
+                    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
+                        class="btn-secondary h-10 w-10 flex items-center justify-center p-0 disabled:opacity-30">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

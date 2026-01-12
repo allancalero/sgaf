@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 
@@ -8,11 +9,8 @@ interface MenuItem {
     label: string;
     icon: string;
     route?: string;
-}
-
-interface MenuSection {
-    title: string;
-    items: MenuItem[];
+    children?: MenuItem[];
+    expanded?: boolean;
 }
 
 @Component({
@@ -22,29 +20,32 @@ interface MenuSection {
     templateUrl: './main-layout.component.html',
     styleUrls: ['./main-layout.component.css']
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
     sidebarOpen = true;
     user: any;
     today = new Date();
 
-    menuSections: MenuSection[] = [
+    menuItems: MenuItem[] = [
         {
-            title: 'MONITOREO',
-            items: [
-                { label: 'Panel de Control', icon: 'dashboard', route: '/dashboard' }
-            ]
+            label: 'Panel de Control',
+            icon: 'dashboard',
+            route: '/dashboard'
         },
         {
-            title: 'CATÁLOGOS',
-            items: [
+            label: 'Catálogos',
+            icon: 'folder',
+            expanded: false,
+            children: [
                 { label: 'Ubicación / Areas', icon: 'location', route: '/catalogos/ubicacion' },
                 { label: 'Recursos Humanos', icon: 'users', route: '/catalogos/recursos-humanos' },
                 { label: 'Catálogos de Activos', icon: 'box', route: '/catalogos/activos-fijo' }
             ]
         },
         {
-            title: 'ACTIVOS FIJO',
-            items: [
+            label: 'Activos Fijo',
+            icon: 'box',
+            expanded: false,
+            children: [
                 { label: 'Activos', icon: 'box', route: '/activos-fijos' },
                 { label: 'Mis Activos', icon: 'user', route: '/activos/mis-activos' },
                 { label: 'Reasignaciones', icon: 'transfer', route: '/activos/reasignaciones' },
@@ -55,8 +56,10 @@ export class MainLayoutComponent {
             ]
         },
         {
-            title: 'SISTEMA',
-            items: [
+            label: 'Sistema',
+            icon: 'settings',
+            expanded: false,
+            children: [
                 { label: 'Usuarios', icon: 'users', route: '/sistema/usuarios' },
                 { label: 'Respaldo', icon: 'backup', route: '/sistema/respaldo' },
                 { label: 'Seguridad', icon: 'shield', route: '/sistema/seguridad' },
@@ -67,10 +70,37 @@ export class MainLayoutComponent {
 
     constructor(
         private authService: AuthService,
-        public themeService: ThemeService
+        public themeService: ThemeService,
+        private router: Router
     ) {
         this.authService.currentUser.subscribe(user => {
             this.user = user;
+        });
+
+        // Auto-expand menu based on current route
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            this.checkActiveMenu();
+        });
+    }
+
+    ngOnInit() {
+        this.checkActiveMenu();
+    }
+
+    checkActiveMenu() {
+        const currentUrl = this.router.url;
+        this.menuItems.forEach(item => {
+            if (item.children) {
+                // Check if any child matches the current URL
+                const hasActiveChild = item.children.some(child =>
+                    child.route && currentUrl.startsWith(child.route)
+                );
+                if (hasActiveChild) {
+                    item.expanded = true;
+                }
+            }
         });
     }
 
@@ -100,7 +130,9 @@ export class MainLayoutComponent {
             qr: 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 17h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z',
             backup: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12',
             shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-            clipboard: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
+            clipboard: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
+            folder: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z',
+            settings: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'
         };
         return icons[iconName] || icons['box'];
     }

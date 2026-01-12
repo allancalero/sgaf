@@ -14,7 +14,7 @@ class UbicacionController extends Controller
             ->leftJoin('ubicaciones', 'areas.ubicacion_id', '=', 'ubicaciones.id')
             ->select('areas.*', 'ubicaciones.nombre as ubicacion_nombre')
             ->orderBy('areas.nombre')
-            ->get();
+            ->paginate($request->get('per_page', 10));
 
         return response()->json($areas);
     }
@@ -23,8 +23,25 @@ class UbicacionController extends Controller
     {
         $ubicaciones = DB::table('ubicaciones')
             ->orderBy('nombre')
-            ->get();
+            ->paginate($request->get('per_page', 10));
 
+        return response()->json($ubicaciones);
+    }
+    public function allAreas()
+    {
+        $areas = DB::table('areas')
+            ->leftJoin('ubicaciones', 'areas.ubicacion_id', '=', 'ubicaciones.id')
+            ->select('areas.*', 'ubicaciones.nombre as ubicacion_nombre')
+            ->orderBy('areas.nombre')
+            ->get();
+        return response()->json($areas);
+    }
+
+    public function allUbicaciones()
+    {
+        $ubicaciones = DB::table('ubicaciones')
+            ->orderBy('nombre')
+            ->get();
         return response()->json($ubicaciones);
     }
 

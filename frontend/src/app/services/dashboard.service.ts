@@ -8,9 +8,16 @@ import { DashboardStats } from '../models/dashboard-stats';
     providedIn: 'root'
 })
 export class DashboardService {
-    private apiUrl = `${environment.apiUrl}/dashboard`;
+    private apiUrl: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        const path = window.location.pathname;
+        let baseApi = environment.apiUrl;
+        if (path.includes('SGAF2')) {
+            baseApi = path.split('SGAF2')[0] + 'api';
+        }
+        this.apiUrl = `${baseApi}/dashboard`;
+    }
 
     getStats(): Observable<DashboardStats> {
         return this.http.get<DashboardStats>(this.apiUrl);

@@ -8,20 +8,35 @@ import { Asset, AssetResponse } from '../models/asset.model';
     providedIn: 'root'
 })
 export class AssetService {
-    private apiUrl = `${environment.apiUrl}/assets`;
+    private apiUrl: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        this.apiUrl = `${environment.apiUrl}/assets`;
+    }
 
-    getAssets(page: number = 1, search: string = '', estado: string = ''): Observable<AssetResponse> {
+    getAssets(page: number = 1, search: string = '', estado: string = '', perPage: number = 15, areaId: any = '', personalId: any = '', clasificacionId: any = ''): Observable<AssetResponse> {
         let params = new HttpParams()
-            .set('page', page.toString());
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
 
-        if (search) {
-            params = params.set('search', search);
+        if (search && search.trim()) {
+            params = params.set('search', search.trim());
         }
 
         if (estado) {
             params = params.set('estado', estado);
+        }
+
+        if (areaId && areaId !== '') {
+            params = params.set('area_id', areaId.toString());
+        }
+
+        if (personalId && personalId !== '') {
+            params = params.set('personal_id', personalId.toString());
+        }
+
+        if (clasificacionId && clasificacionId !== '') {
+            params = params.set('clasificacion_id', clasificacionId.toString());
         }
 
         return this.http.get<AssetResponse>(this.apiUrl, { params });

@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 const props = defineProps({ users: Object, search: String });
 const busqueda = ref(props.search || '');
 const total = computed(() => props.users.total || props.users.data.length);
@@ -11,8 +11,22 @@ const usuariosFiltrados = computed(() => {
     return props.users.data.filter((u) =>
         [u.nombre, u.apellido, u.email, ...(u.roles?.map(r => r.name) || [])]
             .filter(Boolean)
-            .some((value) => value.toLowerCase().includes(term))
     );
+});
+
+const handleKeydown = (event) => {
+    if (event.ctrlKey && event.altKey && event.key === 'n') {
+        event.preventDefault();
+        router.visit(route('usuarios.create'));
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
 });
 </script>
 

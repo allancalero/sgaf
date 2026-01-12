@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
@@ -20,6 +20,20 @@ export class UbicacionesComponent implements OnInit {
     ubicaciones: Ubicacion[] = [];
     loading = true;
 
+    // Pagination for Areas
+    currentPage = 1;
+    lastPage = 1;
+    pageSize = 10;
+    totalAreas = 0;
+
+    // Pagination for Ubicaciones
+    uCurrentPage = 1;
+    uLastPage = 1;
+    uPageSize = 10;
+    totalUbicaciones = 0;
+
+    pageSizeOptions = [10, 25, 50, 100];
+
     // Area form
     areaForm = { nombre: '', ubicacion_id: null as number | null, estado: 'ACTIVO' };
     editingAreaId: number | null = null;
@@ -38,28 +52,63 @@ export class UbicacionesComponent implements OnInit {
     }
 
     loadData() {
-        this.loading = true;
+        this.loadAreas();
+        this.loadUbicaciones();
+    }
 
-        this.ubicacionService.getAreas().subscribe({
-            next: (data) => {
-                this.areas = data;
+    loadAreas() {
+        this.loading = true;
+        this.ubicacionService.getAreas(this.currentPage, this.pageSize).subscribe({
+            next: (res) => {
+                this.areas = res.data;
+                this.totalAreas = res.total;
+                this.lastPage = res.last_page;
                 this.checkLoading();
             },
             error: () => this.checkLoading()
         });
+    }
 
-        this.ubicacionService.getUbicaciones().subscribe({
-            next: (data) => {
-                this.ubicaciones = data;
+    loadUbicaciones() {
+        this.loading = true;
+        this.ubicacionService.getUbicaciones(this.uCurrentPage, this.uPageSize).subscribe({
+            next: (res) => {
+                this.ubicaciones = res.data;
+                this.totalUbicaciones = res.total;
+                this.uLastPage = res.last_page;
                 this.checkLoading();
-            }
+            },
+            error: () => this.checkLoading()
         });
     }
 
     checkLoading() {
-        // Simple mechanism to just turn off loading when data comes in
         this.loading = false;
         this.cdr.detectChanges();
+    }
+
+    onPageSizeChange() {
+        this.currentPage = 1;
+        this.loadAreas();
+    }
+
+    onUPageSizeChange() {
+        this.uCurrentPage = 1;
+        this.loadUbicaciones();
+    }
+
+    changePage(page: number) {
+        if (page >= 1 && page <= this.lastPage) {
+            this.currentPage = page;
+            this.loadAreas();
+        }
+    }
+
+    changeUPage(page: number) {
+        if (page >= 1 && page <= this.uLastPage) {
+            this.uCurrentPage = page;
+            this.loadUbicaciones();
+        }
     }
 
     openForm(type: 'area' | 'ubicacion') {
@@ -217,5 +266,20 @@ export class UbicacionesComponent implements OnInit {
         if (!id) return 'General / Sin asginar';
         const ubicacion = this.ubicaciones.find(u => u.id === id);
         return ubicacion?.nombre || 'Desconocido';
+    }
+
+    // Keyboard Shortcuts
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.ctrlKey && event.altKey && event.key === 'n') {
+            event.preventDefault();
+            // Assuming activeTab corresponds to 'areas' or 'ubicaciones'
+            // Map table tabs to form types
+            if (this.activeTab === 'areas') {
+                this.openForm('area');
+            } else if (this.activeTab === 'ubicaciones') { // Assuming this is the key used in HTML for the second tab
+                this.openForm('ubicacion');
+            }
+        }
     }
 }

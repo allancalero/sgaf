@@ -34,9 +34,9 @@
     --bg-header: #0f1629;
     --bg-card-hover: #1a2235;
     --border-color: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
 
     --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
@@ -142,6 +142,51 @@ body {
 
 .badge-gray {
     @apply px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-gray-500/10 text-gray-400 border border-gray-500/20;
+}
+
+/* Pagination Footer Styles */
+.pagination-container {
+    @apply px-6 py-4 border-t border-white/5 flex items-center justify-between font-bold text-[10px] uppercase tracking-widest;
+    color: var(--text-muted);
+}
+
+.pagination-info {
+    @apply flex items-center gap-6;
+}
+
+.pagination-label {
+    @apply text-muted font-bold;
+}
+
+.pagination-value {
+    @apply text-primary font-black ml-1;
+}
+
+.pagination-select {
+    @apply bg-gray-500/10 border border-white/10 rounded-lg text-primary px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer transition-all hover:bg-gray-500/20;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='Length19 9l-7 7-7-7' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+.pagination-select option {
+    background-color: #1e293b;
+    color: #f8fafc;
+}
+
+.pagination-nav {
+    @apply flex items-center gap-2;
+}
+
+.pagination-btn {
+    @apply h-9 w-9 rounded-xl bg-gray-500/10 hover:bg-gray-500/20 border border-white/5 flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed text-primary hover:scale-105 active:scale-95;
+}
+
+.pagination-page {
+    @apply font-black px-4 py-1.5 bg-gray-500/10 rounded-xl text-primary ring-1 ring-white/10;
 }
 
 /* Table */

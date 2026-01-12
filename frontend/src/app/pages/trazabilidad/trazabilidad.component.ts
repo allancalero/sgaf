@@ -15,6 +15,11 @@ export class TrazabilidadComponent implements OnInit {
     loading = false;
     search = '';
 
+    currentPage = 1;
+    lastPage = 1;
+    pageSize = 10;
+    totalItems = 0;
+
     constructor(
         private trazabilidadService: TrazabilidadService,
         private cdr: ChangeDetectorRef
@@ -26,9 +31,13 @@ export class TrazabilidadComponent implements OnInit {
 
     loadData() {
         this.loading = true;
-        this.trazabilidadService.getHistorial().subscribe({
+        this.trazabilidadService.getHistorial(this.search, this.currentPage).subscribe({
             next: (res: any) => {
                 this.historial = res.data;
+                this.currentPage = res.current_page;
+                this.lastPage = res.last_page;
+                this.totalItems = res.total;
+                this.pageSize = res.per_page;
                 this.loading = false;
                 this.cdr.detectChanges();
             },
@@ -39,15 +48,16 @@ export class TrazabilidadComponent implements OnInit {
         });
     }
 
+    changePage(page: number) {
+        if (page >= 1 && page <= this.lastPage) {
+            this.currentPage = page;
+            this.loadData();
+        }
+    }
+
     onSearch() {
-        this.loading = true;
-        this.trazabilidadService.getHistorial(this.search).subscribe({
-            next: (res: any) => {
-                this.historial = res.data;
-                this.loading = false;
-                this.cdr.detectChanges();
-            }
-        });
+        this.currentPage = 1;
+        this.loadData();
     }
 
     formatDate(date: string): string {

@@ -18,14 +18,30 @@ export interface Ubicacion {
     estado: string;
 }
 
+export interface PaginatedResponse<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    total: number;
+    per_page: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UbicacionService {
-    private apiUrl = environment.apiUrl;
+    private apiUrl: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        this.apiUrl = environment.apiUrl;
+    }
 
-    getAreas(): Observable<Area[]> {
-        return this.http.get<Area[]>(`${this.apiUrl}/areas`);
+    getAreas(page = 1, perPage = 10): Observable<PaginatedResponse<Area>> {
+        return this.http.get<PaginatedResponse<Area>>(`${this.apiUrl}/areas`, {
+            params: { page: page.toString(), per_page: perPage.toString() }
+        });
+    }
+
+    getAllAreas(): Observable<Area[]> {
+        return this.http.get<Area[]>(`${this.apiUrl}/areas/all`);
     }
 
     createArea(data: Partial<Area>): Observable<any> {
@@ -40,8 +56,14 @@ export class UbicacionService {
         return this.http.delete(`${this.apiUrl}/areas/${id}`);
     }
 
-    getUbicaciones(): Observable<Ubicacion[]> {
-        return this.http.get<Ubicacion[]>(`${this.apiUrl}/ubicaciones`);
+    getUbicaciones(page = 1, perPage = 10): Observable<PaginatedResponse<Ubicacion>> {
+        return this.http.get<PaginatedResponse<Ubicacion>>(`${this.apiUrl}/ubicaciones`, {
+            params: { page: page.toString(), per_page: perPage.toString() }
+        });
+    }
+
+    getAllUbicaciones(): Observable<Ubicacion[]> {
+        return this.http.get<Ubicacion[]>(`${this.apiUrl}/ubicaciones/all`);
     }
 
     createUbicacion(data: Partial<Ubicacion>): Observable<any> {

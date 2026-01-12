@@ -35,10 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Ubicaciones y Areas
     Route::get('/areas', [UbicacionController::class, 'areas']);
+    Route::get('/areas/all', [UbicacionController::class, 'allAreas']);
     Route::post('/areas', [UbicacionController::class, 'storeArea']);
     Route::put('/areas/{id}', [UbicacionController::class, 'updateArea']);
     Route::delete('/areas/{id}', [UbicacionController::class, 'deleteArea']);
     Route::get('/ubicaciones', [UbicacionController::class, 'ubicaciones']);
+    Route::get('/ubicaciones/all', [UbicacionController::class, 'allUbicaciones']);
     Route::post('/ubicaciones', [UbicacionController::class, 'storeUbicacion']);
     Route::put('/ubicaciones/{id}', [UbicacionController::class, 'updateUbicacion']);
     Route::delete('/ubicaciones/{id}', [UbicacionController::class, 'deleteUbicacion']);
@@ -71,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Personal y Cargos
     Route::get('/personal', [PersonalController::class, 'index']);
+    Route::get('/personal/all', [PersonalController::class, 'all']);
     Route::post('/personal', [PersonalController::class, 'store']);
     Route::put('/personal/{id}', [PersonalController::class, 'update']);
     Route::delete('/personal/{id}', [PersonalController::class, 'destroy']);
@@ -89,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reportes/activos-por-area', [ReporteController::class, 'activosPorArea']);
     Route::get('/reportes/activos-por-estado', [ReporteController::class, 'activosPorEstado']);
     Route::get('/reportes/activos-por-clasificacion', [ReporteController::class, 'activosPorClasificacion']);
+    Route::get('/reportes/{reportId}/download', [ReporteController::class, 'download']);
 
     // Depreciacion
     Route::get('/depreciacion', [DepreciacionController::class, 'index']);
@@ -107,6 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Sistema
     Route::get('/sistema/auditoria', [SistemaController::class, 'auditoria']);
     Route::get('/sistema/respaldo', [SistemaController::class, 'respaldo']);
+    Route::post('/sistema/respaldo', [SistemaController::class, 'generarRespaldo']);
     Route::get('/sistema/seguridad', [SistemaController::class, 'seguridad']);
 
     // Auth

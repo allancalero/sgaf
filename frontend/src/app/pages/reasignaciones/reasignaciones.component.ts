@@ -21,6 +21,11 @@ export class ReasignacionesComponent implements OnInit {
     loading = true;
     showForm = false;
 
+    currentPage = 1;
+    lastPage = 1;
+    pageSize = 10;
+    totalReasignaciones = 0;
+
     form = {
         activo_id: null as number | null,
         personal_nuevo_id: null as number | null,
@@ -40,9 +45,13 @@ export class ReasignacionesComponent implements OnInit {
 
     loadData() {
         this.loading = true;
-        this.reasignacionService.getReasignaciones().subscribe({
+        this.reasignacionService.getReasignaciones(this.currentPage).subscribe({
             next: (res: any) => {
                 this.reasignaciones = res.data;
+                this.currentPage = res.current_page;
+                this.lastPage = res.last_page;
+                this.totalReasignaciones = res.total;
+                this.pageSize = res.per_page;
                 this.loading = false;
                 this.cdr.detectChanges();
             },
@@ -61,6 +70,13 @@ export class ReasignacionesComponent implements OnInit {
             this.assets = res.data;
             this.cdr.detectChanges();
         });
+    }
+
+    changePage(page: number) {
+        if (page >= 1 && page <= this.lastPage) {
+            this.currentPage = page;
+            this.loadData();
+        }
     }
 
     submitForm() {

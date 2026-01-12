@@ -3,8 +3,13 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <h2 class="text-3xl font-black text-primary tracking-tight">Activos Fijos</h2>
-                <p class="text-secondary mt-1 tracking-tight">Gestión administrativa del inventario institucional.</p>
+                <h2 class="text-3xl font-black text-primary tracking-tight">
+                    {{ isMisActivos ? 'Mi Inventario de Activos' : 'Activos Fijos' }}
+                </h2>
+                <p class="text-secondary mt-1 tracking-tight">
+                    {{ isMisActivos ? 'Consulta y gestión de tus activos asignados.' : 'Gestión administrativa del
+                    inventario institucional.' }}
+                </p>
             </div>
             <div class="flex items-center gap-3">
                 <button (click)="openCreateForm()"
@@ -87,7 +92,7 @@
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-muted">Área <span
                                         class="text-red-500">*</span></label>
-                                <select [(ngModel)]="assetForm.area_id" name="area"
+                                <select [(ngModel)]="assetForm.area_id" name="area" (change)="onFormAreaChange()"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                                     <option [ngValue]="null" disabled>Selecciona área</option>
                                     <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
@@ -150,7 +155,8 @@
                                 <select [(ngModel)]="assetForm.personal_id" name="personal"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                                     <option [ngValue]="null">(Opcional)</option>
-                                    <option *ngFor="let p of personal" [value]="p.id">{{ p.nombre }} {{ p.apellido }}
+                                    <option *ngFor="let p of formPersonal" [value]="p.id">{{ p.nombre }} {{ p.apellido
+                                        }}
                                     </option>
                                 </select>
                             </div>
@@ -238,6 +244,57 @@
             </div>
         </div>
 
+        <!-- Filters -->
+        <div class="card p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-muted uppercase tracking-widest">Área</label>
+                    <select [(ngModel)]="selectedAreaId" (change)="onAreaChange()" class="pagination-select w-full">
+                        <option value="">Todas las áreas</option>
+                        <option *ngFor="let a of areas" [value]="a.id">{{ a.nombre }}</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-muted uppercase tracking-widest">
+                        Personal <span *ngIf="isMisActivos" class="text-blue-500">(Mi Usuario)</span>
+                    </label>
+                    <select [(ngModel)]="selectedPersonalId" (change)="onFilterChange()"
+                        class="pagination-select w-full" [disabled]="isMisActivos">
+                        <option value="">Todo el personal</option>
+                        <option *ngFor="let p of personal" [value]="p.id">{{ p.nombre }} {{ p.apellido }}</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-muted uppercase tracking-widest">Clasificación</label>
+                    <select [(ngModel)]="selectedClasificacionId" (change)="onFilterChange()"
+                        class="pagination-select w-full">
+                        <option value="">Todas</option>
+                        <option *ngFor="let c of clasificaciones" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-muted uppercase tracking-widest">Estado</label>
+                    <select [(ngModel)]="selectedEstado" (change)="onFilterChange()" class="pagination-select w-full">
+                        <option value="">Todos</option>
+                        <option value="BUENO">Bueno</option>
+                        <option value="REGULAR">Regular</option>
+                        <option value="MALO">Malo</option>
+                    </select>
+                </div>
+                <div>
+                    <button (click)="resetFilters()"
+                        class="btn-secondary h-11 w-full flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>Limpiar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Table Card -->
         <div class="card overflow-hidden">
             <div class="overflow-x-auto">
@@ -245,8 +302,10 @@
                     <thead
                         class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                         <tr>
+                            <th class="px-6 py-5 w-12">#</th>
                             <th class="px-6 py-5">Código</th>
                             <th class="px-6 py-5 font-black">Activo / Detalle</th>
+                            <th class="px-6 py-5">Clasificación</th>
                             <th class="px-6 py-5">Área / Responsable</th>
                             <th class="px-6 py-5 text-center">Estado</th>
                             <th class="px-6 py-5 text-right">Valor</th>
@@ -257,7 +316,11 @@
                         <tr *ngIf="loading" class="animate-pulse">
                             <td colspan="6" class="px-6 py-20 text-center text-muted">Cargando inventario...</td>
                         </tr>
-                        <tr *ngFor="let asset of assets" class="hover:bg-gray-500/5 transition-colors group">
+                        <tr *ngFor="let asset of assets; let i = index"
+                            class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-5 text-sm font-bold text-blue-500/80">{{ (currentPage - 1) * pageSize + i
+                                + 1
+                                }}</td>
                             <td class="px-6 py-5">
                                 <span class="font-mono text-blue-500 font-black text-sm">{{ asset.codigo_inventario
                                     }}</span>
@@ -269,6 +332,10 @@
                                         asset.marca || 'S/M' }} • {{ asset.modelo || 'S/M' }} • {{ asset.serie || 'S/S'
                                         }}</span>
                                 </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">{{
+                                    asset.clasificacion?.nombre || 'General' }}</span>
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex flex-col">
@@ -318,26 +385,31 @@
             </div>
 
             <!-- Pagination -->
-            <div class="px-6 py-6 border-t border-white/5 flex items-center justify-between">
-                <span class="text-xs font-bold text-muted uppercase tracking-wider">
-                    Mostrando <span class="text-primary font-black">{{ assets.length }}</span> de <span
-                        class="text-primary font-black">{{ totalAssets }}</span> activos
-                </span>
-                <div class="flex items-center gap-2">
-                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
-                        class="btn-secondary h-10 w-10 flex items-center justify-center p-0 disabled:opacity-30">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <div class="flex items-center gap-2">
+                        <span class="pagination-label">Por página:</span>
+                        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="pagination-select">
+                            <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+                        </select>
+                    </div>
+                    <span class="pagination-label">
+                        Mostrando <span class="pagination-value">{{ assets.length }}</span> de <span
+                            class="pagination-value">{{ totalAssets }}</span> activos
+                    </span>
+                </div>
+                <div class="pagination-nav" *ngIf="lastPage > 1">
+                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <span class="text-xs font-black px-4 py-2 bg-gray-500/10 rounded-lg text-primary">Pág {{ currentPage
-                        }} / {{ lastPage }}</span>
+                    <span class="pagination-page">Pág {{ currentPage }} / {{ lastPage }}</span>
                     <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
-                        class="btn-secondary h-10 w-10 flex items-center justify-center p-0 disabled:opacity-30">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        class="pagination-btn">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
                 </div>

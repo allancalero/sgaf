@@ -19,6 +19,10 @@ export class SistemaService {
         return this.http.get(`${this.apiUrl}/sistema/respaldo`);
     }
 
+    generarRespaldo(): Observable<any> {
+        return this.http.post(`${this.apiUrl}/sistema/respaldo`, {});
+    }
+
     getSeguridad(): Observable<any> {
         return this.http.get(`${this.apiUrl}/sistema/seguridad`);
     }

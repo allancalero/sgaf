@@ -28,14 +28,27 @@ class PersonalController extends Controller
             $query->where('personal.area_id', $request->area_id);
         }
 
-        $personal = $query->orderBy('personal.nombre')->paginate($request->get('per_page', 15));
+        $personal = $query->orderBy('personal.nombre')->paginate($request->get('per_page', 10));
 
+        return response()->json($personal);
+    }
+
+    public function all(Request $request)
+    {
+        $query = DB::table('personal')
+            ->where('estado', 'activo');
+
+        if ($request->has('area_id') && $request->area_id != '') {
+            $query->where('area_id', $request->area_id);
+        }
+
+        $personal = $query->orderBy('nombre')->get();
         return response()->json($personal);
     }
 
     public function cargos(Request $request)
     {
-        $cargos = DB::table('cargos')->orderBy('nombre')->paginate($request->get('per_page', 15));
+        $cargos = DB::table('cargos')->orderBy('nombre')->paginate($request->get('per_page', 10));
         return response()->json($cargos);
     }
 
@@ -47,11 +60,11 @@ class PersonalController extends Controller
 
     public function store(Request $request)
     {
-        $id = DB::table('personal')->insertGetId([
+        $data = [
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
-            'cargo_id' => $request->cargo_id,
-            'area_id' => $request->area_id,
+            'cargo_id' => $request->cargo_id && $request->cargo_id !== 'undefined' ? $request->cargo_id : null,
+            'area_id' => $request->area_id && $request->area_id !== 'undefined' ? $request->area_id : null,
             'ubicacion_id' => $request->ubicacion_id,
             'telefono' => $request->telefono,
             'email' => $request->email,
@@ -62,18 +75,25 @@ class PersonalController extends Controller
             'estado' => $request->estado ?? 'ACTIVO',
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('personal_photos', 'public');
+            $data['foto'] = '/storage/' . $path;
+        }
+
+        $id = DB::table('personal')->insertGetId($data);
 
         return response()->json(['id' => $id, 'message' => 'Personal creado exitosamente']);
     }
 
     public function update(Request $request, $id)
     {
-        DB::table('personal')->where('id', $id)->update([
+        $data = [
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
-            'cargo_id' => $request->cargo_id,
-            'area_id' => $request->area_id,
+            'cargo_id' => $request->cargo_id && $request->cargo_id !== 'undefined' ? $request->cargo_id : null,
+            'area_id' => $request->area_id && $request->area_id !== 'undefined' ? $request->area_id : null,
             'ubicacion_id' => $request->ubicacion_id,
             'telefono' => $request->telefono,
             'email' => $request->email,
@@ -83,7 +103,21 @@ class PersonalController extends Controller
             'direccion' => $request->direccion,
             'estado' => $request->estado,
             'updated_at' => now(),
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            // Delete old photo if exists
+            $old = DB::table('personal')->where('id', $id)->value('foto');
+            if ($old) {
+                $oldPath = str_replace('/storage/', '', $old);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('foto')->store('personal_photos', 'public');
+            $data['foto'] = '/storage/' . $path;
+        }
+
+        DB::table('personal')->where('id', $id)->update($data);
 
         return response()->json(['message' => 'Personal actualizado exitosamente']);
     }

@@ -14,10 +14,11 @@ export interface Personal {
     telefono?: string;
     email?: string;
     numero_cedula?: string;
+    numero_empleado?: string; // New field
     sexo?: string;
     direccion?: string;
     estado: string;
-    foto?: string;
+    foto?: string; // New field
 }
 
 export interface Cargo {
@@ -35,26 +36,38 @@ export interface PaginatedResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class PersonalService {
-    private apiUrl = environment.apiUrl;
+    private apiUrl: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        this.apiUrl = environment.apiUrl;
+    }
 
-    getPersonal(page = 1, search = '', areaId = ''): Observable<PaginatedResponse<Personal>> {
-        let params = new HttpParams().set('page', page.toString());
+    getPersonal(page = 1, search = '', areaId = '', perPage = 10): Observable<PaginatedResponse<Personal>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
         if (search) params = params.set('search', search);
         if (areaId) params = params.set('area_id', areaId);
         return this.http.get<PaginatedResponse<Personal>>(`${this.apiUrl}/personal`, { params });
     }
 
-    getAllPersonal(): Observable<Personal[]> {
-        return this.http.get<Personal[]>(`${this.apiUrl}/personal/all`);
+    getAllPersonal(areaId: any = ''): Observable<Personal[]> {
+        let params = new HttpParams();
+        if (areaId) {
+            params = params.set('area_id', areaId.toString());
+        }
+        return this.http.get<Personal[]>(`${this.apiUrl}/personal/all`, { params });
     }
 
-    createPersonal(data: Partial<Personal>): Observable<any> {
+    createPersonal(data: Partial<Personal> | FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/personal`, data);
     }
 
-    updatePersonal(id: number, data: Partial<Personal>): Observable<any> {
+    updatePersonal(id: number, data: Partial<Personal> | FormData): Observable<any> {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return this.http.post(`${this.apiUrl}/personal/${id}`, data);
+        }
         return this.http.put(`${this.apiUrl}/personal/${id}`, data);
     }
 
@@ -62,8 +75,11 @@ export class PersonalService {
         return this.http.delete(`${this.apiUrl}/personal/${id}`);
     }
 
-    getCargos(page = 1): Observable<PaginatedResponse<Cargo>> {
-        return this.http.get<PaginatedResponse<Cargo>>(`${this.apiUrl}/cargos`, { params: { page: page.toString() } });
+    getCargos(page = 1, perPage = 10): Observable<PaginatedResponse<Cargo>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+        return this.http.get<PaginatedResponse<Cargo>>(`${this.apiUrl}/cargos`, { params });
     }
 
     getAllCargos(): Observable<Cargo[]> {

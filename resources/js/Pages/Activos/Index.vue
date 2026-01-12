@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import Pagination from '@/Components/Pagination.vue';
@@ -565,6 +565,25 @@ watch(() => editForm.area_id, (newVal) => {
          // I'll add watch for Create. For Edit, I'll skip to avoid regression on open.
     }
 });
+const clasificacionInput = ref(null);
+const handleKeydown = (event) => {
+    if (event.ctrlKey && event.altKey && event.key === 'n') {
+        event.preventDefault();
+        // Scroll to top or to the form
+        if (clasificacionInput.value) {
+            clasificacionInput.value.focus();
+            clasificacionInput.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <template>
@@ -597,7 +616,7 @@ watch(() => editForm.area_id, (newVal) => {
                         <div class="grid gap-4 sm:grid-cols-3">
                             <div>
                                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Clasificación *</label>
-                                <select v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
+                                <select ref="clasificacionInput" v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                     <option value="" disabled>Selecciona clasificación</option>
                                     <option v-for="clas in props.clasificaciones" :key="clas.id" :value="clas.id">
                                         {{ String(clas.id).padStart(2, '0') }} - {{ clas.nombre }}
