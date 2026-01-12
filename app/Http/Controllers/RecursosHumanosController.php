@@ -15,7 +15,7 @@ class RecursosHumanosController extends Controller
     public function index(Request $request): Response
     {
         // Obtener datos de Personal con filtros
-        $query = Personal::query()
+        $personalQuery = Personal::query()
             ->leftJoin('cargos', 'personal.cargo_id', '=', 'cargos.id')
             ->leftJoin('areas', 'personal.area_id', '=', 'areas.id')
             ->leftJoin('ubicaciones', 'personal.ubicacion_id', '=', 'ubicaciones.id')
@@ -39,35 +39,42 @@ class RecursosHumanosController extends Controller
             );
 
         if ($request->filled('area_id')) {
-            $query->where('personal.area_id', $request->area_id);
+            $personalQuery->where('personal.area_id', $request->area_id);
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $personalQuery->where(function ($q) use ($search) {
                 $q->where('personal.nombre', 'like', "%{$search}%")
                   ->orWhere('personal.apellido', 'like', "%{$search}%")
                   ->orWhere('personal.email', 'like', "%{$search}%");
             });
         }
 
-        $personal = $query->orderBy('personal.id')->paginate(10)->withQueryString();
+        $personal = $personalQuery->orderBy('personal.id')->paginate(10, ['*'], 'page')->withQueryString();
 
-        // Obtener datos de Cargos paginados para la tabla
-        $cargosPaginados = Cargo::orderBy('id')->paginate(10);
-        // Obtener TODOS los cargos para dropdowns
+        // Obtener datos de Cargos paginados
+        $cargosPaginados = Cargo::orderBy('id')->paginate(10, ['*'], 'p_cargos')->withQueryString();
+        
+        // Obtener datos de Áreas paginados (con su ubicación)
+        $areasPaginadas = Area::with('ubicacion')->orderBy('id')->paginate(10, ['*'], 'p_areas')->withQueryString();
+        
+        // Obtener datos de Ubicaciones paginados
+        $ubicacionesPaginadas = Ubicacion::orderBy('id')->paginate(10, ['*'], 'p_ubicaciones')->withQueryString();
+
+        // Obtener TODOS los catálogos para dropdowns en formularios
         $todosLosCargos = Cargo::where('estado', 'ACTIVO')->orderBy('nombre')->get(['id', 'nombre']);
-
-        // Obtener catálogos necesarios
-        $areas = Area::orderBy('nombre')->get(['id', 'nombre']);
-        $ubicaciones = Ubicacion::orderBy('nombre')->get(['id', 'nombre']);
+        $todasLasAreas = Area::where('estado', 'ACTIVO')->orderBy('nombre')->get(['id', 'nombre']);
+        $todasLasUbicaciones = Ubicacion::where('estado', 'ACTIVO')->orderBy('nombre')->get(['id', 'nombre']);
 
         return Inertia::render('RecursosHumanos/Index', [
             'personal' => $personal,
             'cargos' => $cargosPaginados,
+            'areasPaginadas' => $areasPaginadas,
+            'ubicacionesPaginadas' => $ubicacionesPaginadas,
             'todosLosCargos' => $todosLosCargos,
-            'areas' => $areas,
-            'ubicaciones' => $ubicaciones,
+            'areas' => $todasLasAreas, // Para compatibilidad con el dropdown de Personal existente
+            'ubicaciones' => $todasLasUbicaciones, // Para compatibilidad con el dropdown de Personal existente
             'filters' => $request->only(['area_id', 'search']),
         ]);
     }

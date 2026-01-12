@@ -23,20 +23,20 @@ class AreaController extends Controller
     {
         Area::create($request->validated());
 
-        return redirect()->route('areas.index')->with('success', 'Área creada');
+        return redirect()->back()->with('success', 'Área creada');
     }
 
     public function update(UpdateAreaRequest $request, Area $area): RedirectResponse
     {
         $area->update($request->validated());
 
-        return redirect()->route('areas.index')->with('success', 'Área actualizada');
+        return redirect()->back()->with('success', 'Área actualizada');
     }
 
     public function destroy(Area $area): RedirectResponse
     {
         $area->delete();
 
-        return redirect()->route('areas.index')->with('success', 'Área eliminada');
+        return redirect()->back()->with('success', 'Área eliminada');
     }
 }

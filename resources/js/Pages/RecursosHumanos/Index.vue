@@ -18,6 +18,14 @@ const props = defineProps({
         type: Object,
         default: () => ({ data: [] }),
     },
+    areasPaginadas: {
+        type: Object,
+        default: () => ({ data: [] }),
+    },
+    ubicacionesPaginadas: {
+        type: Object,
+        default: () => ({ data: [] }),
+    },
     todosLosCargos: {
         type: Array,
         default: () => [],
@@ -270,6 +278,138 @@ const deleteCargo = (id) => {
         }
     });
 };
+
+// Forms para Áreas
+const createAreaForm = useForm({
+    nombre: '',
+    ubicacion_id: '',
+    estado: 'ACTIVO',
+});
+
+const editAreaForm = useForm({
+    id: null,
+    nombre: '',
+    ubicacion_id: '',
+    estado: 'ACTIVO',
+});
+
+const editingArea = ref(false);
+
+// Forms para Ubicaciones
+const createUbicacionForm = useForm({
+    nombre: '',
+    direccion: '',
+    estado: 'ACTIVO',
+});
+
+const editUbicacionForm = useForm({
+    id: null,
+    nombre: '',
+    direccion: '',
+    estado: 'ACTIVO',
+});
+
+const editingUbicacion = ref(false);
+
+// Funciones Áreas
+const submitCreateArea = () => {
+    createAreaForm.post(route('areas.store'), {
+        preserveScroll: true,
+        onSuccess: () => createAreaForm.reset(),
+    });
+};
+
+const startEditArea = (area) => {
+    editingArea.value = true;
+    editAreaForm.id = area.id;
+    editAreaForm.nombre = area.nombre;
+    editAreaForm.ubicacion_id = area.ubicacion_id || '';
+    editAreaForm.estado = area.estado || 'ACTIVO';
+};
+
+const cancelEditArea = () => {
+    editingArea.value = false;
+    editAreaForm.reset();
+};
+
+const submitEditArea = () => {
+    editAreaForm.put(route('areas.update', editAreaForm.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingArea.value = false;
+            editAreaForm.reset();
+        },
+    });
+};
+
+const deleteArea = (id) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('areas.destroy', id), {
+                preserveScroll: true,
+            });
+        }
+    });
+};
+
+// Funciones Ubicaciones
+const submitCreateUbicacion = () => {
+    createUbicacionForm.post(route('ubicaciones.store'), {
+        preserveScroll: true,
+        onSuccess: () => createUbicacionForm.reset(),
+    });
+};
+
+const startEditUbicacion = (ubicacion) => {
+    editingUbicacion.value = true;
+    editUbicacionForm.id = ubicacion.id;
+    editUbicacionForm.nombre = ubicacion.nombre;
+    editUbicacionForm.direccion = ubicacion.direccion || '';
+    editUbicacionForm.estado = ubicacion.estado || 'ACTIVO';
+};
+
+const cancelEditUbicacion = () => {
+    editingUbicacion.value = false;
+    editUbicacionForm.reset();
+};
+
+const submitEditUbicacion = () => {
+    editUbicacionForm.put(route('ubicaciones.update', editUbicacionForm.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingUbicacion.value = false;
+            editUbicacionForm.reset();
+        },
+    });
+};
+
+const deleteUbicacion = (id) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede revertir",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('ubicaciones.destroy', id), {
+                preserveScroll: true,
+            });
+        }
+    });
+};
 </script>
 
 <template>
@@ -289,8 +429,7 @@ const deleteCargo = (id) => {
             </div>
         </template>
 
-        <div class="py-10">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-10">
                 <!-- Tabs Navigation -->
                 <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -325,7 +464,7 @@ const deleteCargo = (id) => {
                                     'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                                 ]"
                             >
-                                {{ personal.total || 0 }}
+                                {{ props.personal.total || 0 }}
                             </span>
                         </button>
 
@@ -360,7 +499,78 @@ const deleteCargo = (id) => {
                                     'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                                 ]"
                             >
-                                {{ cargos.total || 0 }}
+                                {{ props.cargos.total || 0 }}
+                            </span>
+                        </button>
+
+                        <button
+                            @click="activeTab = 'areas'"
+                            :class="[
+                                activeTab === 'areas'
+                                    ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+                                'group inline-flex items-center border-b-2 px-1 py-4 text-sm font-medium transition-colors',
+                            ]"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                :class="[
+                                    activeTab === 'areas' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 group-hover:text-gray-500',
+                                    '-ml-0.5 mr-2 h-5 w-5',
+                                ]"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            Áreas
+                            <span
+                                :class="[
+                                    activeTab === 'areas'
+                                        ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400'
+                                        : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-300',
+                                    'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
+                                ]"
+                            >
+                                {{ props.areasPaginadas.total || 0 }}
+                            </span>
+                        </button>
+
+                        <button
+                            @click="activeTab = 'ubicaciones'"
+                            :class="[
+                                activeTab === 'ubicaciones'
+                                    ? 'border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+                                'group inline-flex items-center border-b-2 px-1 py-4 text-sm font-medium transition-colors',
+                            ]"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                :class="[
+                                    activeTab === 'ubicaciones' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 group-hover:text-gray-500',
+                                    '-ml-0.5 mr-2 h-5 w-5',
+                                ]"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Ubicaciones
+                            <span
+                                :class="[
+                                    activeTab === 'ubicaciones'
+                                        ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400'
+                                        : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-300',
+                                    'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
+                                ]"
+                            >
+                                {{ props.ubicacionesPaginadas.total || 0 }}
                             </span>
                         </button>
                     </nav>
@@ -777,10 +987,253 @@ const deleteCargo = (id) => {
                             </table>
                         </div>
                         <Pagination 
-                            :links="cargos.links" 
-                            :from="cargos.from" 
-                            :to="cargos.to" 
-                            :total="cargos.total" 
+                            :links="props.cargos.links" 
+                            :from="props.cargos.from" 
+                            :to="props.cargos.to" 
+                            :total="props.cargos.total" 
+                        />
+                    </div>
+                </div>
+
+                <!-- Tab Content: Áreas -->
+                <div v-show="activeTab === 'areas'" class="space-y-8">
+                    <!-- Formulario de Creación Áreas -->
+                    <div v-if="canManage" class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Crear área</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Registra una nueva área o departamento.</p>
+
+                        <form class="mt-4 space-y-4" @submit.prevent="submitCreateArea">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
+                                    <input
+                                        v-model="createAreaForm.nombre"
+                                        type="text"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        required
+                                        maxlength="100"
+                                    />
+                                    <p v-if="createAreaForm.errors.nombre" class="mt-1 text-sm text-red-600">
+                                        {{ createAreaForm.errors.nombre }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ubicación Física *</label>
+                                    <select
+                                        v-model="createAreaForm.ubicacion_id"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        required
+                                    >
+                                        <option value="" disabled>Selecciona ubicación</option>
+                                        <option v-for="u in ubicaciones" :key="u.id" :value="u.id">
+                                            {{ u.nombre }}
+                                        </option>
+                                    </select>
+                                    <p v-if="createAreaForm.errors.ubicacion_id" class="mt-1 text-sm text-red-600">
+                                        {{ createAreaForm.errors.ubicacion_id }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button
+                                    type="submit"
+                                    :disabled="createAreaForm.processing"
+                                    class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                                >
+                                    Crear
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabla Áreas -->
+                    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Listado de Áreas</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ areasPaginadas.total || 0 }} áreas</p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-900">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nombre</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Ubicación</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Estado</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                                    <tr v-for="area in areasPaginadas.data" :key="area.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ area.id }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ area.nombre }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ area.ubicacion?.nombre || '—' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                            <span
+                                                :class="[
+                                                    area.estado === 'ACTIVO'
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400'
+                                                        : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400',
+                                                    'inline-flex rounded-full px-2 text-xs font-semibold leading-5',
+                                                ]"
+                                            >
+                                                {{ area.estado }}
+                                            </span>
+                                        </td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                            <button
+                                                v-if="canManage"
+                                                @click="startEditArea(area)"
+                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                title="Editar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                v-if="canManage"
+                                                @click="deleteArea(area.id)"
+                                                class="ml-3 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                title="Eliminar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <Pagination 
+                            :links="areasPaginadas.links" 
+                            :from="areasPaginadas.from" 
+                            :to="areasPaginadas.to" 
+                            :total="areasPaginadas.total" 
+                        />
+                    </div>
+                </div>
+
+                <!-- Tab Content: Ubicaciones -->
+                <div v-show="activeTab === 'ubicaciones'" class="space-y-8">
+                    <!-- Formulario de Creación Ubicaciones -->
+                    <div v-if="canManage" class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Crear ubicación</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Registra una nueva ubicación física.</p>
+
+                        <form class="mt-4 space-y-4" @submit.prevent="submitCreateUbicacion">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
+                                    <input
+                                        v-model="createUbicacionForm.nombre"
+                                        type="text"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        required
+                                        maxlength="100"
+                                    />
+                                    <p v-if="createUbicacionForm.errors.nombre" class="mt-1 text-sm text-red-600">
+                                        {{ createUbicacionForm.errors.nombre }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Dirección</label>
+                                    <input
+                                        v-model="createUbicacionForm.direccion"
+                                        type="text"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                                        maxlength="255"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button
+                                    type="submit"
+                                    :disabled="createUbicacionForm.processing"
+                                    class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                                >
+                                    Crear
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabla Ubicaciones -->
+                    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Listado de Ubicaciones</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Total: {{ ubicacionesPaginadas.total || 0 }} ubicaciones</p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-900">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nombre</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Dirección</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Estado</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                                    <tr v-for="ubicacion in ubicacionesPaginadas.data" :key="ubicacion.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ ubicacion.id }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ ubicacion.nombre }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ ubicacion.direccion || '—' }}</td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                            <span
+                                                :class="[
+                                                    ubicacion.estado === 'ACTIVO'
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400'
+                                                        : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400',
+                                                    'inline-flex rounded-full px-2 text-xs font-semibold leading-5',
+                                                ]"
+                                            >
+                                                {{ ubicacion.estado }}
+                                            </span>
+                                        </td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                            <button
+                                                v-if="canManage"
+                                                @click="startEditUbicacion(ubicacion)"
+                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                title="Editar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                v-if="canManage"
+                                                @click="deleteUbicacion(ubicacion.id)"
+                                                class="ml-3 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                title="Eliminar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <Pagination 
+                            :links="ubicacionesPaginadas.links" 
+                            :from="ubicacionesPaginadas.from" 
+                            :to="ubicacionesPaginadas.to" 
+                            :total="ubicacionesPaginadas.total" 
                         />
                     </div>
                 </div>
@@ -966,7 +1419,88 @@ const deleteCargo = (id) => {
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal de Edición Área -->
+                <div v-if="editingArea" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cancelEditArea"></div>
+                        <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+                        <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                            <form @submit.prevent="submitEditArea">
+                                <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6 sm:pb-4">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Editar Área</h3>
+                                    <div class="mt-4 space-y-4">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
+                                            <input v-model="editAreaForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required />
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ubicación Física *</label>
+                                            <select v-model="editAreaForm.ubicacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
+                                                <option v-for="u in ubicaciones" :key="u.id" :value="u.id">{{ u.nombre }}</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label>
+                                            <select v-model="editAreaForm.estado" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
+                                                <option value="ACTIVO">ACTIVO</option>
+                                                <option value="INACTIVO">INACTIVO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-3 dark:bg-gray-900 sm:flex sm:flex-row-reverse sm:px-6">
+                                    <button type="submit" :disabled="editAreaForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600 sm:ml-3 sm:w-auto sm:text-sm">
+                                        Actualizar
+                                    </button>
+                                    <button type="button" @click="cancelEditArea" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:mt-0 sm:w-auto sm:text-sm">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de Edición Ubicación -->
+                <div v-if="editingUbicacion" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="cancelEditUbicacion"></div>
+                        <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+                        <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                            <form @submit.prevent="submitEditUbicacion">
+                                <div class="bg-white px-4 pb-4 pt-5 dark:bg-gray-800 sm:p-6 sm:pb-4">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Editar Ubicación</h3>
+                                    <div class="mt-4 space-y-4">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
+                                            <input v-model="editUbicacionForm.nombre" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required />
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Dirección</label>
+                                            <input v-model="editUbicacionForm.direccion" type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label>
+                                            <select v-model="editUbicacionForm.estado" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
+                                                <option value="ACTIVO">ACTIVO</option>
+                                                <option value="INACTIVO">INACTIVO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-3 dark:bg-gray-900 sm:flex sm:flex-row-reverse sm:px-6">
+                                    <button type="submit" :disabled="editUbicacionForm.processing" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600 sm:ml-3 sm:w-auto sm:text-sm">
+                                        Actualizar
+                                    </button>
+                                    <button type="button" @click="cancelEditUbicacion" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:mt-0 sm:w-auto sm:text-sm">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </AuthenticatedLayout>
-</template>
+        </AuthenticatedLayout>
+    </template>

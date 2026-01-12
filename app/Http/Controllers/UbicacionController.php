@@ -24,20 +24,20 @@ class UbicacionController extends Controller
     {
         Ubicacion::create($request->validated());
 
-        return redirect()->route('ubicaciones.index')->with('success', 'Ubicación creada');
+        return redirect()->back()->with('success', 'Ubicación creada');
     }
 
     public function update(UpdateUbicacionRequest $request, Ubicacion $ubicacion): RedirectResponse
     {
         $ubicacion->update($request->validated());
 
-        return redirect()->route('ubicaciones.index')->with('success', 'Ubicación actualizada');
+        return redirect()->back()->with('success', 'Ubicación actualizada');
     }
 
     public function destroy(Ubicacion $ubicacion): RedirectResponse
     {
         $ubicacion->delete();
 
-        return redirect()->route('ubicaciones.index')->with('success', 'Ubicación eliminada');
+        return redirect()->back()->with('success', 'Ubicación eliminada');
     }
 }

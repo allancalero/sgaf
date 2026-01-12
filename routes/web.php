@@ -32,9 +32,19 @@ Route::get('/', function () {
     return redirect('/SGAF2/login');
 });
 
-Route::get('/login', function () {
-    return redirect('/SGAF2/login');
-});
+// Serve Angular App
+Route::get('/SGAF2/{any?}', function ($any = null) {
+    // If it's a request for a file that exists, let the server handle it or return 404
+    if ($any && file_exists(public_path("SGAF2/$any"))) {
+        return response()->file(public_path("SGAF2/$any"));
+    }
+    
+    $path = public_path('SGAF2/index.html');
+    if (file_exists($path)) {
+        return file_get_contents($path);
+    }
+    abort(404);
+})->where('any', '.*');
 
 // Import Inventory (Queued)
 Route::post('/import-inventory', [ImportController::class, 'store'])
@@ -50,7 +60,7 @@ Route::get('/catalogos', [CatalogosController::class, 'index'])
     ->name('catalogos.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/areas', [AreaController::class, 'index'])->middleware('permission:catalogos.manage')->name('areas.index');
+    Route::get('/areas', function () { return redirect()->route('recursos-humanos.index'); })->middleware('permission:catalogos.manage')->name('areas.index');
     Route::post('/areas', [AreaController::class, 'store'])->middleware(['permission:catalogos.manage', 'audit:areas.store'])->name('areas.store');
     Route::put('/areas/{area}', [AreaController::class, 'update'])->middleware(['permission:catalogos.manage', 'audit:areas.update'])->name('areas.update');
     Route::delete('/areas/{area}', [AreaController::class, 'destroy'])->middleware(['permission:catalogos.manage', 'audit:areas.destroy'])->name('areas.destroy');
@@ -60,7 +70,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/cargos/{cargo}', [CargoController::class, 'update'])->middleware(['permission:catalogos.manage', 'audit:cargos.update'])->name('cargos.update');
     Route::delete('/cargos/{cargo}', [CargoController::class, 'destroy'])->middleware(['permission:catalogos.manage', 'audit:cargos.destroy'])->name('cargos.destroy');
 
-    Route::get('/ubicaciones', [UbicacionController::class, 'index'])->middleware('permission:catalogos.manage')->name('ubicaciones.index');
+    Route::get('/ubicaciones', function () { return redirect()->route('recursos-humanos.index'); })->middleware('permission:catalogos.manage')->name('ubicaciones.index');
     Route::post('/ubicaciones', [UbicacionController::class, 'store'])->middleware(['permission:catalogos.manage', 'audit:ubicaciones.store'])->name('ubicaciones.store');
     Route::put('/ubicaciones/{ubicacion}', [UbicacionController::class, 'update'])->middleware(['permission:catalogos.manage', 'audit:ubicaciones.update'])->name('ubicaciones.update');
     Route::delete('/ubicaciones/{ubicacion}', [UbicacionController::class, 'destroy'])->middleware(['permission:catalogos.manage', 'audit:ubicaciones.destroy'])->name('ubicaciones.destroy');
@@ -121,7 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/activos-fijo-vista', [ActivosFijoController::class, 'index'])->middleware('permission:catalogos.manage')->name('activos-fijo-vista.index');
 
     // Ubicación - Vista unificada
-    Route::get('/ubicaciones-vista', [UbicacionesController::class, 'index'])->middleware('permission:catalogos.manage')->name('ubicaciones-vista.index');
+    Route::get('/ubicaciones-vista', function () { return redirect()->route('recursos-humanos.index'); })->middleware('permission:catalogos.manage')->name('ubicaciones-vista.index');
 
     // Recursos Humanos - Vista unificada
     Route::get('/recursos-humanos', [RecursosHumanosController::class, 'index'])->middleware('permission:catalogos.manage')->name('recursos-humanos.index');
@@ -252,7 +262,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// require __DIR__.'/auth.php'; // Deshabilitado para usar login de Angular en /SGAF2/
+require __DIR__.'/auth.php';
+
+// Overwrite login route to redirect to Angular
+Route::get('/login', function () {
+    return redirect('/SGAF2/login');
+})->name('login');
 
 // Gestión de usuarios (solo administradores)
 Route::middleware(['auth', 'verified', 'permission:usuarios.manage'])->group(function () {
