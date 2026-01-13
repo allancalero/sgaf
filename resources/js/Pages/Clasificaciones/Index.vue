@@ -17,12 +17,14 @@ const can = (permission) => page.props.auth.user?.permissions?.includes(permissi
 const canManage = computed(() => can('catalogos.manage'));
 
 const createForm = useForm({
+    prefijo: '',
     codigo: '',
     nombre: '',
 });
 
 const editForm = useForm({
     id: null,
+    prefijo: '',
     codigo: '',
     nombre: '',
 });
@@ -32,8 +34,9 @@ const editing = ref(false);
 const startEdit = (clasificacion) => {
     editing.value = true;
     editForm.id = clasificacion.id;
-    editForm.codigo = clasificacion.codigo;
-    editForm.nombre = clasificacion.nombre;
+    editForm.prefijo = clasificacion.prefijo || '';
+    editForm.codigo = clasificacion.codigo || '';
+    editForm.nombre = clasificacion.nombre || '';
 };
 
 const cancelEdit = () => {
@@ -43,7 +46,7 @@ const cancelEdit = () => {
 
 const submitCreate = () => {
     createForm.post(route('clasificaciones.store'), {
-        onSuccess: () => createForm.reset('codigo', 'nombre'),
+        onSuccess: () => createForm.reset('prefijo', 'codigo', 'nombre'),
     });
 };
 
@@ -93,17 +96,27 @@ const destroyClasificacion = (id) => {
                         <p class="text-sm text-gray-500">Ingresa código y nombre según catálogo.</p>
 
                         <form class="mt-4 space-y-4" @submit.prevent="submitCreate">
-                            <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="grid gap-4 sm:grid-cols-3">
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700">Código</label>
+                                    <label class="text-sm font-medium text-gray-700">Prefijo (Para Inv.)</label>
+                                    <input
+                                        v-model="createForm.prefijo"
+                                        type="text"
+                                        class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        maxlength="10"
+                                        placeholder="01"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">Código Contable</label>
                                     <input
                                         v-model="createForm.codigo"
                                         type="text"
                                         class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        required
-                                        maxlength="30"
-                                        placeholder="123 004 007 000 000 000"
+                                        maxlength="50"
+                                        placeholder="123 004 007..."
                                     />
+                                </div>
                                     <p v-if="createForm.errors.codigo" class="mt-1 text-sm text-red-600">
                                         {{ createForm.errors.codigo }}
                                     </p>
@@ -148,7 +161,8 @@ const destroyClasificacion = (id) => {
                             <thead class="bg-gray-50 text-xs uppercase text-gray-500">
                                 <tr>
                                     <th class="px-4 py-3">ID</th>
-                                    <th class="px-4 py-3">Código</th>
+                                    <th class="px-4 py-3">Prefijo</th>
+                                    <th class="px-4 py-3">Cód. Contable</th>
                                     <th class="px-4 py-3">Nombre</th>
                                     <th class="px-4 py-3">Acciones</th>
                                 </tr>
@@ -160,7 +174,8 @@ const destroyClasificacion = (id) => {
                                     class="border-b border-gray-100 hover:bg-gray-50"
                                 >
                                     <td class="px-4 py-3 text-gray-500">{{ clasificacion.id }}</td>
-                                    <td class="px-4 py-3 font-mono text-xs text-gray-700">{{ clasificacion.codigo }}</td>
+                                    <td class="px-4 py-3 font-bold text-indigo-600">{{ clasificacion.prefijo }}</td>
+                                    <td class="px-4 py-3 font-mono text-[10px] text-gray-500">{{ clasificacion.codigo }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ clasificacion.nombre }}</td>
                                     <td class="px-4 py-3 space-x-2 text-sm">
                                         <button

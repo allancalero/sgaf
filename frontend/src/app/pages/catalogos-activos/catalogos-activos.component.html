@@ -98,11 +98,24 @@
 
                     <!-- Formulario CLASIFICACION -->
                     <form *ngIf="activeFormTab === 'clasificacion'" (ngSubmit)="saveClasificacion()" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Prefijo (2 dígitos - ej: 01) <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="clasificacionForm.prefijo" name="prefijo"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 01" maxlength="10">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-muted">Nombre de Clasificación <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" [(ngModel)]="clasificacionForm.nombre" name="nombre"
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Activos Biológicos">
+                            </div>
+                        </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-muted">Nombre de Clasificación <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" [(ngModel)]="clasificacionForm.nombre" name="nombre"
-                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Equipo de Oficina">
+                            <label class="text-xs font-bold text-muted">Código Contable (Original)</label>
+                            <input type="text" [(ngModel)]="clasificacionForm.codigo" name="codigo"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 123 005 000 000 000 000">
                         </div>
                         <div class="flex justify-end">
                             <button type="submit"
@@ -153,7 +166,9 @@
                                 <select [(ngModel)]="tipoForm.clasificacion_id" name="clasificacion_id"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                                     <option [ngValue]="null">Seleccione una clasificación</option>
-                                    <option *ngFor="let c of clasificaciones" [ngValue]="c.id">{{ c.nombre }}</option>
+                                    <option *ngFor="let c of clasificaciones" [ngValue]="c.id">
+                                        {{ c.prefijo }} {{ c.nombre }}
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -315,7 +330,9 @@
                             <tr
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                                 <th class="px-6 py-4 w-12">#</th>
+                                <th class="px-6 py-4">Prefijo</th>
                                 <th class="px-6 py-4">Nombre</th>
+                                <th class="px-6 py-4">Código Contable</th>
                                 <th class="px-6 py-4 text-right">Acciones</th>
                             </tr>
                         </thead>
@@ -323,7 +340,15 @@
                             <tr *ngFor="let item of clasificaciones; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
-                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ item.nombre }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-blue-400">
+                                    {{ item.prefijo || '---' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm font-bold text-primary">
+                                    {{ item.nombre }}
+                                </td>
+                                <td class="px-6 py-4 text-xs font-mono text-muted">
+                                    {{ item.codigo || '---' }}
+                                </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button (click)="startEditClasificacion(item)"
@@ -426,7 +451,11 @@
                         <tbody class="divide-y divide-white/5 font-medium">
                             <tr *ngFor="let item of tipos; let i = index" class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
-                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ item.nombre }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-primary">
+                                    <span class="text-blue-500 mr-2 font-mono">
+                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} </span>
+                                            {{ item.nombre }}
+                                </td>
                                 <td class="px-6 py-4 text-xs text-muted">{{ item.clasificacion_nombre ||
                                     getClasificacionNombre(item.clasificacion_id) }}</td>
                                 <td class="px-6 py-4 text-right">

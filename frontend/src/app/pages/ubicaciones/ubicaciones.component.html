@@ -53,7 +53,8 @@
                                 <select [(ngModel)]="areaForm.ubicacion_id" name="ubi_id"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                                     <option [ngValue]="null">Sin asignar (General)</option>
-                                    <option *ngFor="let u of ubicaciones" [value]="u.id">{{ u.nombre }}</option>
+                                    <option *ngFor="let u of ubicaciones; let i = index" [value]="u.id">
+                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} {{ u.nombre }} </option>
                                 </select>
                             </div>
                         </div>
@@ -146,7 +147,12 @@
                                 class="hover:bg-gray-500/5 transition-colors group">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i
                                     + 1 }}</td>
-                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ area.nombre }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-primary">
+                                    <span class="text-blue-500 mr-2 font-mono">
+                                        {{ ((currentPage - 1) * pageSize + i + 1) < 10 ? '0' + ((currentPage - 1) *
+                                            pageSize + i + 1) : ((currentPage - 1) * pageSize + i + 1) }} </span>
+                                            {{ area.nombre }}
+                                </td>
                                 <td class="px-6 py-4 text-xs text-muted">{{ getUbicacionNombre(area.ubicacion_id) }}
                                 </td>
                                 <td class="px-6 py-4">
@@ -240,7 +246,12 @@
                                 class="hover:bg-gray-500/5 transition-colors group">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ (uCurrentPage - 1) * uPageSize +
                                     i + 1 }}</td>
-                                <td class="px-6 py-4 text-sm font-bold text-primary">{{ ubi.nombre }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-primary">
+                                    <span class="text-blue-500 mr-2 font-mono">
+                                        {{ ((uCurrentPage - 1) * uPageSize + i + 1) < 10 ? '0' + ((uCurrentPage - 1) *
+                                            uPageSize + i + 1) : ((uCurrentPage - 1) * uPageSize + i + 1) }} </span>
+                                            {{ ubi.nombre }}
+                                </td>
                                 <td class="px-6 py-4 text-xs text-muted truncate max-w-[150px]">{{ ubi.direccion ||
                                     'N/A' }}</td>
                                 <td class="px-6 py-4">

@@ -15,10 +15,16 @@ class UpdateClasificacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codigo' => [
+            'prefijo' => [
                 'required',
                 'string',
-                'max:30',
+                'max:10',
+                Rule::unique('clasificaciones', 'prefijo')->ignore($this->route('clasificacion')),
+            ],
+            'codigo' => [
+                'nullable',
+                'string',
+                'max:50',
                 Rule::unique('clasificaciones', 'codigo')->ignore($this->route('clasificacion')),
             ],
             'nombre' => [

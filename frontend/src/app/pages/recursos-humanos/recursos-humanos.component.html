@@ -100,7 +100,8 @@
                                 <select [(ngModel)]="personalForm.area_id" name="area"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                                     <option [ngValue]="undefined">Selecciona un área</option>
-                                    <option *ngFor="let a of areas" [value]="a.id">{{ a.nombre }}</option>
+                                    <option *ngFor="let a of areas; let i = index" [value]="a.id">
+                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} {{ a.nombre }} </option>
                                 </select>
                             </div>
                         </div>

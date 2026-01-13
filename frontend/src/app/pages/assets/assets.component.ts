@@ -277,9 +277,27 @@ export class AssetsComponent implements OnInit {
         } else {
             this.formPersonal = [];
         }
+
+        // Trigger auto-code generation for initial classification
+        this.onClasificacionChange();
     }
 
-    editAsset(asset: Asset) {
+    onClasificacionChange() {
+        if (this.assetForm.clasificacion_id && !this.editingId) {
+            this.assetService.getNextCode(this.assetForm.clasificacion_id).subscribe({
+                next: (res) => {
+                    if (res.code) {
+                        this.assetForm.codigo_inventario = res.code;
+                    }
+                },
+                error: (err) => {
+                    console.error('Error auto-generating code', err);
+                }
+            });
+        }
+    }
+
+    startEdit(asset: Asset) {
         this.editingId = asset.id;
         this.assetService.getAsset(asset.id).subscribe(data => {
             this.assetForm = { ...data };

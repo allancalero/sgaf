@@ -267,27 +267,24 @@ Route::middleware(['auth', 'verified', 'permission:usuarios.manage'])->group(fun
 });
 
 // Catch-all route for Angular (SPA) - Must be at the very end
-Route::get('/SGAF2/{any?}', function ($any = null) {
+Route::any('/SGAF2/{any?}', function ($any = null) {
     // 1. Check if it's a file that exists in /SGAF2/
-    $filePath = public_path("SGAF2/$any");
-    if ($any && is_file($filePath)) {
-        return response()->file($filePath);
+    if ($any) {
+        $filePath = public_path("SGAF2/$any");
+        if (is_file($filePath)) {
+            return response()->file($filePath);
+        }
     }
 
     // 2. Fallback to index.html for SPA routing
-    $paths = [
-        public_path('SGAF2/index.html'),
-        public_path('SGAF2/browser/index.html')
-    ];
+    $path = public_path('SGAF2/index.html');
 
-    foreach ($paths as $path) {
-        if (file_exists($path)) {
-            return response()->file($path, [
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0',
-            ]);
-        }
+    if (file_exists($path)) {
+        return response()->file($path, [
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     abort(404);

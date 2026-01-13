@@ -8,6 +8,25 @@ use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
+    public function getNextCode($clasificacionId)
+    {
+        $clasificacion = DB::table('clasificaciones')->where('id', $clasificacionId)->first();
+        
+        if (!$clasificacion) {
+            return response()->json(['code' => '']);
+        }
+
+        // Generate sequential number based on existing assets in this classification
+        $count = DB::table('activos_fijos')->where('clasificacion_id', $clasificacionId)->count();
+        $sequence = str_pad($count + 1, 6, '0', STR_PAD_LEFT);
+
+        // Format: PREFIJO-SEQUENCE
+        // Example: 07-000001
+        $code = ($clasificacion->prefijo ?? '00') . '-' . $sequence;
+        
+        return response()->json(['code' => $code]);
+    }
+
     public function index(Request $request)
     {
         $query = DB::table('activos_fijos')
@@ -19,7 +38,9 @@ class AssetController extends Controller
                 'areas.nombre as area_nombre',
                 'personal.nombre as personal_nombre',
                 'personal.apellido as personal_apellido',
-                'clasificaciones.nombre as clasificacion_nombre'
+                'clasificaciones.nombre as clasificacion_nombre',
+                'clasificaciones.prefijo as clasificacion_prefijo',
+                'clasificaciones.codigo as clasificacion_codigo'
             );
 
         // Search with performance optimization
@@ -77,7 +98,11 @@ class AssetController extends Controller
                     'nombre' => $asset->personal_nombre,
                     'apellido' => $asset->personal_apellido
                 ] : null,
-                'clasificacion' => $asset->clasificacion_nombre ? ['nombre' => $asset->clasificacion_nombre] : null,
+                'clasificacion' => $asset->clasificacion_nombre ? [
+                    'nombre' => $asset->clasificacion_nombre,
+                    'prefijo' => $asset->clasificacion_prefijo,
+                    'codigo' => $asset->clasificacion_codigo
+                ] : null,
             ];
         });
 
@@ -89,11 +114,15 @@ class AssetController extends Controller
         $asset = DB::table('activos_fijos')
             ->leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('personal', 'activos_fijos.personal_id', '=', 'personal.id')
+            ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
             ->select(
                 'activos_fijos.*',
                 'areas.nombre as area_nombre',
                 'personal.nombre as personal_nombre',
-                'personal.apellido as personal_apellido'
+                'personal.apellido as personal_apellido',
+                'clasificaciones.nombre as clasificacion_nombre',
+                'clasificaciones.prefijo as clasificacion_prefijo',
+                'clasificaciones.codigo as clasificacion_codigo'
             )
             ->where('activos_fijos.id', $id)
             ->first();
@@ -180,7 +209,7 @@ class AssetController extends Controller
 
     public function clasificaciones()
     {
-        return response()->json(DB::table('clasificaciones')->get());
+        return response()->json(DB::table('clasificaciones')->orderBy('prefijo')->get());
     }
 
     public function fuentes()

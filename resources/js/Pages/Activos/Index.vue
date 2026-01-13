@@ -191,7 +191,7 @@ const filteredPersonalForEdit = computed(() => {
 
 const buildCodigoInventario = (clasificacionId) => {
     const cls = clasificacionById.value[clasificacionId];
-    if (!cls?.codigo) return '';
+    if (!cls?.prefijo) return '';
     
     // Check if there's a last codigo for this classification
     const lastCodigo = props.lastCodigoByClasificacion[clasificacionId];
@@ -209,11 +209,8 @@ const buildCodigoInventario = (clasificacionId) => {
         return lastCodigo; // Fallback: return last code as-is
     }
     
-    // Default template if no previous code exists
-    const parts = cls.codigo.replace(/\s+/g, '-').split('-').filter(Boolean);
-    const prefix = parts.slice(0, 3);
-    if (!prefix.length) return '';
-    return `${prefix.join('-')}-000-000-001`;
+    // Default template if no previous code exists (Prefijo-000001)
+    return `${cls.prefijo}-000001`;
 };
 
 const activosFiltrados = computed(() => {
@@ -619,7 +616,7 @@ onUnmounted(() => {
                                 <select ref="clasificacionInput" v-model="createForm.clasificacion_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" required>
                                     <option value="" disabled>Selecciona clasificación</option>
                                     <option v-for="clas in props.clasificaciones" :key="clas.id" :value="clas.id">
-                                        {{ String(clas.id).padStart(2, '0') }} - {{ clas.nombre }}
+                                        {{ clas.prefijo }} {{ clas.nombre }}
                                     </option>
                                 </select>
                                 <p v-if="createForm.errors.clasificacion_id" class="mt-1 text-sm text-red-600">{{ createForm.errors.clasificacion_id }}</p>

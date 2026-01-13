@@ -62,7 +62,7 @@ class ReporteController extends Controller
                 'activos_fijos.codigo_inventario',
                 'activos_fijos.nombre_activo',
                 'areas.nombre as area',
-                'clasificaciones.nombre as clasificacion',
+                DB::raw("CONCAT_WS(' ', clasificaciones.prefijo, clasificaciones.nombre, clasificaciones.codigo) as clasificacion"),
                 'ubicaciones.nombre as ubicacion',
                 DB::raw("CONCAT_WS(' ', personal.nombre, personal.apellido) as responsable"),
                 'activos_fijos.estado',
@@ -97,7 +97,11 @@ class ReporteController extends Controller
     {
         $activos = ActivoFijo::leftJoin('areas', 'activos_fijos.area_id', '=', 'areas.id')
             ->leftJoin('clasificaciones', 'activos_fijos.clasificacion_id', '=', 'clasificaciones.id')
-            ->select('activos_fijos.*', 'areas.nombre as area', 'clasificaciones.nombre as clasificacion')
+            ->select(
+                'activos_fijos.*', 
+                'areas.nombre as area', 
+                DB::raw("CONCAT_WS(' ', clasificaciones.prefijo, clasificaciones.nombre, clasificaciones.codigo) as clasificacion")
+            )
             ->whereNotNull('activos_fijos.vida_util_anos')
             ->orderBy('activos_fijos.codigo_inventario')
             ->get();

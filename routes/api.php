@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Assets
     Route::get('/assets', [AssetController::class, 'index']);
     Route::post('/assets', [AssetController::class, 'store']);
+    Route::get('/assets/next-code/{clasificacionId}', [AssetController::class, 'getNextCode']);
     Route::get('/assets/clasificaciones', [AssetController::class, 'clasificaciones']);
     Route::get('/assets/fuentes', [AssetController::class, 'fuentes']);
     Route::get('/assets/tipos', [AssetController::class, 'tipos']);

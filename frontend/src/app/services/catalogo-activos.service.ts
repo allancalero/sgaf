@@ -15,6 +15,8 @@ export interface Proveedor {
 export interface Clasificacion {
     id: number;
     nombre: string;
+    codigo?: string;
+    prefijo?: string;
 }
 
 export interface Fuente {

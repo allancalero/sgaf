@@ -14,7 +14,8 @@ class StoreClasificacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codigo' => ['required', 'string', 'max:30', 'unique:clasificaciones,codigo'],
+            'prefijo' => ['required', 'string', 'max:10', 'unique:clasificaciones,prefijo'],
+            'codigo' => ['nullable', 'string', 'max:50', 'unique:clasificaciones,codigo'],
             'nombre' => ['required', 'string', 'max:255'],
         ];
     }

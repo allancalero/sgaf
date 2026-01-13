@@ -22,11 +22,11 @@
     # RewriteRule ^$ /SGAF2/login [L,R=301]
     # RewriteRule ^login$ /SGAF2/login [L,R=301]
     
-    # Permitir que la subcarpeta SGAF2 maneje sus propias rutas (Angular) (Comentado para pruebas Laravel)
-    # RewriteCond %{REQUEST_URI} ^/SGAF2/
-    # RewriteCond %{REQUEST_FILENAME} !-f
-    # RewriteCond %{REQUEST_FILENAME} !-d
-    # RewriteRule ^SGAF2/(.*)$ SGAF2/index.html [L]
+    # Permitir que la subcarpeta SGAF2 maneje sus propias rutas (Angular)
+    RewriteCond %{REQUEST_URI} ^/SGAF2/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^SGAF2/(.*)$ SGAF2/index.html [L]
 
     # Send Requests To Front Controller (Laravel)
     RewriteCond %{REQUEST_FILENAME} !-d

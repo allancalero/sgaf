@@ -14,6 +14,10 @@ export class AssetService {
         this.apiUrl = `${environment.apiUrl}/assets`;
     }
 
+    getNextCode(clasificacionId: number): Observable<{ code: string }> {
+        return this.http.get<{ code: string }>(`${this.apiUrl}/next-code/${clasificacionId}`);
+    }
+
     getAssets(page: number = 1, search: string = '', estado: string = '', perPage: number = 15, areaId: any = '', personalId: any = '', clasificacionId: any = ''): Observable<AssetResponse> {
         let params = new HttpParams()
             .set('page', page.toString())

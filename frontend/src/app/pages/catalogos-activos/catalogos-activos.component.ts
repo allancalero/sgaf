@@ -37,7 +37,7 @@ export class CatalogosActivosComponent implements OnInit {
     proveedorForm = { nombre: '', ruc: '', direccion: '', telefono: '', email: '' };
     editingProveedorId: number | null = null;
 
-    clasificacionForm = { nombre: '' };
+    clasificacionForm = { nombre: '', codigo: '', prefijo: '' };
     editingClasificacionId: number | null = null;
 
     fuenteForm = { nombre: '', estado: 'ACTIVO' };
@@ -127,7 +127,7 @@ export class CatalogosActivosComponent implements OnInit {
 
     resetForms() {
         if (!this.editingProveedorId) this.proveedorForm = { nombre: '', ruc: '', direccion: '', telefono: '', email: '' };
-        if (!this.editingClasificacionId) this.clasificacionForm = { nombre: '' };
+        if (!this.editingClasificacionId) this.clasificacionForm = { nombre: '', codigo: '', prefijo: '' };
         if (!this.editingFuenteId) this.fuenteForm = { nombre: '', estado: 'ACTIVO' };
         if (!this.editingTipoId) this.tipoForm = { nombre: '', clasificacion_id: null };
         if (!this.editingChequeId) this.chequeForm = {
@@ -234,7 +234,11 @@ export class CatalogosActivosComponent implements OnInit {
 
     startEditClasificacion(item: Clasificacion) {
         this.editingClasificacionId = item.id;
-        this.clasificacionForm = { nombre: item.nombre };
+        this.clasificacionForm = {
+            nombre: item.nombre,
+            codigo: item.codigo || '',
+            prefijo: item.prefijo || ''
+        };
         this.openForm('clasificacion');
     }
 

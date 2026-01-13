@@ -23,7 +23,7 @@ export interface Asset {
     // Relationships (simplified for list)
     area?: { nombre: string };
     personal?: { nombre: string; apellido: string };
-    clasificacion?: { nombre: string };
+    clasificacion?: { nombre: string; prefijo?: string; codigo?: string };
 }
 
 export interface AssetResponse {

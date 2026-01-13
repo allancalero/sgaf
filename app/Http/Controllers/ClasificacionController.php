@@ -13,7 +13,7 @@ class ClasificacionController extends Controller
 {
     public function index(): Response
     {
-        $clasificaciones = Clasificacion::orderBy('codigo')->paginate(10, ['id', 'codigo', 'nombre', 'created_at']);
+        $clasificaciones = Clasificacion::orderBy('prefijo')->paginate(10, ['id', 'prefijo', 'codigo', 'nombre', 'created_at']);
 
         return Inertia::render('Clasificaciones/Index', [
             'clasificaciones' => $clasificaciones,

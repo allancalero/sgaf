@@ -95,11 +95,15 @@ class CatalogoActivosController extends Controller
     {
         try {
             $validated = $request->validate([
-                'nombre' => 'required|string|max:255|unique:clasificaciones,nombre'
+                'nombre' => 'required|string|max:255|unique:clasificaciones,nombre',
+                'codigo' => 'nullable|string|max:255|unique:clasificaciones,codigo',
+                'prefijo' => 'nullable|string|max:10'
             ]);
 
             $id = DB::table('clasificaciones')->insertGetId([
                 'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'] ?? null,
+                'prefijo' => $validated['prefijo'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -114,11 +118,15 @@ class CatalogoActivosController extends Controller
     {
         try {
             $validated = $request->validate([
-                'nombre' => 'required|string|max:255|unique:clasificaciones,nombre,' . $id
+                'nombre' => 'required|string|max:255|unique:clasificaciones,nombre,' . $id,
+                'codigo' => 'nullable|string|max:255|unique:clasificaciones,codigo,' . $id,
+                'prefijo' => 'nullable|string|max:10'
             ]);
 
             DB::table('clasificaciones')->where('id', $id)->update([
                 'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'] ?? null,
+                'prefijo' => $validated['prefijo'] ?? null,
                 'updated_at' => now(),
             ]);
 
