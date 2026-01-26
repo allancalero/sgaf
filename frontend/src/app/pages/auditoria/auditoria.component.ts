@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { SistemaService } from '../../services/sistema.service';
 
 @Component({
     selector: 'app-auditoria',
     standalone: true,
-    imports: [CommonModule, MainLayoutComponent],
+    imports: [CommonModule],
     template: `
-        <app-main-layout>
             <div class="p-6 lg:p-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Auditoría</h2>
@@ -40,7 +38,6 @@ import { SistemaService } from '../../services/sistema.service';
                     </div>
                 </div>
             </div>
-        </app-main-layout>
     `
 })
 export class AuditoriaComponent implements OnInit {

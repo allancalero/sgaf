@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 
 @Component({
     selector: 'app-placeholder',
     standalone: true,
-    imports: [CommonModule, MainLayoutComponent],
+    imports: [CommonModule],
     template: `
-        <app-main-layout>
             <div class="p-6 lg:p-8">
                 <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
                     <div class="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6">
@@ -26,7 +24,6 @@ import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.compo
                     </p>
                 </div>
             </div>
-        </app-main-layout>
     `
 })
 export class PlaceholderComponent {

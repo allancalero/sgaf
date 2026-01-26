@@ -1,10 +1,10 @@
-<app-main-layout>
+
     <div class="p-6 lg:p-8 no-print">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-3xl font-black text-white tracking-tight">Etiquetas QR</h1>
-                <p class="text-gray-400 mt-1">Generación y exportación de etiquetas para inventario físico.</p>
+                <h1 class="text-3xl font-black text-primary tracking-tight">Etiquetas QR</h1>
+                <p class="text-secondary mt-1">Generación y exportación de etiquetas para inventario físico.</p>
             </div>
             <div class="flex gap-3">
                 <button (click)="clearSelection()" class="btn-secondary" [disabled]="selectedAssets.length === 0">
@@ -26,11 +26,12 @@
             <!-- Search Section -->
             <div class="lg:col-span-1">
                 <div class="card p-6 sticky top-24">
-                    <h2 class="text-xl font-bold text-white mb-4">Buscar Activos</h2>
+                    <h2 class="text-xl font-bold text-primary mb-4">Buscar Activos</h2>
                     <div class="relative mb-6">
                         <input type="text" [(ngModel)]="searchTerm" (input)="searchUpdate.next(searchTerm)"
-                            placeholder="Buscar por código o nombre..." class="input-field pl-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-3 text-gray-500"
+                            placeholder="Buscar por código o nombre..."
+                            class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 pl-10 !text-gray-900 dark:!text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-3 text-blue-500"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -47,9 +48,9 @@
                             class="card p-4 cursor-pointer hover:bg-white/5 border border-transparent transition-all group">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-white font-medium group-hover:text-blue-400 transition-colors">{{
+                                    <p class="text-primary font-medium group-hover:text-blue-400 transition-colors">{{
                                         asset.nombre_activo }}</p>
-                                    <p class="text-xs text-gray-400 mt-1">{{ asset.codigo_inventario }}</p>
+                                    <p class="text-xs text-secondary mt-1">{{ asset.codigo_inventario }}</p>
                                 </div>
                                 <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
                                     [class.bg-blue-500]="isSelected(asset)" [class.border-blue-500]="isSelected(asset)"
@@ -75,8 +76,8 @@
             <div class="lg:col-span-2">
                 <div class="card p-6 min-h-[600px]">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-white">Vista Previa</h2>
-                        <span class="text-sm text-gray-400">{{ selectedAssets.length }} etiquetas seleccionadas</span>
+                        <h2 class="text-xl font-bold text-primary">Vista Previa</h2>
+                        <span class="text-sm text-secondary">{{ selectedAssets.length }} etiquetas seleccionadas</span>
                     </div>
 
                     <div *ngIf="selectedAssets.length === 0"
@@ -93,7 +94,7 @@
                         <div *ngFor="let asset of selectedAssets"
                             class="bg-white p-4 rounded-lg flex gap-4 items-center">
                             <div class="bg-white p-1 border border-gray-200 rounded shrink-0">
-                                <img [src]="generateQrUrl(asset.codigo_inventario)" alt="QR" class="w-20 h-20">
+                                <img [src]="getQrUrl(asset.id)" alt="QR" class="w-20 h-20">
                             </div>
                             <div class="overflow-hidden">
                                 <p class="text-xs font-bold text-black uppercase truncate">Alcaldía de Tipitapa</p>
@@ -115,7 +116,7 @@
     <div class="hidden print-only bg-white text-black p-0">
         <div class="qr-grid">
             <div *ngFor="let asset of selectedAssets" class="qr-card flex gap-3 items-center border border-black p-2">
-                <img [src]="generateQrUrl(asset.codigo_inventario)" alt="QR" class="w-24 h-24">
+                <img [src]="getQrUrl(asset.id)" alt="QR" class="w-24 h-24">
                 <div class="flex-1">
                     <p class="text-[10px] font-bold uppercase border-b border-black pb-1 mb-1">Alcaldía de Tipitapa</p>
                     <p class="text-[9px] leading-tight mb-1">{{ asset.nombre_activo }}</p>
@@ -128,4 +129,4 @@
             </div>
         </div>
     </div>
-</app-main-layout>
+

@@ -18,4 +18,14 @@ export class ReasignacionService {
     createReasignacion(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/reasignaciones`, data);
     }
+
+    getPrintUrl(id: number): string {
+        return `${this.apiUrl}/reasignaciones/${id}/acta`;
+    }
+
+    downloadActa(id: number): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/reasignaciones/${id}/acta`, {
+            responseType: 'blob'
+        });
+    }
 }

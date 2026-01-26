@@ -12,15 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-        ]);
+        $middleware->append(\App\Http\Middleware\JwtCookieMiddleware::class);
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'audit' => \App\Http\Middleware\AuditLogger::class,
+            'debug' => \App\Http\Middleware\DebugMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

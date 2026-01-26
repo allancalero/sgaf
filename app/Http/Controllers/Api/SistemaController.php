@@ -68,7 +68,6 @@ class SistemaController extends Controller
             $filePath = $backupPath . DIRECTORY_SEPARATOR . $filename;
 
             // Construct command
-            // Note: --result-file handles output encoding better on Windows than redirection >
             $command = [
                 $mysqldump,
                 "--user={$dbUser}",
@@ -85,7 +84,6 @@ class SistemaController extends Controller
 
             $command[] = $dbName;
 
-            // Pass environment variables, critical for Windows/XAMPP to find Winsock dlls (SystemRoot)
             $env = [
                 'SystemRoot' => env('SystemRoot', 'C:\Windows'),
                 'Path' => getenv('Path'),
@@ -118,13 +116,17 @@ class SistemaController extends Controller
 
     public function respaldo()
     {
-        // Return database backup info
-        $backups = [];
-        $backupPath = storage_path('app/Laravel'); // Standard laravel-backup path config usually defaults here or appName
+        // Ensure the default backup directory exists so users don't see "No encontrado"
+        $defaultBackupPath = storage_path('app/backups');
+        if (!file_exists($defaultBackupPath)) {
+            mkdir($defaultBackupPath, 0755, true);
+        }
 
-        // Check different possible paths as laravel-backup config varies
+        $backups = [];
+        
+        // Check different possible paths
         $possiblePaths = [
-            storage_path('app/backups'),
+            $defaultBackupPath,
             storage_path('app/Laravel'),
             storage_path('app/' . config('app.name')),
         ];
@@ -132,35 +134,96 @@ class SistemaController extends Controller
         $foundPath = null;
         foreach ($possiblePaths as $path) {
             if (is_dir($path)) {
-                $foundPath = $path;
-                break;
-            }
-        }
-
-        if ($foundPath) {
-            $files = scandir($foundPath);
-            foreach ($files as $file) {
-                if ($file !== '.' && $file !== '..') {
-                    $backups[] = [
-                        'nombre' => $file,
-                        'size' => filesize($foundPath . '/' . $file),
-                        'fecha' => date('Y-m-d H:i:s', filemtime($foundPath . '/' . $file)),
-                    ];
+                $files = scandir($path);
+                $hasFiles = false;
+                foreach ($files as $file) {
+                    if ($file !== '.' && $file !== '..') {
+                        $backups[] = [
+                            'nombre' => $file,
+                            'size' => filesize($path . '/' . $file),
+                            'fecha' => date('Y-m-d H:i:s', filemtime($path . '/' . $file)),
+                        ];
+                        $hasFiles = true;
+                    }
+                }
+                if ($hasFiles) {
+                    $foundPath = $path;
+                    break;
                 }
             }
         }
 
         return response()->json([
-            'backups' => array_reverse($backups), // Most recent first
-            'database' => config('database.default'),
-            'storage_path' => $foundPath ?? 'No encontrado (Verifique configuración)',
+            'backups' => array_reverse(collect($backups)->sortBy('fecha')->values()->all()),
+            'database' => config('database.connections.mysql.database') ?: config('database.default'),
+            'storage_path' => $foundPath ?? $defaultBackupPath,
         ]);
+    }
+
+    public function descargarRespaldo($filename)
+    {
+        // Validate filename
+        if (strpos($filename, '..') !== false || strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
+            return response()->json(['message' => 'Nombre de archivo no válido'], 400);
+        }
+
+        $possiblePaths = [
+            storage_path('app/backups'),
+            storage_path('app/Laravel'),
+            storage_path('app/' . config('app.name')),
+        ];
+
+        foreach ($possiblePaths as $path) {
+            $filePath = $path . DIRECTORY_SEPARATOR . $filename;
+            if (file_exists($filePath)) {
+                return response()->download($filePath);
+            }
+        }
+
+        return response()->json(['message' => 'Archivo no encontrado'], 404);
+    }
+
+    public function eliminarRespaldo($filename)
+    {
+        try {
+            // Validate filename to prevent path traversal
+            if (strpos($filename, '..') !== false || strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
+                return response()->json(['message' => 'Nombre de archivo no válido'], 400);
+            }
+
+            $possiblePaths = [
+                storage_path('app/backups'),
+                storage_path('app/Laravel'),
+                storage_path('app/' . config('app.name')),
+            ];
+
+            foreach ($possiblePaths as $path) {
+                $filePath = $path . DIRECTORY_SEPARATOR . $filename;
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                    return response()->json(['message' => 'Respaldo eliminado correctamente']);
+                }
+            }
+
+            return response()->json(['message' => 'Archivo no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar respaldo', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function seguridad()
     {
-        $roles = DB::table('roles')->get();
-        $permissions = DB::table('permissions')->get();
+        \Log::info('Seguridad endpoint hit, user: ' . auth()->id());
+        \Log::info('Connected to DB: ' . DB::connection()->getDatabaseName());
+        
+        // Clear cache programmatically just in case
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        
+        $roles = \Spatie\Permission\Models\Role::all();
+        $permissions = \Spatie\Permission\Models\Permission::all();
+
+        \Log::info('Roles count: ' . $roles->count());
 
         return response()->json([
             'roles' => $roles,

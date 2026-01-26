@@ -46,6 +46,11 @@ export class AssetService {
         return this.http.get<AssetResponse>(this.apiUrl, { params });
     }
 
+    quickSearch(search: string): Observable<any[]> {
+        const params = new HttpParams().set('search', search);
+        return this.http.get<any[]>(`${this.apiUrl}/quick-search`, { params });
+    }
+
     getAsset(id: number): Observable<Asset> {
         return this.http.get<Asset>(`${this.apiUrl}/${id}`);
     }
@@ -80,5 +85,13 @@ export class AssetService {
 
     getCheques(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/cheques`);
+    }
+
+    getQrBlob(id: number): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${id}/qr`, { responseType: 'blob' });
+    }
+
+    downloadActa(id: number): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${id}/acta`, { responseType: 'blob' });
     }
 }

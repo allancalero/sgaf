@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UsuarioController extends Controller
 {
@@ -68,5 +69,24 @@ class UsuarioController extends Controller
     {
         DB::table('users')->where('id', $id)->delete();
         return response()->json(['message' => 'Usuario eliminado exitosamente']);
+    }
+
+    public function resetPassword($id)
+    {
+        $user = DB::table('users')->where('id', $id)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        $newPassword = Str::random(8);
+        DB::table('users')->where('id', $id)->update([
+            'password' => Hash::make($newPassword),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Contraseña restablecida exitosamente',
+            'new_password' => $newPassword
+        ]);
     }
 }

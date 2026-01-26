@@ -23,6 +23,16 @@ export class SistemaService {
         return this.http.post(`${this.apiUrl}/sistema/respaldo`, {});
     }
 
+    descargarRespaldo(filename: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/sistema/respaldo/${filename}`, {
+            responseType: 'blob'
+        });
+    }
+
+    eliminarRespaldo(filename: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/sistema/respaldo/${filename}`);
+    }
+
     getSeguridad(): Observable<any> {
         return this.http.get(`${this.apiUrl}/sistema/seguridad`);
     }

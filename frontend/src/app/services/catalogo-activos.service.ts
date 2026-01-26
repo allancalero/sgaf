@@ -91,6 +91,10 @@ export class CatalogoActivosService {
         return this.http.delete(`${this.apiUrl}/clasificaciones/${id}`);
     }
 
+    bulkDeleteClasificaciones(ids: number[]): Observable<any> {
+        return this.http.post(`${this.apiUrl}/clasificaciones/bulk-delete`, { ids });
+    }
+
     // ==================== FUENTES ====================
     getFuentes(): Observable<Fuente[]> {
         return this.http.get<Fuente[]>(`${this.apiUrl}/fuentes`);

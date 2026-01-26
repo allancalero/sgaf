@@ -1,62 +1,148 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
+import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+
+interface Area { id: number; nombre: string; }
+interface Clasificacion { id: number; nombre: string; prefijo: string; }
+interface Ubicacion { id: number; nombre: string; }
+interface Personal { id: number; nombre: string; apellido: string; area_id?: number; }
 
 @Component({
     selector: 'app-reportes',
     standalone: true,
-    imports: [CommonModule, MainLayoutComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './reportes.component.html'
 })
 export class ReportesComponent implements OnInit {
     loading = false;
-    reports = [
-        {
-            id: 'inventario-general',
-            title: 'Inventario General',
-            description: 'Listado completo de todos los activos fijos registrados en el sistema con su estado actual y ubicación.',
-            icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
-        },
-        {
-            id: 'activos-por-area',
-            title: 'Activos por Área',
-            description: 'Reporte detallado que agrupa los activos según el departamento o área administrativa asignada.',
-            icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'
-        },
-        {
-            id: 'depreciacion-acumulada',
-            title: 'Depreciación Acumulada',
-            description: 'Cálculo contable de la pérdida de valor de los activos a través del tiempo según su categoría.',
-            icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1m0-1v-8m4 0h.01M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z'
-        },
-        {
-            id: 'historial-asignaciones',
-            title: 'Historial de Asignaciones',
-            description: 'Trazabilidad completa de movimientos y cambios de custodios de los activos municipales.',
-            icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-        },
-        {
-            id: 'activos-en-mal-estado',
-            title: 'Activos de Baja/Mal Estado',
-            description: 'Resumen de activos retirados o que requieren mantenimiento correctivo prioritario.',
-            icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
-        },
-        {
-            id: 'personal-con-activos',
-            title: 'Responsabilidad por Persona',
-            description: 'Actas de entrega y listado de bienes que cada trabajador tiene bajo su responsabilidad.',
-            icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-        }
-    ];
+
+    // Filter data
+    areas: Area[] = [];
+    clasificaciones: Clasificacion[] = [];
+    ubicaciones: Ubicacion[] = [];
+    personal: Personal[] = [];
+    allPersonal: Personal[] = [];
+
+    // Stats data
+    resumen: any = { total_activos: 0, valor_total: 0 };
+    activosPorClasificacion: { clasificacion: string; cantidad: number }[] = [];
+    maxClasificacion: number = 0;
+
+    // Selected filters
+    selectedAreaId: number | null = null;
+    selectedClasificacionId: number | null = null;
+    selectedUbicacionId: number | null = null;
+    selectedPersonalId: number | null = null;
+    selectedEstado: string | null = null;
+    estados: string[] = ['BUENO', 'REGULAR', 'MALO'];
 
     constructor(
         private reporteService: ReporteService,
+        private http: HttpClient,
         private cdr: ChangeDetectorRef
     ) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.loadFilterData();
+    }
+
+    loadFilterData() {
+        const apiUrl = environment.apiUrl;
+
+        this.http.get<Area[]>(`${apiUrl}/areas/all`).subscribe({
+            next: (data) => this.areas = data,
+            error: (err) => console.error('Error loading areas:', err)
+        });
+
+        // Initial stats load without filters
+        this.loadStats();
+
+        this.http.get<Clasificacion[]>(`${apiUrl}/clasificaciones`).subscribe({
+            next: (data) => this.clasificaciones = data,
+            error: (err) => console.error('Error loading clasificaciones:', err)
+        });
+
+        this.http.get<Ubicacion[]>(`${apiUrl}/ubicaciones/all`).subscribe({
+            next: (data) => this.ubicaciones = data,
+            error: (err) => console.error('Error loading ubicaciones:', err)
+        });
+
+        this.http.get<Personal[]>(`${apiUrl}/personal/all`).subscribe({
+            next: (data) => {
+                this.allPersonal = data;
+                this.filterPersonalByArea();
+            },
+            error: (err) => console.error('Error loading personal:', err)
+        });
+    }
+
+    loadStats() {
+        const apiUrl = environment.apiUrl;
+        const params = new URLSearchParams();
+        if (this.selectedAreaId) params.append('area_id', this.selectedAreaId.toString());
+        if (this.selectedUbicacionId) params.append('ubicacion_id', this.selectedUbicacionId.toString());
+        if (this.selectedPersonalId) params.append('personal_id', this.selectedPersonalId.toString());
+        if (this.selectedClasificacionId) params.append('clasificacion_id', this.selectedClasificacionId.toString());
+        if (this.selectedEstado) params.append('estado', this.selectedEstado);
+
+        const queryString = params.toString();
+        const suffix = queryString ? '?' + queryString : '';
+
+        this.http.get<any>(`${apiUrl}/reportes/resumen${suffix}`).subscribe({
+            next: (data) => {
+                console.log('ReportesComponent: Resumen received:', data);
+                this.resumen = data;
+                this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error loading resumen:', err)
+        });
+
+        this.http.get<any[]>(`${apiUrl}/reportes/activos-por-clasificacion${suffix}`).subscribe({
+            next: (data) => {
+                console.log('ReportesComponent: Clasificacion data received:', data);
+                this.activosPorClasificacion = data;
+                this.maxClasificacion = Math.max(...data.map((d: any) => d.cantidad), 1);
+                this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error loading stats:', err)
+        });
+    }
+
+    onAreaChange() {
+        this.selectedPersonalId = null; // Reset personal selection when area changes
+        this.filterPersonalByArea();
+        this.loadStats();
+    }
+
+    onFilterChange() {
+        this.loadStats();
+    }
+
+    filterPersonalByArea() {
+        if (this.selectedAreaId) {
+            this.personal = this.allPersonal.filter(p => p.area_id === this.selectedAreaId);
+        } else {
+            this.personal = [...this.allPersonal];
+        }
+    }
+
+    clearFilters() {
+        this.selectedAreaId = null;
+        this.selectedClasificacionId = null;
+        this.selectedUbicacionId = null;
+        this.selectedPersonalId = null;
+        this.selectedEstado = null;
+        this.filterPersonalByArea();
+        this.loadStats();
+    }
+
+    hasActiveFilters(): boolean {
+        return !!(this.selectedAreaId || this.selectedClasificacionId || this.selectedUbicacionId || this.selectedPersonalId || this.selectedEstado);
+    }
 
     downloadReport(reportId: string) {
         this.loading = true;
@@ -69,7 +155,14 @@ export class ReportesComponent implements OnInit {
             }
         });
 
-        this.reporteService.descargarReporte(reportId).subscribe({
+        const filters: any = {};
+        if (this.selectedAreaId) filters.area_id = this.selectedAreaId;
+        if (this.selectedEstado) filters.estado = this.selectedEstado;
+        if (this.selectedClasificacionId) filters.clasificacion_id = this.selectedClasificacionId;
+        if (this.selectedUbicacionId) filters.ubicacion_id = this.selectedUbicacionId;
+        if (this.selectedPersonalId) filters.personal_id = this.selectedPersonalId;
+
+        this.reporteService.descargarReporte(reportId, Object.keys(filters).length > 0 ? filters : undefined).subscribe({
             next: (blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');

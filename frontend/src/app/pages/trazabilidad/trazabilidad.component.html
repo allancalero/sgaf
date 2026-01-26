@@ -1,16 +1,17 @@
-<app-main-layout>
+
     <div class="p-6 lg:p-8">
         <!-- Header -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
             <div>
-                <h1 class="text-3xl font-black text-white tracking-tight">Trazabilidad de Activos</h1>
-                <p class="text-gray-400 mt-1">Historial auditivo de movimientos y cambios de estado.</p>
+                <h1 class="text-3xl font-black text-primary tracking-tight">Trazabilidad de Activos</h1>
+                <p class="text-secondary mt-1">Historial auditivo de movimientos y cambios de estado.</p>
             </div>
 
             <div class="relative w-full lg:w-96">
                 <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
-                    placeholder="Buscar por código o activo..." class="input-field pl-12 h-14">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-4 text-gray-500" fill="none"
+                    placeholder="Buscar por código o activo..."
+                    class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 pl-12 h-14 !text-gray-900 dark:!text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-4 text-blue-500" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -59,20 +60,33 @@
                                 <div class="space-y-1">
                                     <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">De
                                         (Anterior)</p>
-                                    <p class="text-sm text-gray-300">{{ item.personal_anterior || 'Sin custiodio previo'
+                                    <p class="text-sm text-gray-300">{{ item.personal_anterior || 'Sin custodio previo'
                                         }}</p>
                                     <p class="text-xs text-gray-500">{{ item.area_anterior || '-' }}</p>
                                 </div>
                                 <div class="space-y-1">
-                                    <p class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider">A (Nuevo)
+                                    <p class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">A (Nuevo)
                                     </p>
                                     <p class="text-sm text-white font-bold">{{ item.personal_nuevo }}</p>
                                     <p class="text-xs text-gray-400">{{ item.area_nueva || '-' }}</p>
                                 </div>
                             </div>
 
-                            <div class="mt-4 flex items-center gap-2">
-                                <span class="text-xs text-gray-500 italic">"{{ item.motivo }}"</span>
+                            <!-- Photo Evidence -->
+                            <div *ngIf="item.foto_reasignacion" class="mt-4">
+                                <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-2">Evidencia
+                                    Fotográfica</p>
+                                <div
+                                    class="relative w-full max-w-sm rounded-2xl overflow-hidden border border-white/10 group/img shadow-xl">
+                                    <img [src]="getImageUrl(item.foto_reasignacion)"
+                                        class="w-full h-48 object-cover group-hover/img:scale-105 transition-transform duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 flex flex-col gap-1">
+                                <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Motivo:</p>
+                                <span class="text-xs text-gray-400 italic">"{{ item.motivo }}"</span>
                             </div>
                         </div>
                     </div>
@@ -105,4 +119,4 @@
             </div>
         </div>
     </div>
-</app-main-layout>
+

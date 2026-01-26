@@ -1,83 +1,428 @@
-<app-main-layout>
-    <div class="p-6 lg:p-8">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-3xl font-black text-white tracking-tight">Depreciación de Activos</h1>
-                <p class="text-gray-400 mt-1">Cálculo contable y seguimiento del valor residual de bienes.</p>
+<div class="p-6 lg:p-10 min-h-screen bg-[#0a0f1d] text-white animate-in fade-in duration-700">
+    <!-- Header Premium -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+            <h1
+                class="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-blue-400 uppercase">
+                Depreciación de Activos
+            </h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-10 h-1 bg-blue-500 rounded-full"></span>
+                <p class="text-gray-400 font-medium tracking-wide">Cálculo contable y seguimiento del valor residual en
+                    tiempo real.</p>
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="card p-6 border-l-4 border-blue-500">
-                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Valor Adquisición Total</p>
-                <p class="text-2xl font-black text-white">{{ formatCurrency(totalValorOriginal) }}</p>
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <button (click)="desconfigurarTodo()"
+                class="flex-1 md:flex-none h-12 px-6 bg-red-500/10 border border-red-500/30 text-red-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-500/20 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-trash-alt"></i>
+                Desconfigurar Todo
+            </button>
+            <button (click)="resetDepreciacion()"
+                class="flex-1 md:flex-none h-12 px-6 bg-white/5 border border-rose-500/30 text-rose-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-rose-500/10 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-undo"></i>
+                Reiniciar
+            </button>
+            <button (click)="procesarDepreciacion()"
+                class="flex-1 md:flex-none h-12 px-8 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-play"></i>
+                Procesar Cierre
+            </button>
+        </div>
+
+        <!-- Search Box Premium -->
+        <div class="relative group max-w-sm w-full">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-500 group-focus-within:text-blue-400 transition-colors"></i>
             </div>
-            <div class="card p-6 border-l-4 border-red-500">
-                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Depreciación Acumulada</p>
-                <p class="text-2xl font-black text-white text-red-400">{{ formatCurrency(totalDepreciacion) }}</p>
+            <input type="text" [ngModel]="searchTerm" (input)="onSearchChange($event)"
+                placeholder="Buscar por nombre o código..."
+                class="w-full bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder-gray-600 text-sm font-medium">
+        </div>
+    </div>
+
+    <!-- Summary Cards Evolucionadas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <!-- Card 1 -->
+        <div class="relative group">
+            <div
+                class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500">
             </div>
-            <div class="card p-6 border-l-4 border-emerald-500">
-                <p class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2">Valor en Libros Actual</p>
-                <p class="text-2xl font-black text-white text-emerald-400">{{ formatCurrency(totalValorActual) }}</p>
+            <div
+                class="relative flex flex-col justify-between p-8 bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-3xl h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20">
+                        <i class="fas fa-wallet text-2xl text-blue-400"></i>
+                    </div>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-blue-400/60 bg-blue-500/5 px-3 py-1 rounded-full border border-blue-500/10">Histórico</span>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-2">Valor Adquisición
+                        Total</p>
+                    <p class="text-3xl font-black text-white leading-none whitespace-nowrap">{{
+                        formatCurrency(totalValorOriginal) }}</p>
+                </div>
             </div>
         </div>
 
-        <!-- Table -->
-        <div class="card overflow-hidden">
+        <!-- Card 2 -->
+        <div class="relative group">
+            <div
+                class="absolute -inset-0.5 bg-gradient-to-r from-rose-600 to-orange-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500">
+            </div>
+            <div
+                class="relative flex flex-col justify-between p-8 bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-3xl h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-3 bg-rose-500/10 rounded-2xl border border-rose-500/20">
+                        <i class="fas fa-chart-line text-2xl text-rose-400 rotate-180"></i>
+                    </div>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-rose-400/60 bg-rose-500/5 px-3 py-1 rounded-full border border-rose-500/10">Desgaste</span>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-2">Depreciación
+                        Acumulada</p>
+                    <p class="text-3xl font-black text-rose-400 leading-none">{{ formatCurrency(totalDepreciacion) }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="relative group">
+            <div
+                class="absolute -inset-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500">
+            </div>
+            <div
+                class="relative flex flex-col justify-between p-8 bg-[#111827]/80 backdrop-blur-2xl border border-white/5 rounded-3xl h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                        <i class="fas fa-vault text-2xl text-emerald-400"></i>
+                    </div>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-emerald-400/60 bg-emerald-500/5 px-3 py-1 rounded-full border border-emerald-500/10">Valor
+                        Actual</span>
+                </div>
+                <div>
+                    <p class="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-2">Valor en Libros Neto
+                    </p>
+                    <p class="text-3xl font-black text-emerald-400 leading-none">{{ formatCurrency(totalValorActual) }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs Premium -->
+    <div class="flex gap-4 mb-8">
+        <button (click)="setTab('configurados')" [class.bg-blue-600]="activeTab === 'configurados'"
+            [class.text-white]="activeTab === 'configurados'" [class.bg-white/5]="activeTab !== 'configurados'"
+            [class.text-gray-400]="activeTab !== 'configurados'"
+            class="px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/5 hover:border-blue-500/50">
+            Activos Configurados
+        </button>
+        <button (click)="setTab('sin-configurar')" [class.bg-blue-600]="activeTab === 'sin-configurar'"
+            [class.text-white]="activeTab === 'sin-configurar'" [class.bg-white/5]="activeTab !== 'sin-configurar'"
+            [class.text-gray-400]="activeTab !== 'sin-configurar'"
+            class="px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/5 hover:border-blue-500/50">
+            Sin Configurar
+            <span *ngIf="activeTab !== 'sin-configurar' && totalItems > 0"
+                class="ml-2 w-2 h-2 bg-blue-400 rounded-full inline-block animate-pulse"></span>
+        </button>
+    </div>
+
+    <!-- Table Container Premium -->
+    <div class="relative min-h-[500px] flex flex-col">
+        <!-- Glassmorphism Container -->
+        <div
+            class="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex-1 flex flex-col">
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead
-                        class="bg-white/5 border-b border-white/10 uppercase text-[10px] font-bold tracking-widest text-gray-400">
-                        <tr>
-                            <th class="px-6 py-4">Activo / Código</th>
-                            <th class="px-6 py-4">Valor Original</th>
-                            <th class="px-6 py-4">Vence en</th>
-                            <th class="px-6 py-4">Estado de Vida Útil</th>
-                            <th class="px-6 py-4 text-right">Valor Libro</th>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/[0.02] border-b border-white/10">
+                            <th class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500">Activo
+                                / Clasificación</th>
+                            <th class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500">Valor
+                                Original</th>
+                            <th *ngIf="activeTab === 'configurados'"
+                                class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500">Ciclo
+                                de Vida</th>
+                            <th *ngIf="activeTab === 'configurados'"
+                                class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500">Estado
+                                de Vida Útil</th>
+                            <th *ngIf="activeTab === 'configurados'"
+                                class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 text-right">
+                                Valor en Libros</th>
+                            <th *ngIf="activeTab === 'sin-configurar'"
+                                class="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 text-right">
+                                Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         <tr *ngIf="loading" class="animate-pulse">
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">Calculando depreciación...</td>
+                            <td colspan="5" class="px-8 py-20 text-center">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin">
+                                    </div>
+                                    <p class="text-gray-500 font-bold uppercase tracking-widest text-xs">Calculando
+                                        balances contables...</p>
+                                </div>
+                            </td>
                         </tr>
+
                         <tr *ngIf="!loading && activos.length === 0">
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">No hay datos disponibles.</td>
+                            <td colspan="5" class="px-8 py-20 text-center">
+                                <i class="fas fa-folder-open text-4xl text-gray-700 mb-4 block"></i>
+                                <p class="text-gray-500 font-bold uppercase tracking-widest text-xs">No se encontraron
+                                    activos para esta categoría.</p>
+                            </td>
                         </tr>
-                        <tr *ngFor="let item of activos" class="hover:bg-white/5 transition-colors group">
-                            <td class="px-6 py-4">
+
+                        <tr *ngFor="let item of activos"
+                            class="hover:bg-white/[0.03] transition-all duration-300 group">
+                            <td class="px-8 py-6">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-white font-bold group-hover:text-blue-400 transition-colors">{{
+                                        item.nombre_activo }}</span>
+                                    <span
+                                        class="text-[10px] font-mono text-blue-500/60 font-black uppercase tracking-wider">{{
+                                        item.codigo_inventario }}</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-6">
                                 <div class="flex flex-col">
-                                    <span class="text-white font-medium">{{ item.nombre_activo }}</span>
-                                    <span class="text-xs text-blue-400 font-mono">{{ item.codigo_inventario }}</span>
+                                    <span class="text-sm font-semibold text-gray-300">{{
+                                        formatCurrency(item.precio_adquisicion) }}</span>
+                                    <span
+                                        class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Adquirido
+                                        el {{ item.fecha_adquisicion | date:'dd/MM/yyyy' }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-gray-300">{{ formatCurrency(item.valor_adquisicion) }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-gray-400">{{ item.anios_restantes }} años</span>
-                            </td>
-                            <td class="px-6 py-4 min-w-[200px]">
-                                <div class="flex flex-col gap-1.5">
-                                    <div class="flex justify-between text-[10px] font-bold uppercase">
-                                        <span class="text-gray-500">Depreciado</span>
-                                        <span class="text-white">{{ getDepreciationWidth(item) }}</span>
+
+                            <!-- Activos Configurados Only -->
+                            <ng-container *ngIf="activeTab === 'configurados'">
+                                <td class="px-8 py-6">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                        <span class="text-sm font-medium text-gray-400">{{ item.vida_util_anos }} años
+                                            totales</span>
                                     </div>
-                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                        <div class="h-full bg-blue-500 rounded-full transition-all duration-1000"
-                                            [style.width]="getDepreciationWidth(item)"></div>
+                                </td>
+                                <td class="px-8 py-6 min-w-[250px]">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex justify-between items-end">
+                                            <span
+                                                class="text-[10px] font-black uppercase text-gray-500 tracking-wider">Depreciado</span>
+                                            <span
+                                                class="text-xs font-black text-white px-2 py-0.5 bg-white/5 rounded border border-white/5">{{
+                                                getDepreciationWidth(item) }}</span>
+                                        </div>
+                                        <div
+                                            class="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                            <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                                                [class]="getProgressColor(item)"
+                                                [style.width]="getDepreciationWidth(item)"></div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <span class="text-sm font-bold text-emerald-400">{{ formatCurrency(item.valor_libro)
-                                    }}</span>
+                                </td>
+                                <td class="px-8 py-6 text-right">
+                                    <div class="relative inline-block">
+                                        <span
+                                            class="text-lg font-black text-emerald-400 tracking-tight group-hover:scale-110 transition-transform duration-300 block">
+                                            {{ formatCurrency(item.valor_libros) }}
+                                        </span>
+                                        <div
+                                            class="absolute -bottom-1 right-0 w-full h-0.5 bg-emerald-500/20 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right">
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Sin Configurar Only -->
+                            <td *ngIf="activeTab === 'sin-configurar'" class="px-8 py-6 text-right">
+                                <button (click)="openConfigModal(item)"
+                                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                    Configurar
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Footer / Paginación Premium -->
+            <div class="px-8 py-6 bg-white/[0.02] border-t border-white/10 flex items-center justify-between mt-auto">
+                <div class="hidden md:flex items-center gap-4">
+                    <p class="text-[10px] text-gray-600 font-black uppercase tracking-widest">
+                        Mostrando <span class="text-blue-500">{{ (currentPage - 1) * perPage + 1 }}</span> al <span
+                            class="text-blue-500">{{ (currentPage * perPage) > totalItems ? totalItems : (currentPage *
+                            perPage) }}</span> de <span class="text-blue-500">{{ totalItems }}</span> registros
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button (click)="loadData(currentPage - 1)" [disabled]="currentPage === 1 || loading"
+                        class="p-2 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-blue-600 hover:border-blue-500 disabled:opacity-30 disabled:hover:bg-transparent transition-all group">
+                        <i class="fas fa-chevron-left text-xs group-hover:-translate-x-0.5 transition-transform"></i>
+                    </button>
+
+                    <div class="flex items-center gap-2 px-2">
+                        <span class="text-xs font-black text-white">{{ currentPage }}</span>
+                        <span class="text-xs font-black text-gray-600 uppercase">de</span>
+                        <span class="text-xs font-black text-gray-400">{{ totalPages }}</span>
+                    </div>
+
+                    <button (click)="loadData(currentPage + 1)" [disabled]="currentPage === totalPages || loading"
+                        class="p-2 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-blue-600 hover:border-blue-500 disabled:opacity-30 disabled:hover:bg-transparent transition-all group">
+                        <i class="fas fa-chevron-right text-xs group-hover:translate-x-0.5 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</app-main-layout>
+</div>
+
+<!-- Modal Configuración Normativa -->
+<div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div class="absolute inset-0 bg-[#0a0f1d]/80 backdrop-blur-sm" (click)="closeModal()"></div>
+
+    <div
+        class="relative w-full max-w-4xl bg-[#111827] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+        <!-- Modal Header -->
+        <div class="p-8 border-b border-white/5 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-black text-white tracking-tight uppercase">Configuración Normativa</h2>
+                <p class="text-gray-400 text-sm font-medium mt-1">Aplique las directrices según la tabla oficial para
+                    <span class="text-blue-400 font-bold capitalize">{{ selectedAsset?.nombre_activo }}</span>
+                </p>
+            </div>
+            <button (click)="closeModal()"
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                <i class="fas fa-times text-gray-400"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body: Catalog Table -->
+        <div class="p-0 max-h-[60vh] overflow-y-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="sticky top-0 bg-[#111827] z-10 border-b border-white/10">
+                    <tr>
+                        <th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Categoría
+                            General</th>
+                        <th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-600">
+                            Especificación</th>
+                        <th
+                            class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-600 text-center">
+                            Vida Útil</th>
+                        <th
+                            class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-600 text-center">
+                            Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    <tr *ngFor="let cat of catalogo" [class.bg-blue-600/10]="selectedCategory?.id === cat.id"
+                        class="hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                        (click)="selectCategory(cat)">
+                        <td class="px-8 py-4">
+                            <span class="text-sm font-bold text-white uppercase">{{ cat.categoria_general }}</span>
+                        </td>
+                        <td class="px-8 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-gray-400">{{ cat.especifica }}</span>
+                                <span *ngIf="cat.mas_especifica" class="text-[10px] text-gray-600 italic">{{
+                                    cat.mas_especifica }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <span
+                                class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 font-black text-xs">
+                                {{ cat.vida_util_anos }} años
+                            </span>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <div class="w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center"
+                                [class.border-blue-500]="selectedCategory?.id === cat.id"
+                                [class.bg-blue-500]="selectedCategory?.id === cat.id"
+                                [class.border-white/10]="selectedCategory?.id !== cat.id">
+                                <i *ngIf="selectedCategory?.id === cat.id"
+                                    class="fas fa-check text-[10px] text-white"></i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-8 border-t border-white/5 bg-white/[0.02] flex items-center justify-between flex-wrap gap-6">
+            <div class="flex gap-6 items-center flex-wrap">
+                <div *ngIf="selectedCategory" class="flex flex-col">
+                    <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Resumen Normativo</p>
+                    <p class="text-sm font-bold text-white">{{ selectedCategory.vida_util_anos }} Años | {{
+                        selectedCategory.tasa_anual }}% Anual</p>
+                </div>
+
+                <div *ngIf="selectedCategory" class="h-10 w-px bg-white/10 hidden md:block"></div>
+
+                <!-- Vida Útil Editable -->
+                <div *ngIf="selectedCategory" class="flex flex-col gap-1">
+                    <label
+                        class="text-[10px] font-black uppercase text-gray-400 tracking-widest underline decoration-blue-500/50 underline-offset-4">Vida
+                        Útil (Años)</label>
+                    <input type="number" [(ngModel)]="vidaUtilManual"
+                        class="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm font-bold text-blue-400 w-24 focus:outline-none focus:ring-1 focus:ring-blue-500/50">
+                </div>
+
+                <div *ngIf="selectedCategory" class="h-10 w-px bg-white/10 hidden md:block"></div>
+
+                <!-- Valor Residual -->
+                <div *ngIf="selectedCategory" class="flex flex-col gap-1">
+                    <label
+                        class="text-[10px] font-black uppercase text-gray-400 tracking-widest text-emerald-400/70">Valor
+                        Residual (C$)</label>
+                    <input type="number" [(ngModel)]="selectedAsset.valor_residual_manual"
+                        class="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm font-bold text-emerald-400 w-32 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                        placeholder="0.00">
+                </div>
+
+                <div *ngIf="selectedCategory" class="h-10 w-px bg-white/10 hidden md:block"></div>
+
+                <!-- Fecha Adquirido -->
+                <div *ngIf="selectedCategory" class="flex flex-col gap-1">
+                    <label
+                        class="text-[10px] font-black uppercase text-gray-400 tracking-widest text-orange-400/70">Fecha
+                        Adquirido</label>
+                    <input type="date" [(ngModel)]="selectedAsset.fecha_adquisicion"
+                        class="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-500/50">
+                </div>
+
+                <div *ngIf="selectedCategory" class="h-10 w-px bg-white/10 hidden md:block"></div>
+
+                <!-- Fecha de Corte -->
+                <div *ngIf="selectedCategory" class="flex flex-col gap-1">
+                    <label
+                        class="text-[10px] font-black uppercase text-gray-400 tracking-widest text-blue-400/70">Cálculo
+                        al</label>
+                    <input type="date" [(ngModel)]="fechaCorteManual"
+                        class="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50">
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button (click)="closeModal()"
+                    class="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+                    Cancelar
+                </button>
+                <button (click)="saveConfig()" [disabled]="!selectedCategory || saving"
+                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-40 disabled:grayscale text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all flex items-center gap-2">
+                    <i *ngIf="saving" class="fas fa-circle-notch animate-spin"></i>
+                    {{ saving ? 'Aplicando...' : 'Confirmar Aplicación' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

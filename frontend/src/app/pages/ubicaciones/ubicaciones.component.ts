@@ -1,38 +1,24 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { UbicacionService, Area, Ubicacion } from '../../services/ubicacion.service';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-ubicaciones',
     standalone: true,
-    imports: [CommonModule, FormsModule, MainLayoutComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './ubicaciones.component.html'
 })
 export class UbicacionesComponent implements OnInit {
-    activeTab = 'areas'; // For the view/tables if needed, though we show both side by side
+    activeTab: 'areas' | 'ubicaciones' = 'areas';
     showForm = false;
-    activeFormTab = 'area'; // 'area' | 'ubicacion'
+    activeFormTab: 'area' | 'ubicacion' = 'area';
 
     areas: Area[] = [];
     ubicaciones: Ubicacion[] = [];
     loading = true;
-
-    // Pagination for Areas
-    currentPage = 1;
-    lastPage = 1;
-    pageSize = 10;
-    totalAreas = 0;
-
-    // Pagination for Ubicaciones
-    uCurrentPage = 1;
-    uLastPage = 1;
-    uPageSize = 10;
-    totalUbicaciones = 0;
-
-    pageSizeOptions = [10, 25, 50, 100];
+    searchText = '';
 
     // Area form
     areaForm = { nombre: '', ubicacion_id: null as number | null, estado: 'ACTIVO' };
@@ -58,11 +44,9 @@ export class UbicacionesComponent implements OnInit {
 
     loadAreas() {
         this.loading = true;
-        this.ubicacionService.getAreas(this.currentPage, this.pageSize).subscribe({
+        this.ubicacionService.getAllAreas().subscribe({
             next: (res) => {
-                this.areas = res.data;
-                this.totalAreas = res.total;
-                this.lastPage = res.last_page;
+                this.areas = res;
                 this.checkLoading();
             },
             error: () => this.checkLoading()
@@ -71,11 +55,9 @@ export class UbicacionesComponent implements OnInit {
 
     loadUbicaciones() {
         this.loading = true;
-        this.ubicacionService.getUbicaciones(this.uCurrentPage, this.uPageSize).subscribe({
+        this.ubicacionService.getAllUbicaciones().subscribe({
             next: (res) => {
-                this.ubicaciones = res.data;
-                this.totalUbicaciones = res.total;
-                this.uLastPage = res.last_page;
+                this.ubicaciones = res;
                 this.checkLoading();
             },
             error: () => this.checkLoading()
@@ -87,28 +69,22 @@ export class UbicacionesComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    onPageSizeChange() {
-        this.currentPage = 1;
-        this.loadAreas();
+    get filteredAreas(): Area[] {
+        if (!this.searchText) return this.areas;
+        const search = this.searchText.toLowerCase();
+        return this.areas.filter(a =>
+            a.nombre.toLowerCase().includes(search) ||
+            (a.ubicacion_nombre?.toLowerCase().includes(search) || false)
+        );
     }
 
-    onUPageSizeChange() {
-        this.uCurrentPage = 1;
-        this.loadUbicaciones();
-    }
-
-    changePage(page: number) {
-        if (page >= 1 && page <= this.lastPage) {
-            this.currentPage = page;
-            this.loadAreas();
-        }
-    }
-
-    changeUPage(page: number) {
-        if (page >= 1 && page <= this.uLastPage) {
-            this.uCurrentPage = page;
-            this.loadUbicaciones();
-        }
+    get filteredUbicaciones(): Ubicacion[] {
+        if (!this.searchText) return this.ubicaciones;
+        const search = this.searchText.toLowerCase();
+        return this.ubicaciones.filter(u =>
+            u.nombre.toLowerCase().includes(search) ||
+            (u.direccion?.toLowerCase().includes(search) || false)
+        );
     }
 
     openForm(type: 'area' | 'ubicacion') {
@@ -158,7 +134,6 @@ export class UbicacionesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error saving area:', err);
-                // Extract error message if available from Laravel JSON response
                 const msg = err.error?.message || err.message || 'Error desconocido del servidor';
                 Swal.fire('Error', `No se pudo procesar el área: ${msg}`, 'error');
             }
@@ -273,11 +248,9 @@ export class UbicacionesComponent implements OnInit {
     handleKeyboardEvent(event: KeyboardEvent) {
         if (event.ctrlKey && event.altKey && event.key === 'n') {
             event.preventDefault();
-            // Assuming activeTab corresponds to 'areas' or 'ubicaciones'
-            // Map table tabs to form types
             if (this.activeTab === 'areas') {
                 this.openForm('area');
-            } else if (this.activeTab === 'ubicaciones') { // Assuming this is the key used in HTML for the second tab
+            } else if (this.activeTab === 'ubicaciones') {
                 this.openForm('ubicacion');
             }
         }

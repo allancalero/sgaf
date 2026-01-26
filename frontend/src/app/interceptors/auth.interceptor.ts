@@ -1,37 +1,25 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    const token = localStorage.getItem('token');
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-    // Add headers for API requests
-    let headers: { [key: string]: string } = {
-        'Accept': 'application/json'
-    };
-
-    // Only add Content-Type for non-GET requests
-    if (req.method !== 'GET') {
-        headers['Content-Type'] = 'application/json';
-    }
-
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const cloned = req.clone({
-        setHeaders: headers
+    const authReq = req.clone({
+        withCredentials: true
     });
 
-    console.log('AuthInterceptor: Request to', req.url, 'with token:', token ? 'Present' : 'Missing');
-
-    return next(cloned).pipe(
-        catchError((error: HttpErrorResponse) => {
-            console.error('AuthInterceptor: Error response:', error.status, error.message);
-            if (error.status === 401) {
-                // Token expired or invalid
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/SGAF2/login';
+    return next(authReq).pipe(
+        catchError((error) => {
+            if (error instanceof HttpErrorResponse && error.status === 401) {
+                console.warn('Auto-Logout triggered by 401 on:', req.url);
+                // Prevent infinite loop if logout itself fails
+                if (!req.url.endsWith('/logout')) {
+                    authService.logout();
+                }
             }
             return throwError(() => error);
         })

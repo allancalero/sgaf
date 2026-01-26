@@ -1,13 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { TrazabilidadService } from '../../services/trazabilidad.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-trazabilidad',
     standalone: true,
-    imports: [CommonModule, FormsModule, MainLayoutComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './trazabilidad.component.html'
 })
 export class TrazabilidadComponent implements OnInit {
@@ -64,7 +64,21 @@ export class TrazabilidadComponent implements OnInit {
         return new Date(date).toLocaleDateString('es-NI', {
             day: '2-digit',
             month: 'long',
-            year: 'numeric'
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
+    }
+
+    getImageUrl(path: string): string {
+        if (!path) return '';
+        // If it starts with http, it's already a full URL
+        if (path.startsWith('http')) return path;
+
+        // Clean path: remove leading /storage/ if present, and any leading slashes
+        let cleanPath = path.replace(/^\/?storage\//, '').replace(/^\//, '');
+
+        // Construct URL from Laravel public storage
+        return `${environment.apiUrl.replace('/api', '')}/storage/${cleanPath}`;
     }
 }

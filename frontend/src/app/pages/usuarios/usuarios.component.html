@@ -1,179 +1,218 @@
-<app-main-layout>
-    <div class="p-6 lg:p-8">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-                <h1 class="text-3xl font-black text-primary tracking-tight">Usuarios del Sistema</h1>
-                <p class="text-secondary mt-1 tracking-tight">Administración de cuentas y permisos de acceso.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button (click)="showForm = !showForm"
-                    class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+<div class="p-6 lg:p-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-primary tracking-tight">Usuarios del Sistema</h1>
+            <p class="text-secondary mt-1 tracking-tight">Administración de cuentas y permisos de acceso.</p>
+        </div>
+        <div class="flex items-center gap-3" *ngIf="isAdmin">
+            <button (click)="showForm = !showForm"
+                class="btn-primary h-12 px-6 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>{{ showForm ? 'Cerrar Formulario' : 'Nuevo Usuario' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Integrated Top Form Section -->
+    <div *ngIf="showForm" class="mb-10 animate-fade-in">
+        <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
+            <div class="px-8 py-6 border-b border-white/5 bg-gray-500/5 flex items-center justify-between">
+                <div>
+                    <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Control de
+                        Acceso</div>
+                    <h3 class="text-2xl font-black text-primary tracking-tight">Registrar Usuario</h3>
+                    <p class="text-xs text-muted mt-1">Crea nuevas credenciales de acceso al sistema.</p>
+                </div>
+                <button (click)="closeForm()"
+                    class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    <span>{{ showForm ? 'Cerrar Formulario' : 'Nuevo Usuario' }}</span>
                 </button>
             </div>
-        </div>
 
-        <!-- Integrated Top Form Section -->
-        <div *ngIf="showForm" class="mb-10 animate-fade-in">
-            <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
-                <div class="px-8 py-6 border-b border-white/5 bg-gray-500/5 flex items-center justify-between">
-                    <div>
-                        <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Control de
-                            Acceso</div>
-                        <h3 class="text-2xl font-black text-primary tracking-tight">Registrar Usuario</h3>
-                        <p class="text-xs text-muted mt-1">Crea nuevas credenciales de acceso al sistema.</p>
+            <div class="px-8 py-8">
+                <form (submit)="saveUser()" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Nombre <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" [(ngModel)]="userForm.nombre" name="nombre"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Maria">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Apellido <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" [(ngModel)]="userForm.apellido" name="apellido"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Gonzalez">
+                        </div>
                     </div>
-                    <button (click)="closeForm()"
-                        class="p-2 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
 
-                <div class="px-8 py-8">
-                    <form (submit)="saveUser()" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Nombre <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="userForm.nombre" name="nombre"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Maria">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Apellido <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="userForm.apellido" name="apellido"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Gonzalez">
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Correo Electrónico <span
+                                    class="text-red-500">*</span></label>
+                            <input type="email" [(ngModel)]="userForm.email" name="email"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="usuario@ejemplo.com">
                         </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Contraseña <span *ngIf="!editingId"
+                                    class="text-red-500">*</span></label>
+                            <input type="password" [(ngModel)]="userForm.password" name="password"
+                                class="input-field h-11 text-sm bg-gray-50/5"
+                                [placeholder]="editingId ? 'Dejar en blanco para mantener' : 'Contraseña segura'">
+                        </div>
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Correo Electrónico <span
-                                        class="text-red-500">*</span></label>
-                                <input type="email" [(ngModel)]="userForm.email" name="email"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="usuario@ejemplo.com">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Contraseña <span *ngIf="!editingId"
-                                        class="text-red-500">*</span></label>
-                                <input type="password" [(ngModel)]="userForm.password" name="password"
-                                    class="input-field h-11 text-sm bg-gray-50/5"
-                                    [placeholder]="editingId ? 'Dejar en blanco para mantener' : 'Contraseña segura'">
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Rol del Usuario <span
+                                    class="text-red-500">*</span></label>
+                            <select [(ngModel)]="userForm.rol" name="rol" class="input-field h-11 text-sm bg-gray-50/5">
+                                <option value="ADMIN">Administrador</option>
+                                <option value="OPERADOR">Operador</option>
+                                <option value="CONSULTA">Consulta</option>
+                            </select>
                         </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Estado</label>
+                            <select [(ngModel)]="userForm.estado" name="estado"
+                                class="input-field h-11 text-sm bg-gray-50/5">
+                                <option value="ACTIVO">Activo</option>
+                                <option value="INACTIVO">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Rol del Usuario <span
-                                        class="text-red-500">*</span></label>
-                                <select [(ngModel)]="userForm.rol" name="rol"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option value="ADMIN">Administrador</option>
-                                    <option value="OPERADOR">Operador</option>
-                                    <option value="CONSULTA">Consulta</option>
-                                </select>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Estado</label>
-                                <select [(ngModel)]="userForm.estado" name="estado"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option value="ACTIVO">Activo</option>
-                                    <option value="INACTIVO">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-6 border-t border-white/5 mt-6">
-                            <button type="submit"
-                                class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
-                                {{ editingId ? 'Actualizar Usuario' : 'Crear Usuario' }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="flex justify-end pt-6 border-t border-white/5 mt-6">
+                        <button type="submit"
+                            class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                            {{ editingId ? 'Actualizar Usuario' : 'Crear Usuario' }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <!-- Table Section -->
+    <!-- Table Section -->
+    <div class="card overflow-hidden">
+        <!-- Responsive List Section -->
         <div class="card overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead
-                        class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                        <tr>
-                            <th class="px-6 py-5 w-12">#</th>
-                            <th class="px-6 py-5">Usuario</th>
-                            <th class="px-6 py-5">Rol / Permisos</th>
-                            <th class="px-6 py-5">Estado</th>
-                            <th class="px-6 py-5">Fecha Registro</th>
-                            <th class="px-6 py-5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5 font-medium">
-                        <tr *ngIf="loading" class="animate-pulse">
-                            <td colspan="5" class="px-6 py-20 text-center text-muted">Cargando usuarios...</td>
-                        </tr>
-                        <tr *ngFor="let u of usuarios; let i = index"
-                            class="hover:bg-gray-500/5 transition-colors group">
-                            <td class="px-6 py-5 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i + 1
-                                }}</td>
-                            <td class="px-6 py-5">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="h-10 w-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 font-bold border border-indigo-500/20">
-                                        {{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-primary">{{ u.nombre }} {{ u.apellido
-                                            }}</span>
-                                        <span class="text-xs text-muted">{{ u.email }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-5">
-                                <span
-                                    class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                                    {{ u.rol }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-5">
-                                <span [class]="u.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
-                                    {{ u.estado }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-5 text-sm text-muted">
-                                {{ u.created_at | date:'mediumDate' }}
-                            </td>
-                            <td class="px-6 py-5 text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <button (click)="editUser(u)"
-                                        class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                        </svg>
-                                    </button>
-                                    <button (click)="deleteUsuario(u.id)"
-                                        class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <!-- Desktop Table Headers (Hidden on Mobile) -->
+            <div
+                class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5 hidden md:grid grid-cols-12 gap-4 px-6 py-5">
+                <div class="col-span-1">#</div>
+                <div class="col-span-4">Usuario</div>
+                <div class="col-span-2">Rol / Permisos</div>
+                <div class="col-span-2">Estado</div>
+                <div class="col-span-2">Fecha Registro</div>
+                <div class="col-span-1 text-right">Acciones</div>
+            </div>
+
+            <!-- Content -->
+            <div class="divide-y divide-white/5 font-medium">
+                <div *ngIf="loading" class="animate-pulse px-6 py-20 text-center text-muted">Cargando usuarios...</div>
+
+                <div *ngFor="let u of usuarios; let i = index"
+                    class="group hover:bg-gray-500/5 transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 p-6 md:px-6 md:py-5 items-center">
+
+                    <!-- ID/Rank -->
+                    <div
+                        class="flex justify-between md:block col-span-1 border-b md:border-0 pb-4 md:pb-0 mb-4 md:mb-0">
+                        <span class="md:hidden text-xs font-black text-muted uppercase tracking-widest">ID #</span>
+                        <span class="text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i + 1 }}</span>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="col-span-12 md:col-span-4 flex items-center gap-3">
+                        <div
+                            class="h-12 w-12 md:h-10 md:w-10 rounded-2xl md:rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 font-bold border border-indigo-500/20 shrink-0">
+                            {{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-base md:text-sm font-bold text-primary truncate">{{ u.nombre }} {{
+                                u.apellido }}</span>
+                            <span class="text-xs text-muted truncate">{{ u.email }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="col-span-6 md:col-span-2 mt-2 md:mt-0">
+                        <span
+                            class="md:hidden block text-[10px] font-black text-muted uppercase tracking-widest mb-1">Rol
+                            Assigned</span>
+                        <span
+                            class="px-3 py-1.5 md:py-1 rounded-lg md:rounded-full text-xs md:text-[10px] font-black tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20 inline-block">
+                            {{ u.rol }}
+                        </span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-span-6 md:col-span-2 mt-2 md:mt-0 text-right md:text-left">
+                        <span
+                            class="md:hidden block text-[10px] font-black text-muted uppercase tracking-widest mb-1">Estado</span>
+                        <span
+                            [class]="u.estado === 'ACTIVO' ? 'badge-emerald px-3 py-1.5 md:py-1 rounded-lg md:rounded-full text-xs md:text-[10px]' : 'badge-red px-3 py-1.5 md:py-1 rounded-lg md:rounded-full text-xs md:text-[10px]'">
+                            {{ u.estado }}
+                        </span>
+                    </div>
+
+                    <!-- Date -->
+                    <div
+                        class="col-span-12 md:col-span-2 mt-4 md:mt-0 text-sm text-muted flex items-center gap-2 md:block">
+                        <i class="far fa-calendar-alt md:hidden"></i>
+                        {{ u.created_at | date:'mediumDate' }}
+                    </div>
+
+                    <!-- Actions -->
+                    <div
+                        class="col-span-12 md:col-span-1 mt-6 md:mt-0 flex items-center justify-end gap-2 border-t md:border-t-0 pt-4 md:pt-0">
+                        <!-- Only show actions if user is ADMIN -->
+                        <ng-container *ngIf="isAdmin">
+                            <button (click)="editUser(u)"
+                                class="w-full md:w-auto p-2.5 text-muted hover:text-blue-500 bg-gray-100 hover:bg-blue-500/10 dark:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
+                                title="Editar">
+                                <i class="fas fa-edit md:hidden"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden md:block" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                <span class="md:hidden font-semibold text-sm">Editar</span>
+                            </button>
+
+                            <button (click)="resetPassword(u)"
+                                class="w-full md:w-auto p-2.5 text-muted hover:text-amber-500 bg-gray-100 hover:bg-amber-500/10 dark:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
+                                title="Reset Password">
+                                <i class="fas fa-key md:hidden"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden md:block" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                                <span class="md:hidden font-semibold text-sm">Reset</span>
+                            </button>
+
+                            <button (click)="deleteUsuario(u.id)"
+                                class="w-full md:w-auto p-2.5 text-muted hover:text-red-500 bg-gray-100 hover:bg-red-500/10 dark:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
+                                title="Eliminar">
+                                <i class="fas fa-trash-alt md:hidden"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden md:block" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="md:hidden font-semibold text-sm">Borrar</span>
+                            </button>
+                        </ng-container>
+                    </div>
+                </div>
             </div>
 
             <!-- Pagination -->
@@ -202,4 +241,3 @@
             </div>
         </div>
     </div>
-</app-main-layout>

@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { AssetService } from '../../services/asset.service';
 import { Asset } from '../../models/asset.model';
 import { Subject } from 'rxjs';
@@ -10,7 +9,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
     selector: 'app-etiquetas-qr',
     standalone: true,
-    imports: [CommonModule, FormsModule, MainLayoutComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './etiquetas-qr.component.html',
     styles: [`
         @media print {
@@ -35,6 +34,9 @@ export class EtiquetasQrComponent implements OnInit {
     loading = false;
     searchTerm = '';
     searchUpdate = new Subject<string>();
+
+    // Map to store temporary object URLs for QR codes
+    qrUrls: Map<number, string> = new Map();
 
     constructor(
         private assetService: AssetService,
@@ -73,9 +75,26 @@ export class EtiquetasQrComponent implements OnInit {
         const index = this.selectedAssets.findIndex(a => a.id === asset.id);
         if (index > -1) {
             this.selectedAssets.splice(index, 1);
+            // Clean up URL if removing
+            if (this.qrUrls.has(asset.id)) {
+                URL.revokeObjectURL(this.qrUrls.get(asset.id)!);
+                this.qrUrls.delete(asset.id);
+            }
         } else {
             this.selectedAssets.push(asset);
+            this.loadQrCode(asset.id);
         }
+    }
+
+    loadQrCode(id: number) {
+        this.assetService.getQrBlob(id).subscribe({
+            next: (blob) => {
+                const url = URL.createObjectURL(blob);
+                this.qrUrls.set(id, url);
+                this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error loading QR', err)
+        });
     }
 
     isSelected(asset: Asset): boolean {
@@ -87,10 +106,17 @@ export class EtiquetasQrComponent implements OnInit {
     }
 
     clearSelection() {
+        // Cleanup all URLs
+        this.selectedAssets.forEach(asset => {
+            if (this.qrUrls.has(asset.id)) {
+                URL.revokeObjectURL(this.qrUrls.get(asset.id)!);
+            }
+        });
+        this.qrUrls.clear();
         this.selectedAssets = [];
     }
 
-    generateQrUrl(code: string): string {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
+    getQrUrl(id: number): string {
+        return this.qrUrls.get(id) || 'assets/images/loading-qr.png'; // Fallback or placeholder
     }
 }

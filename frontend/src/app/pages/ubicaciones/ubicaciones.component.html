@@ -1,4 +1,4 @@
-<app-main-layout>
+
     <div class="p-6 lg:p-8">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -8,17 +8,40 @@
             </div>
         </div>
 
+        <div class="mb-6">
+            <div class="relative group">
+                <input type="text" [(ngModel)]="searchText"
+                    class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 rounded-2xl py-4 pl-14 pr-6 !text-gray-900 dark:!text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-lg shadow-xl text-center"
+                    placeholder="Buscar en {{ activeTab === 'areas' ? 'Departamentos' : 'Ubicaciones' }}...">
+                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <div *ngIf="searchText" class="absolute inset-y-0 right-0 pr-6 flex items-center">
+                    <button (click)="searchText = ''"
+                        class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Navigation Tabs -->
         <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
             <button (click)="activeTab = 'areas'" [class.bg-blue-600]="activeTab === 'areas'"
                 [class.text-white]="activeTab === 'areas'" [class.shadow-lg]="activeTab === 'areas'"
                 class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
-                Departamentos / Áreas ({{ totalAreas }})
+                Departamentos / Áreas ({{ areas.length }})
             </button>
             <button (click)="activeTab = 'ubicaciones'" [class.bg-blue-600]="activeTab === 'ubicaciones'"
                 [class.text-white]="activeTab === 'ubicaciones'" [class.shadow-lg]="activeTab === 'ubicaciones'"
                 class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
-                Ubicaciones Físicas ({{ totalUbicaciones }})
+                Ubicaciones Físicas ({{ ubicaciones.length }})
             </button>
         </div>
 
@@ -143,14 +166,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let area of areas; let i = index"
+                            <tr *ngFor="let area of filteredAreas; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors group">
-                                <td class="px-6 py-4 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i
-                                    + 1 }}</td>
+                                <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">
                                     <span class="text-blue-500 mr-2 font-mono">
-                                        {{ ((currentPage - 1) * pageSize + i + 1) < 10 ? '0' + ((currentPage - 1) *
-                                            pageSize + i + 1) : ((currentPage - 1) * pageSize + i + 1) }} </span>
+                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} </span>
                                             {{ area.nombre }}
                                 </td>
                                 <td class="px-6 py-4 text-xs text-muted">{{ getUbicacionNombre(area.ubicacion_id) }}
@@ -184,36 +205,7 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination for Areas -->
-                <div class="pagination-container">
-                    <div class="pagination-info">
-                        <div class="flex items-center gap-2">
-                            <span class="pagination-label">Por página:</span>
-                            <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="pagination-select">
-                                <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-                            </select>
-                        </div>
-                        <span class="pagination-label">Total: <span class="pagination-value">{{ totalAreas
-                                }}</span></span>
-                    </div>
-                    <div class="pagination-nav" *ngIf="lastPage > 1">
-                        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
-                            class="pagination-btn">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <span class="pagination-page">Pág {{ currentPage }} / {{ lastPage }}</span>
-                        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
-                            class="pagination-btn">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                <!-- Pagination removed for real-time search -->
             </div>
         </div>
 
@@ -242,14 +234,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let ubi of ubicaciones; let i = index"
+                            <tr *ngFor="let ubi of filteredUbicaciones; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors group">
-                                <td class="px-6 py-4 text-xs font-black text-muted">{{ (uCurrentPage - 1) * uPageSize +
-                                    i + 1 }}</td>
+                                <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">
                                     <span class="text-blue-500 mr-2 font-mono">
-                                        {{ ((uCurrentPage - 1) * uPageSize + i + 1) < 10 ? '0' + ((uCurrentPage - 1) *
-                                            uPageSize + i + 1) : ((uCurrentPage - 1) * uPageSize + i + 1) }} </span>
+                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} </span>
                                             {{ ubi.nombre }}
                                 </td>
                                 <td class="px-6 py-4 text-xs text-muted truncate max-w-[150px]">{{ ubi.direccion ||
@@ -283,37 +273,8 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination for Ubicaciones -->
-                <div class="pagination-container">
-                    <div class="pagination-info">
-                        <div class="flex items-center gap-2">
-                            <span class="pagination-label">Por página:</span>
-                            <select [(ngModel)]="uPageSize" (change)="onUPageSizeChange()" class="pagination-select">
-                                <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-                            </select>
-                        </div>
-                        <span class="pagination-label">Total: <span class="pagination-value">{{ totalUbicaciones
-                                }}</span></span>
-                    </div>
-                    <div class="pagination-nav" *ngIf="uLastPage > 1">
-                        <button (click)="changeUPage(uCurrentPage - 1)" [disabled]="uCurrentPage === 1"
-                            class="pagination-btn">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <span class="pagination-page">Pág {{ uCurrentPage }} / {{ uLastPage }}</span>
-                        <button (click)="changeUPage(uCurrentPage + 1)" [disabled]="uCurrentPage === uLastPage"
-                            class="pagination-btn">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                <!-- Pagination removed for real-time search -->
             </div>
         </div>
     </div>
-</app-main-layout>
+

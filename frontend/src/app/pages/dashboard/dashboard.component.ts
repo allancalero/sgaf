@@ -1,14 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/dashboard-stats';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterModule, MainLayoutComponent],
+    imports: [CommonModule, RouterModule],
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {

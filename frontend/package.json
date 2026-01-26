@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --output-path ../public/SGAF2 --base-href /SGAF2/",
+    "postbuild": "node fix-deploy.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

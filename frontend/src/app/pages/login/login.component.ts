@@ -19,7 +19,9 @@ export class LoginComponent {
     };
     isLoading = false;
 
-    constructor(private authService: AuthService, private router: Router) { }
+    constructor(private authService: AuthService, private router: Router) {
+        console.log('LoginComponent Initialized');
+    }
 
     onSubmit() {
         this.isLoading = true;
@@ -40,7 +42,7 @@ export class LoginComponent {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Credenciales inválidas',
+                    text: err.error?.message || err.message || 'Error desconocido',
                     confirmButtonColor: '#4682B4'
                 });
             }

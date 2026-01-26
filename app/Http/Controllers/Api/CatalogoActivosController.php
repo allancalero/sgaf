@@ -85,7 +85,7 @@ class CatalogoActivosController extends Controller
     public function clasificaciones()
     {
         $clasificaciones = DB::table('clasificaciones')
-            ->orderBy('nombre')
+            ->orderBy('prefijo')
             ->get();
 
         return response()->json($clasificaciones);
@@ -97,13 +97,15 @@ class CatalogoActivosController extends Controller
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255|unique:clasificaciones,nombre',
                 'codigo' => 'nullable|string|max:255|unique:clasificaciones,codigo',
-                'prefijo' => 'nullable|string|max:10'
+                'prefijo' => 'nullable|string|max:10',
+                'descripcion' => 'nullable|string'
             ]);
 
             $id = DB::table('clasificaciones')->insertGetId([
                 'nombre' => $validated['nombre'],
                 'codigo' => $validated['codigo'] ?? null,
                 'prefijo' => $validated['prefijo'] ?? null,
+                'descripcion' => $validated['descripcion'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -120,13 +122,15 @@ class CatalogoActivosController extends Controller
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255|unique:clasificaciones,nombre,' . $id,
                 'codigo' => 'nullable|string|max:255|unique:clasificaciones,codigo,' . $id,
-                'prefijo' => 'nullable|string|max:10'
+                'prefijo' => 'nullable|string|max:10',
+                'descripcion' => 'nullable|string'
             ]);
 
             DB::table('clasificaciones')->where('id', $id)->update([
                 'nombre' => $validated['nombre'],
                 'codigo' => $validated['codigo'] ?? null,
                 'prefijo' => $validated['prefijo'] ?? null,
+                'descripcion' => $validated['descripcion'] ?? null,
                 'updated_at' => now(),
             ]);
 
@@ -143,6 +147,62 @@ class CatalogoActivosController extends Controller
             return response()->json(['message' => 'Clasificación eliminada exitosamente']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al eliminar la clasificación: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function bulkDeleteClasificaciones(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'ids' => 'required|array|min:1',
+                'ids.*' => 'integer|exists:clasificaciones,id'
+            ]);
+
+            $ids = $validated['ids'];
+            
+            // Check which classifications have dependencies
+            $usedByTipos = DB::table('tipos_activos')
+                ->whereIn('clasificacion_id', $ids)
+                ->distinct()
+                ->pluck('clasificacion_id')
+                ->toArray();
+            
+            $usedByActivos = DB::table('activos_fijos')
+                ->whereIn('clasificacion_id', $ids)
+                ->distinct()
+                ->pluck('clasificacion_id')
+                ->toArray();
+            
+            $usedIds = array_unique(array_merge($usedByTipos, $usedByActivos));
+            $deletableIds = array_diff($ids, $usedIds);
+            
+            if (empty($deletableIds)) {
+                $usedNames = DB::table('clasificaciones')
+                    ->whereIn('id', $usedIds)
+                    ->pluck('nombre')
+                    ->take(5)
+                    ->toArray();
+                
+                return response()->json([
+                    'message' => 'No se pueden eliminar las clasificaciones seleccionadas porque están siendo utilizadas por tipos de activos o activos fijos. Ejemplos: ' . implode(', ', $usedNames)
+                ], 422);
+            }
+
+            $count = DB::table('clasificaciones')->whereIn('id', $deletableIds)->delete();
+            
+            $skippedCount = count($usedIds);
+            $message = "$count clasificaciones eliminadas exitosamente";
+            if ($skippedCount > 0) {
+                $message .= ". $skippedCount clasificaciones no se eliminaron porque están en uso.";
+            }
+
+            return response()->json([
+                'message' => $message,
+                'deleted_count' => $count,
+                'skipped_count' => $skippedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar las clasificaciones: ' . $e->getMessage()], 500);
         }
     }
 
@@ -224,12 +284,14 @@ class CatalogoActivosController extends Controller
         try {
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255|unique:tipos_activos,nombre',
-                'clasificacion_id' => 'required|exists:clasificaciones,id'
+                'clasificacion_id' => 'required|exists:clasificaciones,id',
+                'descripcion' => 'nullable|string'
             ]);
 
             $id = DB::table('tipos_activos')->insertGetId([
                 'nombre' => $validated['nombre'],
                 'clasificacion_id' => $validated['clasificacion_id'],
+                'descripcion' => $validated['descripcion'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -245,12 +307,14 @@ class CatalogoActivosController extends Controller
         try {
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255|unique:tipos_activos,nombre,' . $id,
-                'clasificacion_id' => 'required|exists:clasificaciones,id'
+                'clasificacion_id' => 'required|exists:clasificaciones,id',
+                'descripcion' => 'nullable|string'
             ]);
 
             DB::table('tipos_activos')->where('id', $id)->update([
                 'nombre' => $validated['nombre'],
                 'clasificacion_id' => $validated['clasificacion_id'],
+                'descripcion' => $validated['descripcion'] ?? null,
                 'updated_at' => now(),
             ]);
 

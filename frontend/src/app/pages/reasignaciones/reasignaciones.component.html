@@ -1,4 +1,4 @@
-<app-main-layout>
+
     <div class="p-6 lg:p-8">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -39,34 +39,155 @@
 
                 <div class="px-8 py-8">
                     <form (submit)="submitForm()" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Activo a Reasignar <span
-                                        class="text-red-500">*</span></label>
-                                <select [(ngModel)]="form.activo_id" name="activo_id"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option [ngValue]="null" disabled>Seleccionar Activo...</option>
-                                    <option *ngFor="let a of assets" [value]="a.id">
-                                        {{ a.codigo_inventario }} - {{ a.nombre_activo }}
-                                    </option>
-                                </select>
+                        <!-- Row 1: Filtros -->
+                        <div class="pb-4 border-b border-white/5">
+                            <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3">Paso 1:
+                                Filtrar Activos</div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-muted">Búsqueda (Código o Nombre)</label>
+                                    <div class="relative">
+                                        <input type="text" [(ngModel)]="filterSearch" name="filterSearch"
+                                            (input)="onFilterChange()"
+                                            class="input-field h-11 text-sm !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 pl-10 !text-gray-900 dark:!text-white"
+                                            placeholder="Buscar activo...">
+                                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-muted">Área</label>
+                                    <select [(ngModel)]="filterAreaId" name="filterArea" (change)="onFilterChange()"
+                                        class="input-field h-11 text-sm bg-gray-50/5">
+                                        <option [ngValue]="null">Todas las áreas</option>
+                                        <option *ngFor="let a of areas" [ngValue]="a.id">
+                                            {{ a.nombre }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-muted">Responsable Actual</label>
+                                    <select [(ngModel)]="filterPersonalId" name="filterPersonal"
+                                        (change)="onFilterChange()" class="input-field h-11 text-sm bg-gray-50/5">
+                                        <option [ngValue]="null">Sin custodio específico / Todos</option>
+                                        <option *ngFor="let p of filteredCurrentPersonal" [ngValue]="p.id">
+                                            {{ p.nombre }} {{ p.apellido }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Nuevo Custodio <span
-                                        class="text-red-500">*</span></label>
-                                <select [(ngModel)]="form.personal_nuevo_id" name="personal_nuevo_id"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option [ngValue]="null" disabled>Seleccionar Personal...</option>
-                                    <option *ngFor="let p of personal" [value]="p.id">
-                                        {{ p.nombre }} {{ p.apellido }}
-                                    </option>
-                                </select>
+                        </div>
+
+                        <!-- Row 2: Datos de Reasignación -->
+                        <div class="pt-2">
+                            <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3">Paso 2:
+                                Reasignar</div>
+
+                            <!-- Info alert for auto-fill -->
+                            <div *ngIf="form.activo_id"
+                                class="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="text-xs text-blue-200">Activo detectado automáticamente por código.
+                                    Completa los detalles para reasignar.</span>
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Motivo del Cambio <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="form.motivo" name="motivo"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Traslado de área...">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-muted">Activo a Reasignar <span
+                                                class="text-red-500">*</span></label>
+                                        <select [(ngModel)]="form.activo_id" name="activo_id"
+                                            class="input-field h-11 text-sm bg-gray-50/5"
+                                            [class.border-blue-500]="form.activo_id" (change)="onAssetSelect()">
+                                            <option [ngValue]="null" disabled>Seleccionar Activo...</option>
+                                            <option *ngFor="let a of filteredAssets" [ngValue]="a.id">
+                                                {{ a.codigo_inventario }} - {{ a.nombre_activo }}
+                                            </option>
+                                        </select>
+                                        <p *ngIf="filteredAssets.length === 0 && !filterSearch"
+                                            class="text-[10px] text-muted italic">
+                                            Usa el buscador del Paso 1 para encontrar el activo
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-muted">Nueva Área <span
+                                                class="text-red-500">*</span></label>
+                                        <select [(ngModel)]="form.area_nueva_id" name="area_nueva_id"
+                                            (change)="onAreaNuevaChange()"
+                                            class="input-field h-11 text-sm bg-gray-50/5">
+                                            <option [ngValue]="null" disabled>Seleccionar Área...</option>
+                                            <option *ngFor="let a of areas" [ngValue]="a.id">
+                                                {{ a.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-muted">Nuevo Custodio <span
+                                                class="text-red-500">*</span></label>
+                                        <select [(ngModel)]="form.personal_nuevo_id" name="personal_nuevo_id"
+                                            class="input-field h-11 text-sm bg-gray-50/5"
+                                            [disabled]="!form.area_nueva_id">
+                                            <option [ngValue]="null" disabled>{{ form.area_nueva_id ? 'Seleccionar
+                                                Personal...' : 'Primero selecciona un área' }}</option>
+                                            <option *ngFor="let p of filteredNewPersonal" [ngValue]="p.id">
+                                                {{ p.nombre }} {{ p.apellido }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-muted">Motivo del Cambio <span
+                                                class="text-red-500">*</span></label>
+                                        <textarea [(ngModel)]="form.motivo" name="motivo" rows="2"
+                                            class="input-field text-sm bg-gray-50/5 py-3"
+                                            placeholder="Ej: Traslado de área, nuevo ingreso, etc."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-muted">Foto Actual del Activo
+                                        (Opcional)</label>
+                                    <div class="relative group">
+                                        <div *ngIf="!fotoPreview"
+                                            class="h-[188px] border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 bg-gray-50/5 group-hover:bg-gray-50/10 transition-all cursor-pointer overflow-hidden"
+                                            (click)="fileInput.click()">
+                                            <div
+                                                class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                                <i class="fas fa-camera text-xl"></i>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-[11px] font-bold text-primary">Subir Foto Actual</p>
+                                                <p class="text-[10px] text-muted">JPG, PNG o WEBP (Máx. 5MB)</p>
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="fotoPreview" class="relative animate-in zoom-in-95 h-[188px]">
+                                            <img [src]="fotoPreview"
+                                                class="w-full h-full object-cover rounded-2xl border border-white/10 shadow-2xl">
+                                            <div
+                                                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center gap-2">
+                                                <button type="button" (click)="fileInput.click()"
+                                                    class="w-10 h-10 rounded-full bg-white text-gray-900 flex items-center justify-center hover:scale-110 transition-transform">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" (click)="removeFoto()"
+                                                    class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*"
+                                            class="hidden">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -91,31 +212,36 @@
                         class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                         <tr>
                             <th class="px-6 py-5 w-12">#</th>
-                            <th class="px-6 py-5">Fecha</th>
+                            <th class="px-6 py-5 w-32 whitespace-nowrap">Fecha</th>
                             <th class="px-6 py-5">Activo</th>
                             <th class="px-6 py-5">Custodio Anterior</th>
                             <th class="px-6 py-5">Nuevo Custodio</th>
                             <th class="px-6 py-5">Motivo</th>
+                            <th class="px-6 py-5 text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5 font-medium">
                         <tr *ngIf="loading" class="animate-pulse">
-                            <td colspan="5" class="px-6 py-20 text-center text-muted">Cargando historial...</td>
+                            <td colspan="7" class="px-6 py-20 text-center text-muted">Cargando historial...</td>
                         </tr>
                         <tr *ngIf="!loading && reasignaciones.length === 0">
-                            <td colspan="5" class="px-6 py-20 text-center text-muted">No hay reasignaciones registradas.
+                            <td colspan="7" class="px-6 py-20 text-center text-muted">No hay reasignaciones registradas.
                             </td>
                         </tr>
                         <tr *ngFor="let item of reasignaciones; let i = index"
                             class="hover:bg-gray-500/5 transition-colors group">
                             <td class="px-6 py-5 text-xs font-black text-muted">{{ (currentPage - 1) * pageSize + i + 1
                                 }}</td>
-                            <td class="px-6 py-5">
-                                <span class="text-xs font-mono text-muted">{{ formatDate(item.fecha_asignacion)
-                                    }}</span>
+                            <td class="px-6 py-5 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-[11px] font-bold text-primary">{{ item.fecha_asignacion |
+                                        date:'dd/MM/yyyy' }}</span>
+                                    <span class="text-[10px] text-muted">{{ item.fecha_asignacion | date:'shortTime'
+                                        }}</span>
+                                </div>
                             </td>
                             <td class="px-6 py-5">
-                                <div class="flex flex-col">
+                                <div class="flex flex-col min-w-[150px]">
                                     <span class="text-sm font-bold text-primary">{{ item.nombre_activo }}</span>
                                     <span class="text-[10px] text-blue-500 font-mono tracking-wider">{{
                                         item.codigo_inventario }}</span>
@@ -141,9 +267,36 @@
                                 </div>
                             </td>
                             <td class="px-6 py-5">
-                                <span class="text-xs text-muted truncate max-w-[200px] block">
+                                <span class="text-xs text-muted leading-relaxed line-clamp-2 max-w-[200px]"
+                                    [title]="item.motivo">
                                     {{ item.motivo }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button (click)="verDetalles(item)"
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:bg-blue-500/10 hover:text-blue-400 transition-all shadow-sm border border-white/10 group/btn"
+                                        title="Ver Detalles">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 group-hover/btn:scale-110 transition-transform" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="imprimirActa(item.id)"
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-md shadow-blue-500/10 border border-blue-500/30 group/btn"
+                                        title="Imprimir Acta">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 group-hover/btn:scale-110 transition-transform" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -176,4 +329,92 @@
             </div>
         </div>
     </div>
-</app-main-layout>
+    <!-- Details Modal -->
+    <div *ngIf="showDetails" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" (click)="showDetails = false"></div>
+        <div
+            class="card w-full max-w-2xl relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border border-white/10">
+            <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-gray-500/5">
+                <div>
+                    <h3 class="text-lg font-black text-primary">Detalles de Reasignación</h3>
+                    <p class="text-xs text-muted">ID Movimiento: #{{ selectedReasignacion?.id }}</p>
+                </div>
+                <button (click)="showDetails = false" class="p-2 hover:bg-white/5 rounded-full transition-all">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Activo</label>
+                            <div class="text-sm font-bold text-primary">{{ selectedReasignacion?.nombre_activo }}</div>
+                            <div class="text-xs text-blue-500 font-mono">{{ selectedReasignacion?.codigo_inventario }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label
+                                    class="text-[10px] font-black text-muted uppercase tracking-widest">Anterior</label>
+                                <div class="text-xs text-muted">{{ selectedReasignacion?.personal_anterior || 'N/A' }}
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label
+                                    class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Nuevo</label>
+                                <div class="text-xs font-bold text-emerald-500">{{ selectedReasignacion?.personal_nuevo
+                                    }}</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-muted uppercase tracking-widest">Motivo</label>
+                            <p class="text-xs text-muted bg-white/5 p-3 rounded-xl border border-white/5">{{
+                                selectedReasignacion?.motivo }}</p>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-muted uppercase tracking-widest">Fecha y
+                                Hora</label>
+                            <div class="text-xs text-muted">{{ selectedReasignacion?.fecha_asignacion | date:'fullDate'
+                                }} {{ selectedReasignacion?.fecha_asignacion | date:'shortTime' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-muted uppercase tracking-widest block">Evidencia
+                            Fotográfica</label>
+                        <div
+                            class="aspect-square rounded-2xl overflow-hidden border border-white/10 bg-gray-500/5 relative group">
+                            <img *ngIf="selectedReasignacion?.foto_reasignacion"
+                                [src]="getFotoUrl(selectedReasignacion?.foto_reasignacion)"
+                                class="w-full h-full object-cover">
+                            <div *ngIf="!selectedReasignacion?.foto_reasignacion"
+                                class="w-full h-full flex flex-col items-center justify-center gap-2 text-muted/30">
+                                <i class="fas fa-camera text-4xl"></i>
+                                <span class="text-[10px] font-bold">SIN FOTO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/5 flex justify-end gap-3">
+                    <button (click)="imprimirActa(selectedReasignacion?.id)"
+                        class="btn-primary h-11 px-6 shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        <span>Imprimir Acta</span>
+                    </button>
+                    <button (click)="showDetails = false" class="btn-secondary h-11 px-6">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+

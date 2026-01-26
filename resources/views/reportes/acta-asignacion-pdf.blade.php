@@ -67,7 +67,7 @@
                 @endif
             </td>
             <td class="title-cell">
-                <h1>{{ $system->nombre_alcaldia ?? 'ALCALDÍA MUNICIPAL' }}</h1>
+                <h1>{{ optional($system)->nombre_alcaldia ?? 'ALCALDÍA MUNICIPAL' }}</h1>
                 <h2>ACTA DE ASIGNACIÓN DE ACTIVO FIJO</h2>
                 <p>Fecha de emisión: {{ $fecha_emision }}</p>
             </td>
@@ -89,11 +89,11 @@
                 <table class="data-table">
                     <tr><td>Código:</td><td class="highlight">{{ $activo->codigo_inventario }}</td></tr>
                     <tr><td>Nombre:</td><td>{{ $activo->nombre_activo }}</td></tr>
-                    <tr><td>Clasificación:</td><td>{{ $activo->clasificacion->nombre ?? 'N/A' }}</td></tr>
+                    <tr><td>Clasificación:</td><td>{{ optional($activo->clasificacion)->nombre ?? 'N/A' }}</td></tr>
                     <tr><td>Marca / Modelo:</td><td>{{ $activo->marca ?? '-' }} / {{ $activo->modelo ?? '-' }}</td></tr>
                     <tr><td>Serie / Color:</td><td>{{ $activo->serie ?? '-' }} / {{ $activo->color ?? '-' }}</td></tr>
                     <tr><td>Estado:</td><td><strong>{{ $activo->estado }}</strong></td></tr>
-                    <tr><td>Valor:</td><td><strong>{{ $system->moneda ?? 'C$' }}{{ number_format($activo->precio_adquisicion, 2) }}</strong></td></tr>
+                    <tr><td>Valor:</td><td><strong>{{ optional($system)->moneda ?? 'C$' }}{{ number_format($activo->precio_adquisicion, 2) }}</strong></td></tr>
                     <tr><td>Fecha Adquisición:</td><td>{{ $activo->fecha_adquisicion }}</td></tr>
                 </table>
             </div>
@@ -103,9 +103,9 @@
             <div class="section">
                 <div class="section-title">II. DATOS DE ASIGNACIÓN</div>
                 <table class="data-table">
-                    <tr><td>Responsable:</td><td class="highlight">{{ $activo->personal->nombre ?? '' }} {{ $activo->personal->apellido ?? '' }}</td></tr>
-                    <tr><td>Área:</td><td>{{ $activo->area->nombre ?? 'N/A' }}</td></tr>
-                    <tr><td>Ubicación:</td><td>{{ $activo->ubicacion->nombre ?? 'N/A' }}</td></tr>
+                    <tr><td>Responsable:</td><td class="highlight">{{ optional($activo->personal)->nombre ?? '' }} {{ optional($activo->personal)->apellido ?? '' }}</td></tr>
+                    <tr><td>Área:</td><td>{{ optional($activo->area)->nombre ?? 'N/A' }}</td></tr>
+                    <tr><td>Ubicación:</td><td>{{ optional($activo->ubicacion)->nombre ?? 'N/A' }}</td></tr>
                     <tr><td>Fecha Asignación:</td><td>{{ $fecha_emision }}</td></tr>
                 </table>
             </div>
@@ -135,32 +135,32 @@
     <div class="signatures">
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $activo->personal->nombre ?? '' }} {{ $activo->personal->apellido ?? '' }}</p>
+                <p class="sig-name">{{ optional($activo->personal)->nombre ?? '' }} {{ optional($activo->personal)->apellido ?? '' }}</p>
                 <p class="sig-title">Responsable del Activo</p>
             </div>
         </div>
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $system->responsable_activo_fijo ?? '____________________' }}</p>
+                <p class="sig-name">{{ optional($system)->responsable_activo_fijo ?? '____________________' }}</p>
                 <p class="sig-title">Responsable de Activo Fijo</p>
             </div>
         </div>
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $system->director_administrativo ?? '____________________' }}</p>
+                <p class="sig-name">{{ optional($system)->director_administrativo ?? '____________________' }}</p>
                 <p class="sig-title">Director Administrativo</p>
             </div>
         </div>
         <div class="sig-box">
             <div class="sig-line">
-                <p class="sig-name">{{ $system->alcaldesa ?? '____________________' }}</p>
+                <p class="sig-name">{{ optional($system)->alcaldesa ?? '____________________' }}</p>
                 <p class="sig-title">Alcaldesa Municipal</p>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        <p>Generado el {{ now()->format('d/m/Y H:i:s') }} por {{ $usuario ?? 'Sistema' }} | {{ $system->nombre_alcaldia ?? 'SGAF' }} {{ date('Y') }}</p>
+        <p>Generado el {{ now()->format('d/m/Y H:i:s') }} por {{ $usuario ?? 'Sistema' }} | {{ optional($system)->nombre_alcaldia ?? 'SGAF' }} {{ date('Y') }}</p>
     </div>
 </body>
 </html>

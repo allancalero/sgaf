@@ -11,7 +11,7 @@ class ImportController extends Controller
     /**
      * Handle an inventory Excel file upload and dispatch an import job.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:20480'], // 20MB max
@@ -26,6 +26,9 @@ class ImportController extends Controller
         // Dispatch the job to the queue
         ImportInventoryJob::dispatch($fullPath, auth()->id());
 
-        return redirect()->back()->with('success', 'El archivo se ha enviado para procesamiento. Los activos aparecerán en unos momentos.');
+        return response()->json([
+            'message' => 'El archivo se ha enviado para procesamiento en segundo plano.',
+            'status' => 'processing'
+        ]);
     }
 }

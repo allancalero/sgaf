@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import {
     CatalogoActivosService,
     Proveedor,
@@ -15,14 +14,15 @@ import Swal from 'sweetalert2';
 @Component({
     selector: 'app-catalogos-activos',
     standalone: true,
-    imports: [CommonModule, FormsModule, MainLayoutComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './catalogos-activos.component.html'
 })
 export class CatalogosActivosComponent implements OnInit {
-    activeTab = 'proveedores';
+    activeTab = 'clasificaciones';
     showForm = false;
-    activeFormTab = 'proveedor';
+    activeFormTab = 'clasificacion';
     loading = true;
+    searchText = '';
 
     // Data
     proveedores: Proveedor[] = [];
@@ -37,13 +37,14 @@ export class CatalogosActivosComponent implements OnInit {
     proveedorForm = { nombre: '', ruc: '', direccion: '', telefono: '', email: '' };
     editingProveedorId: number | null = null;
 
-    clasificacionForm = { nombre: '', codigo: '', prefijo: '' };
+    clasificacionForm = { nombre: '', codigo: '', prefijo: '', descripcion: '' };
     editingClasificacionId: number | null = null;
+    selectedClasificacionIds: number[] = [];
 
     fuenteForm = { nombre: '', estado: 'ACTIVO' };
     editingFuenteId: number | null = null;
 
-    tipoForm = { nombre: '', clasificacion_id: null as number | null };
+    tipoForm = { nombre: '', clasificacion_id: null as number | null, descripcion: '' };
     editingTipoId: number | null = null;
 
     chequeForm = {
@@ -105,6 +106,58 @@ export class CatalogosActivosComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
+    // Filtered Getters
+    get filteredClasificaciones() {
+        if (!this.searchText) return this.clasificaciones;
+        const search = this.searchText.toLowerCase();
+        return this.clasificaciones.filter(c =>
+            c.nombre.toLowerCase().includes(search) ||
+            c.prefijo?.toLowerCase().includes(search) ||
+            c.codigo?.toLowerCase().includes(search) ||
+            (c as any).descripcion?.toLowerCase().includes(search)
+        );
+    }
+
+    get filteredTipos() {
+        if (!this.searchText) return this.tipos;
+        const search = this.searchText.toLowerCase();
+        return this.tipos.filter(t =>
+            t.nombre.toLowerCase().includes(search) ||
+            (t as any).clasificacion_nombre?.toLowerCase().includes(search) ||
+            (t as any).descripcion?.toLowerCase().includes(search)
+        );
+    }
+
+    get filteredFuentes() {
+        if (!this.searchText) return this.fuentes;
+        const search = this.searchText.toLowerCase();
+        return this.fuentes.filter(f =>
+            f.nombre.toLowerCase().includes(search) ||
+            f.estado.toLowerCase().includes(search)
+        );
+    }
+
+    get filteredCheques() {
+        if (!this.searchText) return this.cheques;
+        const search = this.searchText.toLowerCase();
+        return this.cheques.filter(c =>
+            c.numero_cheque.toLowerCase().includes(search) ||
+            c.banco.toLowerCase().includes(search) ||
+            c.beneficiario.toLowerCase().includes(search) ||
+            (c.descripcion?.toLowerCase().includes(search) || false)
+        );
+    }
+
+    get filteredProveedores() {
+        if (!this.searchText) return this.proveedores;
+        const search = this.searchText.toLowerCase();
+        return this.proveedores.filter(p =>
+            p.nombre.toLowerCase().includes(search) ||
+            p.ruc?.toLowerCase().includes(search) ||
+            p.email?.toLowerCase().includes(search)
+        );
+    }
+
     openForm(type: string) {
         this.activeFormTab = type;
         this.showForm = true;
@@ -127,9 +180,9 @@ export class CatalogosActivosComponent implements OnInit {
 
     resetForms() {
         if (!this.editingProveedorId) this.proveedorForm = { nombre: '', ruc: '', direccion: '', telefono: '', email: '' };
-        if (!this.editingClasificacionId) this.clasificacionForm = { nombre: '', codigo: '', prefijo: '' };
+        if (!this.editingClasificacionId) this.clasificacionForm = { nombre: '', codigo: '', prefijo: '', descripcion: '' };
         if (!this.editingFuenteId) this.fuenteForm = { nombre: '', estado: 'ACTIVO' };
-        if (!this.editingTipoId) this.tipoForm = { nombre: '', clasificacion_id: null };
+        if (!this.editingTipoId) this.tipoForm = { nombre: '', clasificacion_id: null, descripcion: '' };
         if (!this.editingChequeId) this.chequeForm = {
             numero_cheque: '', banco: '', cuenta_bancaria: '', monto_total: 0,
             fecha_emision: '', fecha_vencimiento: '', beneficiario: '', beneficiario_ruc: '',
@@ -237,7 +290,8 @@ export class CatalogosActivosComponent implements OnInit {
         this.clasificacionForm = {
             nombre: item.nombre,
             codigo: item.codigo || '',
-            prefijo: item.prefijo || ''
+            prefijo: item.prefijo || '',
+            descripcion: (item as any).descripcion || ''
         };
         this.openForm('clasificacion');
     }
@@ -260,6 +314,60 @@ export class CatalogosActivosComponent implements OnInit {
                         this.loadData();
                     },
                     error: () => Swal.fire('Error', 'No se pudo eliminar la clasificación', 'error')
+                });
+            }
+        });
+    }
+
+    toggleClasificacionSelection(id: number) {
+        const idx = this.selectedClasificacionIds.indexOf(id);
+        if (idx > -1) {
+            this.selectedClasificacionIds.splice(idx, 1);
+        } else {
+            this.selectedClasificacionIds.push(id);
+        }
+    }
+
+    toggleAllClasificaciones(event: Event) {
+        const checked = (event.target as HTMLInputElement).checked;
+        if (checked) {
+            this.selectedClasificacionIds = this.clasificaciones.map(c => c.id);
+        } else {
+            this.selectedClasificacionIds = [];
+        }
+    }
+
+    isClasificacionSelected(id: number): boolean {
+        return this.selectedClasificacionIds.includes(id);
+    }
+
+    bulkDeleteClasificaciones() {
+        if (this.selectedClasificacionIds.length === 0) {
+            Swal.fire('Atención', 'Selecciona al menos una clasificación para eliminar', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: '¿Eliminar seleccionados?',
+            text: `Se eliminarán ${this.selectedClasificacionIds.length} clasificaciones. Esta acción no se puede revertir.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.service.bulkDeleteClasificaciones(this.selectedClasificacionIds).subscribe({
+                    next: () => {
+                        Swal.fire('Eliminados', `${this.selectedClasificacionIds.length} clasificaciones eliminadas`, 'success');
+                        this.selectedClasificacionIds = [];
+                        this.loadData();
+                    },
+                    error: (err) => {
+                        const msg = err.error?.message || 'No se pudieron eliminar las clasificaciones';
+                        Swal.fire('Error', msg, 'error');
+                    }
                 });
             }
         });
@@ -356,7 +464,7 @@ export class CatalogosActivosComponent implements OnInit {
 
     startEditTipo(item: Tipo) {
         this.editingTipoId = item.id;
-        this.tipoForm = { nombre: item.nombre, clasificacion_id: item.clasificacion_id };
+        this.tipoForm = { nombre: item.nombre, clasificacion_id: item.clasificacion_id, descripcion: (item as any).descripcion || '' };
         this.openForm('tipo');
     }
 

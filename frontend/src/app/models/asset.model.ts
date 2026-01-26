@@ -24,6 +24,7 @@ export interface Asset {
     area?: { nombre: string };
     personal?: { nombre: string; apellido: string };
     clasificacion?: { nombre: string; prefijo?: string; codigo?: string };
+    custom_fields?: any;
 }
 
 export interface AssetResponse {

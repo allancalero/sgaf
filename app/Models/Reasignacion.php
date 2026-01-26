@@ -13,9 +13,9 @@ class Reasignacion extends Model
 
     protected $fillable = [
         'activo_id',
-        'ubicacion_anterior_id',
+        'area_anterior_id',
         'responsable_anterior_id',
-        'ubicacion_nueva_id',
+        'area_nueva_id',
         'responsable_nuevo_id',
         'motivo',
         'observaciones',
@@ -35,14 +35,14 @@ class Reasignacion extends Model
         return $this->belongsTo(ActivoFijo::class, 'activo_id');
     }
 
-    public function ubicacionAnterior()
+    public function areaAnterior()
     {
-        return $this->belongsTo(Ubicacion::class, 'ubicacion_anterior_id');
+        return $this->belongsTo(Area::class, 'area_anterior_id');
     }
 
-    public function ubicacionNueva()
+    public function areaNueva()
     {
-        return $this->belongsTo(Ubicacion::class, 'ubicacion_nueva_id');
+        return $this->belongsTo(Area::class, 'area_nueva_id');
     }
 
     public function responsableAnterior()

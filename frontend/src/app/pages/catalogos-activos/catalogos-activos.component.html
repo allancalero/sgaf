@@ -1,44 +1,70 @@
-ï»¿<app-main-layout>
+
     <div class="p-6 lg:p-8">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <h2 class="text-3xl font-black text-primary tracking-tight">CatÃ¡logos de Activos Fijo</h2>
-                <p class="text-secondary mt-1 tracking-tight">GestiÃ³n de proveedores, clasificaciones, fuentes y tipos.
+                <h2 class="text-3xl font-black text-primary tracking-tight">Catálogos de Activos Fijo</h2>
+                <p class="text-secondary mt-1 tracking-tight">Gestión de proveedores, clasificaciones, fuentes y tipos.
                 </p>
             </div>
         </div>
 
-        <!-- Tabs de NavegaciÃƒÂ³n -->
+        <div class="mb-6">
+            <div class="relative group">
+                <input type="text" [(ngModel)]="searchText"
+                    class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 rounded-2xl py-4 pl-14 pr-6 !text-gray-900 dark:!text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-lg shadow-xl text-center"
+                    placeholder="Buscar en {{ activeTab === 'tipos' ? 'Tipos' : 
+                                    activeTab === 'clasificaciones' ? 'Clasificaciones' : 
+                                    activeTab === 'fuentes' ? 'Fuentes' : 
+                                    activeTab === 'cheques' ? 'Cheques' : 'Proveedores' }}...">
+                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <div *ngIf="searchText" class="absolute inset-y-0 right-0 pr-6 flex items-center">
+                    <button (click)="searchText = ''"
+                        class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de Navegación -->
         <div class="flex gap-2 mb-6 overflow-x-auto">
-            <button (click)="activeTab = 'proveedores'" [class.bg-blue-600]="activeTab === 'proveedores'"
-                [class.text-white]="activeTab === 'proveedores'" [class.shadow-lg]="activeTab === 'proveedores'"
-                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
-                Proveedores ({{ proveedores.length }})
-            </button>
             <button (click)="activeTab = 'clasificaciones'" [class.bg-blue-600]="activeTab === 'clasificaciones'"
                 [class.text-white]="activeTab === 'clasificaciones'" [class.shadow-lg]="activeTab === 'clasificaciones'"
                 class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
                 Clasificaciones ({{ clasificaciones.length }})
-            </button>
-            <button (click)="activeTab = 'fuentes'" [class.bg-blue-600]="activeTab === 'fuentes'"
-                [class.text-white]="activeTab === 'fuentes'" [class.shadow-lg]="activeTab === 'fuentes'"
-                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
-                Fuentes ({{ fuentes.length }})
             </button>
             <button (click)="activeTab = 'tipos'" [class.bg-blue-600]="activeTab === 'tipos'"
                 [class.text-white]="activeTab === 'tipos'" [class.shadow-lg]="activeTab === 'tipos'"
                 class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
                 Tipos ({{ tipos.length }})
             </button>
+            <button (click)="activeTab = 'fuentes'" [class.bg-blue-600]="activeTab === 'fuentes'"
+                [class.text-white]="activeTab === 'fuentes'" [class.shadow-lg]="activeTab === 'fuentes'"
+                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
+                Fuentes ({{ fuentes.length }})
+            </button>
             <button (click)="activeTab = 'cheques'" [class.bg-blue-600]="activeTab === 'cheques'"
                 [class.text-white]="activeTab === 'cheques'" [class.shadow-lg]="activeTab === 'cheques'"
                 class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
                 Cheques ({{ cheques.length }})
             </button>
+            <button (click)="activeTab = 'proveedores'" [class.bg-blue-600]="activeTab === 'proveedores'"
+                [class.text-white]="activeTab === 'proveedores'" [class.shadow-lg]="activeTab === 'proveedores'"
+                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white">
+                Proveedores ({{ proveedores.length }})
+            </button>
         </div>
 
-        <!-- Formulario de Registro RÃƒÂ¡pido -->
+        <!-- Formulario de Registro Rápido -->
         <div *ngIf="showForm" class="mb-10 animate-fade-in">
             <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
                 <div class="flex border-b border-white/5 bg-gray-500/5 justify-between items-center">
@@ -72,7 +98,7 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">TelÃƒÂ©fono</label>
+                                <label class="text-xs font-bold text-muted">Teléfono</label>
                                 <input type="text" [(ngModel)]="proveedorForm.telefono" name="telefono"
                                     class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 2222-3333">
                             </div>
@@ -84,7 +110,7 @@
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-muted">DirecciÃƒÂ³n</label>
+                            <label class="text-xs font-bold text-muted">Dirección</label>
                             <input type="text" [(ngModel)]="proveedorForm.direccion" name="direccion"
                                 class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Calle Principal #123">
                         </div>
@@ -100,27 +126,33 @@
                     <form *ngIf="activeFormTab === 'clasificacion'" (ngSubmit)="saveClasificacion()" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Prefijo (2 dÃ­gitos - ej: 01) <span
+                                <label class="text-xs font-bold text-muted">Prefijo (2 dígitos - ej: 01) <span
                                         class="text-red-500">*</span></label>
                                 <input type="text" [(ngModel)]="clasificacionForm.prefijo" name="prefijo"
                                     class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 01" maxlength="10">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Nombre de ClasificaciÃ³n <span
+                                <label class="text-xs font-bold text-muted">Nombre de Clasificación <span
                                         class="text-red-500">*</span></label>
                                 <input type="text" [(ngModel)]="clasificacionForm.nombre" name="nombre"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Activos BiolÃ³gicos">
+                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Activos Biológicos">
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-muted">CÃ³digo Contable (Original)</label>
+                            <label class="text-xs font-bold text-muted">Código Contable (Original)</label>
                             <input type="text" [(ngModel)]="clasificacionForm.codigo" name="codigo"
                                 class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 123 005 000 000 000 000">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Descripción</label>
+                            <textarea [(ngModel)]="clasificacionForm.descripcion" name="descripcion"
+                                class="input-field text-sm bg-gray-50/5 resize-none" rows="2"
+                                placeholder="Ej. Hardware principal, periféricos y accesorios informáticos"></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit"
                                 class="btn-primary px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
-                                {{ editingClasificacionId ? 'Actualizar' : 'Guardar' }} ClasificaciÃ³n
+                                {{ editingClasificacionId ? 'Actualizar' : 'Guardar' }} Clasificación
                             </button>
                         </div>
                     </form>
@@ -161,16 +193,22 @@
                                     class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. Computadora">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">ClasificaciÃ³n <span
+                                <label class="text-xs font-bold text-muted">Clasificación <span
                                         class="text-red-500">*</span></label>
                                 <select [(ngModel)]="tipoForm.clasificacion_id" name="clasificacion_id"
                                     class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option [ngValue]="null">Seleccione una clasificaciÃ³n</option>
+                                    <option [ngValue]="null">Seleccione una clasificación</option>
                                     <option *ngFor="let c of clasificaciones" [ngValue]="c.id">
                                         {{ c.prefijo }} {{ c.nombre }}
                                     </option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Descripción</label>
+                            <textarea [(ngModel)]="tipoForm.descripcion" name="descripcion"
+                                class="input-field text-sm bg-gray-50/5 resize-none" rows="2"
+                                placeholder="Ej. Solo la caja, sin monitor"></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit"
@@ -184,7 +222,7 @@
                     <form *ngIf="activeFormTab === 'cheque'" (ngSubmit)="saveCheque()" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">NÃƒÂºmero de Cheque <span
+                                <label class="text-xs font-bold text-muted">Número de Cheque <span
                                         class="text-red-500">*</span></label>
                                 <input type="text" [(ngModel)]="chequeForm.numero_cheque" name="numero_cheque"
                                     class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej. 123456">
@@ -208,7 +246,7 @@
                                     class="input-field h-11 text-sm bg-gray-50/5" placeholder="0.00" step="0.01">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Fecha EmisiÃƒÂ³n</label>
+                                <label class="text-xs font-bold text-muted">Fecha Emisión</label>
                                 <input type="date" [(ngModel)]="chequeForm.fecha_emision" name="fecha_emision"
                                     class="input-field h-11 text-sm bg-gray-50/5">
                             </div>
@@ -232,10 +270,10 @@
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-muted">DescripciÃƒÂ³n</label>
+                            <label class="text-xs font-bold text-muted">Descripción</label>
                             <textarea [(ngModel)]="chequeForm.descripcion" name="descripcion" rows="3"
                                 class="input-field text-sm bg-gray-50/5"
-                                placeholder="DescripciÃ³n opcional del cheque"></textarea>
+                                placeholder="Descripción opcional del cheque"></textarea>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
@@ -276,13 +314,13 @@
                                 <th class="px-6 py-4 w-12">#</th>
                                 <th class="px-6 py-4">Nombre</th>
                                 <th class="px-6 py-4">RUC</th>
-                                <th class="px-6 py-4">TelÃ©fono</th>
+                                <th class="px-6 py-4">Teléfono</th>
                                 <th class="px-6 py-4">Email</th>
                                 <th class="px-6 py-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let item of proveedores; let i = index"
+                            <tr *ngFor="let item of filteredProveedores; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">{{ item.nombre }}</td>
@@ -319,9 +357,21 @@
         <!-- TAB CLASIFICACIONES -->
         <div *ngIf="activeTab === 'clasificaciones'">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Clasificaciones Registradas</h3>
+                <div class="flex items-center gap-4">
+                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Clasificaciones Registradas
+                    </h3>
+                    <button *ngIf="selectedClasificacionIds.length > 0" (click)="bulkDeleteClasificaciones()"
+                        class="btn-secondary h-8 px-4 text-red-400 border-red-500/50 hover:bg-red-500/20 text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar ({{ selectedClasificacionIds.length }})
+                    </button>
+                </div>
                 <button (click)="openForm('clasificacion')" class="btn-primary h-10 px-6 shadow-lg">Nueva
-                    ClasificaciÃ³n</button>
+                    Clasificación</button>
             </div>
             <div class="card overflow-hidden">
                 <div class="overflow-x-auto">
@@ -329,17 +379,28 @@
                         <thead>
                             <tr
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                                <th class="px-6 py-4 w-12">#</th>
+                                <th class="px-4 py-4 w-10">
+                                    <input type="checkbox" (change)="toggleAllClasificaciones($event)"
+                                        [checked]="selectedClasificacionIds.length === clasificaciones.length && clasificaciones.length > 0"
+                                        class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="px-4 py-4 w-12">#</th>
                                 <th class="px-6 py-4">Prefijo</th>
                                 <th class="px-6 py-4">Nombre</th>
-                                <th class="px-6 py-4">CÃ³digo Contable</th>
+                                <th class="px-6 py-4">Código Contable</th>
                                 <th class="px-6 py-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let item of clasificaciones; let i = index"
-                                class="hover:bg-gray-500/5 transition-colors">
-                                <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
+                            <tr *ngFor="let item of filteredClasificaciones; let i = index"
+                                class="hover:bg-gray-500/5 transition-colors"
+                                [class.bg-blue-500/10]="isClasificacionSelected(item.id)">
+                                <td class="px-4 py-4">
+                                    <input type="checkbox" [checked]="isClasificacionSelected(item.id)"
+                                        (change)="toggleClasificacionSelection(item.id)"
+                                        class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500">
+                                </td>
+                                <td class="px-4 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-blue-400">
                                     {{ item.prefijo || '---' }}
                                 </td>
@@ -395,7 +456,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let item of fuentes; let i = index"
+                            <tr *ngFor="let item of filteredFuentes; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">{{ item.nombre }}</td>
@@ -444,12 +505,13 @@
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                                 <th class="px-6 py-4 w-12">#</th>
                                 <th class="px-6 py-4">Nombre</th>
-                                <th class="px-6 py-4">ClasificaciÃ³n</th>
+                                <th class="px-6 py-4">Clasificación</th>
                                 <th class="px-6 py-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let item of tipos; let i = index" class="hover:bg-gray-500/5 transition-colors">
+                            <tr *ngFor="let item of filteredTipos; let i = index"
+                                class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">
                                     <span class="text-blue-500 mr-2 font-mono">
@@ -498,7 +560,7 @@
                             <tr
                                 class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
                                 <th class="px-6 py-4 w-12">#</th>
-                                <th class="px-6 py-4">NÃºmero</th>
+                                <th class="px-6 py-4">Número</th>
                                 <th class="px-6 py-4">Banco</th>
                                 <th class="px-6 py-4">Beneficiario</th>
                                 <th class="px-6 py-4">Monto</th>
@@ -508,7 +570,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let item of cheques; let i = index"
+                            <tr *ngFor="let item of filteredCheques; let i = index"
                                 class="hover:bg-gray-500/5 transition-colors">
                                 <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
                                 <td class="px-6 py-4 text-sm font-bold text-primary">{{ item.numero_cheque }}</td>
@@ -549,4 +611,4 @@
             </div>
         </div>
     </div>
-</app-main-layout>
+

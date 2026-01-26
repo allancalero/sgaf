@@ -120,7 +120,7 @@
                 <p class="transfer-label">ENTREGA (Anterior)</p>
                 <div class="transfer-content from">
                     <p class="transfer-name">{{ $reasignacion->responsableAnterior ? $reasignacion->responsableAnterior->nombre . ' ' . $reasignacion->responsableAnterior->apellido : 'Sin asignar' }}</p>
-                    <p class="transfer-detail">Ubicación: {{ $reasignacion->ubicacionAnterior->nombre ?? 'N/A' }}</p>
+                    <p class="transfer-detail">Área: {{ $reasignacion->areaAnterior->nombre ?? 'N/A' }}</p>
                 </div>
             </div>
             <div class="transfer-arrow">→</div>
@@ -128,7 +128,7 @@
                 <p class="transfer-label">RECIBE (Nuevo)</p>
                 <div class="transfer-content to">
                     <p class="transfer-name">{{ $reasignacion->responsableNuevo ? $reasignacion->responsableNuevo->nombre . ' ' . $reasignacion->responsableNuevo->apellido : 'Sin asignar' }}</p>
-                    <p class="transfer-detail">Ubicación: {{ $reasignacion->ubicacionNueva->nombre ?? 'N/A' }}</p>
+                    <p class="transfer-detail">Área: {{ $reasignacion->areaNueva->nombre ?? 'N/A' }}</p>
                 </div>
             </div>
         </div>

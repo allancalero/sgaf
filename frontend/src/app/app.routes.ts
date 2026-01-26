@@ -14,11 +14,14 @@ import { RespaldoComponent } from './pages/respaldo/respaldo.component';
 import { SeguridadComponent } from './pages/seguridad/seguridad.component';
 import { EtiquetasQrComponent } from './pages/etiquetas-qr/etiquetas-qr.component';
 import { CatalogosActivosComponent } from './pages/catalogos-activos/catalogos-activos.component';
+import { VerificarActivoComponent } from './pages/verificar-activo/verificar-activo.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
+    { path: 'verificar-activo', component: VerificarActivoComponent },
+    { path: 'verificar-activo/:codigo', component: VerificarActivoComponent },
     {
         path: '',
         canActivate: [authGuard],
@@ -27,8 +30,23 @@ export const routes: Routes = [
             { path: 'catalogos/ubicacion', component: UbicacionesComponent },
             { path: 'catalogos/recursos-humanos', component: RecursosHumanosComponent },
             { path: 'catalogos/activos-fijo', component: CatalogosActivosComponent },
-            { path: 'activos-fijos', component: AssetsComponent },
-            { path: 'activos/mis-activos', component: AssetsComponent },
+            {
+                path: 'activos',
+                loadComponent: () => import('./pages/assets/assets.component').then(m => m.AssetsComponent),
+                title: 'Inventario de Activos'
+            },
+            {
+                path: 'activos/desuso',
+                loadComponent: () => import('./pages/activos-state/activos-state.component').then(m => m.ActivosStateComponent),
+                data: { state: 'DESUSO', title: 'Activos en Desuso' },
+                title: 'Activos en Desuso'
+            },
+            {
+                path: 'activos/baja',
+                loadComponent: () => import('./pages/activos-state/activos-state.component').then(m => m.ActivosStateComponent),
+                data: { state: 'BAJA', title: 'Activos de Baja' },
+                title: 'Activos de Baja'
+            },
             { path: 'activos/reasignaciones', component: ReasignacionesComponent },
             { path: 'activos/reportes', component: ReportesComponent },
             { path: 'activos/depreciacion', component: DepreciacionComponent },
@@ -39,5 +57,6 @@ export const routes: Routes = [
             { path: 'sistema/seguridad', component: SeguridadComponent },
             { path: 'sistema/auditoria', component: AuditoriaComponent },
         ]
-    }
+    },
+    { path: '**', redirectTo: 'dashboard' }
 ];

@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainLayoutComponent } from '../../layouts/main-layout/main-layout.component';
 import { SistemaService } from '../../services/sistema.service';
 
 @Component({
     selector: 'app-seguridad',
     standalone: true,
-    imports: [CommonModule, MainLayoutComponent],
+    imports: [CommonModule],
     template: `
-        <app-main-layout>
             <div class="p-6 lg:p-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Seguridad</h2>
@@ -42,7 +40,6 @@ import { SistemaService } from '../../services/sistema.service';
                     </div>
                 </div>
             </div>
-        </app-main-layout>
     `
 })
 export class SeguridadComponent implements OnInit {
@@ -52,9 +49,15 @@ export class SeguridadComponent implements OnInit {
     constructor(private sistemaService: SistemaService) { }
 
     ngOnInit() {
-        this.sistemaService.getSeguridad().subscribe(res => {
-            this.roles = res.roles || [];
-            this.permissions = res.permissions || [];
+        this.sistemaService.getSeguridad().subscribe({
+            next: (res) => {
+                console.log('Seguridad Data:', res);
+                this.roles = res.roles || [];
+                this.permissions = res.permissions || [];
+            },
+            error: (err) => {
+                console.error('Seguridad Error:', err);
+            }
         });
     }
 }
