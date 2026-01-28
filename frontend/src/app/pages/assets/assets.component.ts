@@ -87,6 +87,11 @@ export class AssetsComponent implements OnInit {
     selectedFile: File | null = null;
     fotoPreview: string | null = null;
 
+    // Permissions
+    canCreate = false;
+    canEdit = false;
+    canDelete = false;
+
     constructor(
         private assetService: AssetService,
         private ubiService: UbicacionService,
@@ -103,6 +108,16 @@ export class AssetsComponent implements OnInit {
             this.searchTerm = value;
             this.currentPage = 1;
             this.loadAssets();
+        });
+
+        // Initialize permissions
+        this.authService.currentUser.subscribe(user => {
+            if (user && user.permissions) {
+                const permissions = user.permissions.map((p: any) => p.name);
+                this.canCreate = permissions.includes('activos.create') || permissions.includes('activos.manage');
+                this.canEdit = permissions.includes('activos.edit') || permissions.includes('activos.manage');
+                this.canDelete = permissions.includes('activos.delete') || permissions.includes('activos.manage');
+            }
         });
     }
 
@@ -544,6 +559,43 @@ export class AssetsComponent implements OnInit {
     }
 
     deleteAsset(id: number) {
+        if (!this.canDelete) {
+            // Request Deletion Flow
+            Swal.fire({
+                title: 'Solicitar Baja',
+                text: "No tienes permisos para eliminar directamente. ¿Deseas enviar una solicitud de baja al administrador?",
+                icon: 'question',
+                input: 'textarea',
+                inputPlaceholder: 'Escribe el motivo de la baja...',
+                inputAttributes: {
+                    'aria-label': 'Escribe el motivo de la baja'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Enviar Solicitud',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3b82f6',
+                preConfirm: (motivo) => {
+                    if (!motivo) {
+                        Swal.showValidationMessage('Debes ingresar un motivo');
+                    }
+                    return motivo;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.assetService.createSolicitud(id, result.value).subscribe({
+                        next: () => {
+                            Swal.fire('Solicitud Enviada', 'El administrador revisará tu solicitud.', 'success');
+                        },
+                        error: (err) => {
+                            Swal.fire('Error', err.error.message || 'Error al enviar solicitud', 'error');
+                        }
+                    });
+                }
+            });
+            return;
+        }
+
+        // Admin Deletion Flow
         Swal.fire({
             title: '¿Estás seguro?',
             text: "Esta acción no se puede deshacer.",

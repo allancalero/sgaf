@@ -58,6 +58,38 @@ class AuthController extends Controller
             ->withCookie(cookie()->forget('jwt_token'));
     }
 
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => [
+                'required',
+                'string',
+                'min:8',             // must be at least 8 characters in length
+                'regex:/[a-z]/',      // must contain at least one lowercase letter
+                'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                'regex:/[0-9]/',      // must contain at least one digit
+                'regex:/[@$!%*#?&]/', // must contain a special character
+            ],
+            'new_password_confirmation' => 'required|same:new_password',
+        ]);
+
+        $user = auth('api_jwt')->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+             throw ValidationException::withMessages([
+                'current_password' => ['La contraseña actual es incorrecta.'],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+            'must_change_password' => false
+        ]);
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente']);
+    }
+
     protected function respondWithToken($token, $user)
     {
         $cookie = cookie(
@@ -82,6 +114,7 @@ class AuthController extends Controller
                 'apellido' => $user->apellido,
                 'email' => $user->email,
                 'role' => $user->rol,
+                'must_change_password' => $user->must_change_password,
                 'permissions' => $user->getAllPermissions()->pluck('name'),
             ]
         ];

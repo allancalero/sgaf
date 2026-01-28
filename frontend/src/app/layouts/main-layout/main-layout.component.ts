@@ -7,6 +7,8 @@ import { Subject, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { AssetService } from '../../services/asset.service';
+import { InactivityService } from '../../services/inactivity.service';
+import { InactivityModalComponent } from '../../components/inactivity-modal/inactivity-modal.component';
 
 interface MenuItem {
     label: string;
@@ -19,7 +21,7 @@ interface MenuItem {
 @Component({
     selector: 'app-main-layout',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, InactivityModalComponent],
     templateUrl: './main-layout.component.html',
     styleUrls: ['./main-layout.component.css']
 })
@@ -70,6 +72,7 @@ export class MainLayoutComponent implements OnInit {
                 { label: 'En Desuso', icon: 'pause', route: '/activos/desuso' },
                 { label: 'De Baja', icon: 'trash', route: '/activos/baja' },
                 { label: 'Reasignaciones', icon: 'transfer', route: '/activos/reasignaciones' },
+                { label: 'Solicitudes de Baja', icon: 'clipboard', route: '/activos/solicitudes' },
                 { label: 'Reportes', icon: 'report', route: '/activos/reportes' },
                 { label: 'Depreciación', icon: 'chart', route: '/activos/depreciacion' },
                 { label: 'Trazabilidad', icon: 'history', route: '/activos/trazabilidad' },
@@ -93,6 +96,7 @@ export class MainLayoutComponent implements OnInit {
         private authService: AuthService,
         public themeService: ThemeService,
         private assetService: AssetService,
+        private inactivityService: InactivityService,
         private router: Router
     ) {
         // Set initial state based on current URL
@@ -145,12 +149,20 @@ export class MainLayoutComponent implements OnInit {
         this.router.events.pipe(
             filter(event => event instanceof NavigationEnd)
         ).subscribe(() => {
+            if (this.isLogin) {
+                this.inactivityService.stopMonitoring();
+            } else {
+                this.inactivityService.startMonitoring();
+            }
             this.checkActiveMenu();
         });
     }
 
     ngOnInit() {
         this.checkActiveMenu();
+        if (!this.isLoginPage()) {
+            this.inactivityService.startMonitoring();
+        }
     }
 
     checkActiveMenu() {

@@ -1,0 +1,83 @@
+<div class="mb-8">
+    <h2 class="text-3xl font-black text-primary tracking-tight">Solicitudes de Baja</h2>
+    <p class="text-secondary mt-1 tracking-tight">Gestión de aprobaciones para eliminación de activos.</p>
+</div>
+
+<!-- Filters -->
+<div class="card p-4 mb-6 flex gap-4 items-center">
+    <span class="text-xs font-bold uppercase text-muted">Filtrar por estado:</span>
+    <select [(ngModel)]="filterEstado" (change)="loadSolicitudes()" class="input-field w-48 text-sm">
+        <option value="PENDIENTE">Pendientes</option>
+        <option value="APROBADO">Aprobados</option>
+        <option value="RECHAZADO">Rechazados</option>
+        <option value="">Todos</option>
+    </select>
+</div>
+
+<!-- List -->
+<div class="card overflow-hidden">
+    <div
+        class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5 hidden md:grid grid-cols-12 gap-4 px-6 py-4">
+        <div class="col-span-1">#</div>
+        <div class="col-span-3">Activo</div>
+        <div class="col-span-2">Solicitante</div>
+        <div class="col-span-3">Motivo</div>
+        <div class="col-span-1">Estado</div>
+        <div class="col-span-2 text-right">Acciones</div>
+    </div>
+
+    <div class="divide-y divide-white/5">
+        <div *ngIf="loading" class="p-8 text-center text-muted">Cargando solicitudes...</div>
+        <div *ngIf="!loading && solicitudes.length === 0" class="p-8 text-center text-muted">No hay solicitudes
+            encontradas.</div>
+
+        <div *ngFor="let s of solicitudes"
+            class="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 items-center hover:bg-white/5 transition-colors">
+            <div class="col-span-1 font-mono text-xs text-muted">#{{ s.id }}</div>
+
+            <div class="col-span-3">
+                <div *ngIf="s.activo">
+                    <p class="text-sm font-black text-primary">{{ s.activo.codigo_inventario }}</p>
+                    <p class="text-xs text-muted">{{ s.activo.nombre_activo }}</p>
+                </div>
+                <div *ngIf="!s.activo" class="text-xs text-red-500 italic">
+                    (Activo Eliminado / No Encontrado)
+                    <p *ngIf="s.nota_admin" class="text-[9px] text-muted">{{ s.nota_admin }}</p>
+                </div>
+            </div>
+
+            <div class="col-span-2">
+                <p class="text-xs font-bold text-gray-300">{{ s.solicitante?.email || 'N/A' }}</p>
+                <p class="text-[10px] text-muted">{{ s.created_at | date:'short' }}</p>
+            </div>
+
+            <div class="col-span-3">
+                <p class="text-sm text-gray-400 italic">"{{ s.motivo }}"</p>
+            </div>
+
+            <div class="col-span-1">
+                <span [class]="'px-2 py-1 rounded text-[10px] font-black uppercase ' + 
+                    (s.estado === 'PENDIENTE' ? 'bg-blue-500/10 text-blue-500' : 
+                     s.estado === 'APROBADO' ? 'bg-red-500/10 text-red-500' : 'bg-orange-500/10 text-orange-500')">
+                    {{ s.estado }}
+                </span>
+            </div>
+
+            <div class="col-span-2 flex justify-end gap-2" *ngIf="s.estado === 'PENDIENTE'">
+                <button (click)="aprobar(s.id)"
+                    class="btn-primary px-3 py-1 text-xs bg-red-600 hover:bg-red-700 border-none">
+                    Aprobar Baja
+                </button>
+                <button (click)="rechazar(s.id)" class="btn-secondary px-3 py-1 text-xs">
+                    Rechazar
+                </button>
+            </div>
+
+            <div class="col-span-2 flex flex-col items-end text-[10px] text-muted" *ngIf="s.estado !== 'PENDIENTE'">
+                <span>Procesado por: {{ s.procesador?.email || 'Sistema' }}</span>
+                <span *ngIf="s.nota_admin" class="italic max-w-[150px] truncate" [title]="s.nota_admin">Nota: {{
+                    s.nota_admin }}</span>
+            </div>
+        </div>
+    </div>
+</div>

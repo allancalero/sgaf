@@ -17,6 +17,7 @@ export interface Clasificacion {
     nombre: string;
     codigo?: string;
     prefijo?: string;
+    descripcion?: string;
 }
 
 export interface Fuente {
@@ -30,6 +31,7 @@ export interface Tipo {
     nombre: string;
     clasificacion_id: number | null;
     clasificacion_nombre?: string;
+    descripcion?: string;
 }
 
 export interface Cheque {
@@ -49,6 +51,13 @@ export interface Cheque {
     usuario_emisor_id: number | null;
     area_nombre?: string;
     usuario_nombre?: string;
+}
+
+export interface TipoAdquisicion {
+    id: number;
+    nombre: string;
+    descripcion?: string;
+    estado: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -144,5 +153,22 @@ export class CatalogoActivosService {
 
     deleteCheque(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}/cheques/${id}`);
+    }
+
+    // ==================== TIPOS DE ADQUISICIÓN ====================
+    getTiposAdquisicion(): Observable<TipoAdquisicion[]> {
+        return this.http.get<TipoAdquisicion[]>(`${this.apiUrl}/tipos-adquisicion`);
+    }
+
+    createTipoAdquisicion(data: Partial<TipoAdquisicion>): Observable<any> {
+        return this.http.post(`${this.apiUrl}/tipos-adquisicion`, data);
+    }
+
+    updateTipoAdquisicion(id: number, data: Partial<TipoAdquisicion>): Observable<any> {
+        return this.http.put(`${this.apiUrl}/tipos-adquisicion/${id}`, data);
+    }
+
+    deleteTipoAdquisicion(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/tipos-adquisicion/${id}`);
     }
 }

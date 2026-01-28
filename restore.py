@@ -1,0 +1,705 @@
+# -*- coding: utf-8 -*-
+import os
+
+content = """<div class="p-6 lg:p-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Catálogos de Activos Fijo</h1>
+        <p class="text-gray-400">Gestión de proveedores, clasificaciones, fuentes, tipos y tipos de adquisición.</p>
+    </div>
+
+    <!-- Stats & Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Card 1 -->
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+                    <i class="fa-solid fa-tags text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400 bg-slate-700/50 px-2 py-1 rounded">Total</span>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1">{{clasificaciones.length}}</h3>
+            <p class="text-sm text-gray-400">Clasificaciones</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-emerald-500/10 rounded-lg text-emerald-500">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400 bg-slate-700/50 px-2 py-1 rounded">Activos</span>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1">{{tipos.length}}</h3>
+            <p class="text-sm text-gray-400">Tipos de Activos</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-purple-500/10 rounded-lg text-purple-500">
+                    <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400 bg-slate-700/50 px-2 py-1 rounded">Fuentes</span>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1">{{fuentes.length}}</h3>
+            <p class="text-sm text-gray-400">Financiamiento</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-amber-500/10 rounded-lg text-amber-500">
+                    <i class="fa-solid fa-truck-field text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400 bg-slate-700/50 px-2 py-1 rounded">Total</span>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1">{{proveedores.length}}</h3>
+            <p class="text-sm text-gray-400">Proveedores</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+        <!-- Tabs -->
+        <div class="border-b border-slate-700 p-4">
+            <div class="flex flex-wrap gap-2">
+                <button (click)="activeTab = 'clasificaciones'" [class.bg-blue-600]="activeTab === 'clasificaciones'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'clasificaciones'"
+                    [class.text-gray-400]="activeTab !== 'clasificaciones'">
+                    Clasificaciones ({{clasificaciones.length}})
+                </button>
+                <button (click)="activeTab = 'tipos'" [class.bg-blue-600]="activeTab === 'tipos'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'tipos'" [class.text-gray-400]="activeTab !== 'tipos'">
+                    Tipos de Activos ({{tipos.length}})
+                </button>
+                <button (click)="activeTab = 'fuentes'" [class.bg-blue-600]="activeTab === 'fuentes'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'fuentes'" [class.text-gray-400]="activeTab !== 'fuentes'">
+                    Fuentes ({{fuentes.length}})
+                </button>
+                <button (click)="activeTab = 'proveedores'" [class.bg-blue-600]="activeTab === 'proveedores'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'proveedores'" [class.text-gray-400]="activeTab !== 'proveedores'">
+                    Proveedores ({{proveedores.length}})
+                </button>
+                <button (click)="activeTab = 'cheques'" [class.bg-blue-600]="activeTab === 'cheques'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'cheques'" [class.text-gray-400]="activeTab !== 'cheques'">
+                    Cheques ({{cheques.length}})
+                </button>
+                <button (click)="activeTab = 'tipos-adquisicion'" [class.bg-blue-600]="activeTab === 'tipos-adquisicion'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+                    [class.text-white]="activeTab === 'tipos-adquisicion'" [class.text-gray-400]="activeTab !== 'tipos-adquisicion'">
+                    Tipos de Adquisición ({{tiposAdquisicion.length}})
+                </button>
+            </div>
+        </div>
+
+        <!-- Search & Actions Bar -->
+        <div class="p-6 border-b border-slate-700 bg-slate-800/50">
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="relative w-full md:w-96">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-search text-gray-500"></i>
+                    </div>
+                    <input type="text" [(ngModel)]="searchText"
+                        class="w-full bg-slate-900 border border-slate-700 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5 placeholder-gray-500 transition-all"
+                        placeholder="Buscar en el catálogo actual...">
+                </div>
+                <div class="flex gap-2">
+                    <button *ngIf="activeTab === 'clasificaciones'" (click)="bulkDeleteClasificaciones()" 
+                        class="px-4 py-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-all text-sm font-medium flex items-center gap-2"
+                        [disabled]="selectedClasificacionIds.length === 0"
+                        [class.opacity-50]="selectedClasificacionIds.length === 0">
+                        <i class="fa-solid fa-trash"></i> Eliminar ({{selectedClasificacionIds.length}})
+                    </button>
+                    <button (click)="openForm(activeTab === 'tipos-adquisicion' ? 'tipo-adquisicion' : (activeTab.endsWith('es') ? activeTab.slice(0, -2) : activeTab.slice(0, -1)))"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-blue-500/25 flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Nuevo Registro
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="relative min-h-[400px]">
+            <!-- Loading Overlay -->
+            <div *ngIf="loading"
+                class="absolute inset-0 z-10 bg-slate-800/80 backdrop-blur-sm flex items-center justify-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+
+            <!-- TAB CLASIFICACIONES -->
+            <div *ngIf="activeTab === 'clasificaciones'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th scope="col" class="p-4 w-4">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" 
+                                            class="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                            (change)="toggleAllClasificaciones($event)"
+                                            [checked]="selectedClasificacionIds.length === clasificaciones.length && clasificaciones.length > 0">
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4">Prefijo</th>
+                                <th class="px-6 py-4">Código Contable</th>
+                                <th class="px-6 py-4">Nombre</th>
+                                <th class="px-6 py-4">Descripción</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredClasificaciones"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="p-4 w-4">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" 
+                                            class="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                            [checked]="isClasificacionSelected(item.id)"
+                                            (change)="toggleClasificacionSelection(item.id)">
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 font-mono text-blue-400">{{item.prefijo || '--'}}</td>
+                                <td class="px-6 py-4 font-mono text-emerald-400">{{item.codigo || '--'}}</td>
+                                <td class="px-6 py-4 font-medium text-white">{{item.nombre}}</td>
+                                <td class="px-6 py-4 truncate max-w-xs" title="{{item.descripcion || ''}}">
+                                    {{item.descripcion || '--'}}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditClasificacion(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors"
+                                            title="Editar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteClasificacion(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors"
+                                            title="Eliminar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB TIPOS -->
+            <div *ngIf="activeTab === 'tipos'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-4">Nombre del Tipo</th>
+                                <th class="px-6 py-4">Clasificación Asociada</th>
+                                <th class="px-6 py-4">Descripción</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredTipos"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 font-medium text-white">{{item.nombre}}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                        {{item.clasificacion_nombre}}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 truncate max-w-xs">{{item.descripcion || '--'}}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditTipo(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteTipo(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB FUENTES -->
+            <div *ngIf="activeTab === 'fuentes'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-4">Fuente de Financiamiento</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredFuentes"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 font-medium text-white">{{item.nombre}}</td>
+                                <td class="px-6 py-4">
+                                    <span [class]="'px-2 py-1 rounded-full text-xs font-medium border ' + 
+                                        (item.estado === 'ACTIVO' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20')">
+                                        {{item.estado}}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditFuente(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteFuente(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB PROVEEDORES -->
+            <div *ngIf="activeTab === 'proveedores'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-4">Razón Social</th>
+                                <th class="px-6 py-4">RUC/Identificación</th>
+                                <th class="px-6 py-4">Contacto</th>
+                                <th class="px-6 py-4">Dirección</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredProveedores"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 font-medium text-white">{{item.nombre}}</td>
+                                <td class="px-6 py-4 font-mono text-xs">{{item.ruc || '--'}}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col text-xs">
+                                        <span *ngIf="item.telefono" class="flex items-center gap-1">
+                                            <i class="fa-solid fa-phone text-blue-400\"></i> {{item.telefono}}
+                                        </span>
+                                        <span *ngIf="item.email" class="flex items-center gap-1 mt-1">
+                                            <i class="fa-solid fa-envelope text-blue-400\"></i> {{item.email}}
+                                        </span>
+                                        <span *ngIf="!item.telefono && !item.email" class="text-gray-500">--</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 truncate max-w-xs">{{item.direccion || '--'}}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditProveedor(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteProveedor(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB CHEQUES -->
+            <div *ngIf="activeTab === 'cheques'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-4">Cheque #</th>
+                                <th class="px-6 py-4">Banco</th>
+                                <th class="px-6 py-4">Beneficiario</th>
+                                <th class="px-6 py-4">Monto</th>
+                                <th class="px-6 py-4">Fecha</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredCheques"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 font-mono text-white">{{item.numero_cheque}}</td>
+                                <td class="px-6 py-4">{{item.banco}}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-white font-medium">{{item.beneficiario}}</span>
+                                        <span class="text-xs text-gray-500">{{item.beneficiario_ruc}}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 font-mono text-white">
+                                    {{item.monto_total | currency:'USD'}}
+                                </td>
+                                <td class="px-6 py-4">{{item.fecha_emision | date:'shortDate'}}</td>
+                                <td class="px-6 py-4">
+                                    <span [ngClass]="{
+                                        'bg-blue-500/10 text-blue-400 border-blue-500/20': item.estado === 'EMITIDO',
+                                        'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': item.estado === 'COBRADO',
+                                        'bg-red-500/10 text-red-400 border-red-500/20': item.estado === 'ANULADO'
+                                    }" class="px-2 py-1 rounded-full text-xs font-medium border">
+                                        {{item.estado}}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditCheque(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors">
+                                            <i class="fa-solid fa-pencil text-xs"></i>
+                                        </button>
+                                        <button (click)="deleteCheque(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors">
+                                            <i class="fa-solid fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB TIPOS DE ADQUISICIÓN -->
+            <div *ngIf="activeTab === 'tipos-adquisicion'">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-400 uppercase bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-4">Nombre</th>
+                                <th class="px-6 py-4">Descripción</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of filteredTiposAdquisicion"
+                                class="border-b border-slate-700 hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 font-medium text-white">{{item.nombre}}</td>
+                                <td class="px-6 py-4 truncate max-w-xs">{{item.descripcion || '--'}}</td>
+                                <td class="px-6 py-4">
+                                    <span [class]="'px-2 py-1 rounded-full text-xs font-medium border ' + 
+                                        (item.estado === 'ACTIVO' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20')">
+                                        {{item.estado}}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button (click)="startEditTipoAdquisicion(item)"
+                                            class="p-1.5 hover:bg-blue-500/10 text-blue-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button (click)="deleteTipoAdquisicion(item.id)"
+                                            class="p-1.5 hover:bg-red-500/10 text-red-400 rounded transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="(!loading && activeTab === 'clasificaciones' && filteredClasificaciones.length === 0) ||
+                        (!loading && activeTab === 'tipos' && filteredTipos.length === 0) ||
+                        (!loading && activeTab === 'fuentes' && filteredFuentes.length === 0) ||
+                        (!loading && activeTab === 'proveedores' && filteredProveedores.length === 0) ||
+                        (!loading && activeTab === 'cheques' && filteredCheques.length === 0) ||
+                        (!loading && activeTab === 'tipos-adquisicion' && filteredTiposAdquisicion.length === 0)"
+                class="flex flex-col items-center justify-center py-16 text-gray-500">
+                <i class="fa-solid fa-inbox text-4xl mb-4 opacity-50"></i>
+                <p>No se encontraron registros</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Background -->
+<div *ngIf="showForm" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity" (click)="closeForm()"></div>
+
+        <!-- Modal Panel -->
+        <div
+            class="inline-block align-bottom bg-slate-800 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-slate-700">
+            
+            <!-- Modal Header -->
+            <div class="bg-slate-900/50 px-4 py-3 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-white">
+                    <span *ngIf="activeFormTab === 'clasificacion'">{{ editingClasificacionId ? 'Editar' : 'Nueva' }} Clasificación</span>
+                    <span *ngIf="activeFormTab === 'tipo'">{{ editingTipoId ? 'Editar' : 'Nuevo' }} Tipo de Activo</span>
+                    <span *ngIf="activeFormTab === 'fuente'">{{ editingFuenteId ? 'Editar' : 'Nueva' }} Fuente</span>
+                    <span *ngIf="activeFormTab === 'proveedor'">{{ editingProveedorId ? 'Editar' : 'Nuevo' }} Proveedor</span>
+                    <span *ngIf="activeFormTab === 'cheque'">{{ editingChequeId ? 'Editar' : 'Nuevo' }} Cheque</span>
+                    <span *ngIf="activeFormTab === 'tipo-adquisicion'">{{ editingTipoAdquisicionId ? 'Editar' : 'Nuevo' }} Tipo de Adquisición</span>
+                </h3>
+                <button (click)="closeForm()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="px-4 py-5 sm:p-6 space-y-4">
+                
+                <!-- Formulario Clasificación -->
+                <div *ngIf="activeFormTab === 'clasificacion'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nombre *</label>
+                        <input type="text" [(ngModel)]="clasificacionForm.nombre"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Ej: Equipos Informáticos">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Código Contable</label>
+                            <input type="text" [(ngModel)]="clasificacionForm.codigo"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Ej: 1.2.3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Prefijo</label>
+                            <input type="text" [(ngModel)]="clasificacionForm.prefijo"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Ej: CMP">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                        <textarea [(ngModel)]="clasificacionForm.descripcion" rows="3"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Formulario Tipo -->
+                <div *ngIf="activeFormTab === 'tipo'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Clasificación *</label>
+                        <select [(ngModel)]="tipoForm.clasificacion_id"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                            <option [ngValue]="null">Seleccione una clasificación...</option>
+                            <option *ngFor="let c of clasificaciones" [value]="c.id">{{c.nombre}}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nombre del Tipo *</label>
+                        <input type="text" [(ngModel)]="tipoForm.nombre"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Ej: Laptop">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                        <textarea [(ngModel)]="tipoForm.descripcion" rows="3"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Formulario Fuente -->
+                <div *ngIf="activeFormTab === 'fuente'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nombre *</label>
+                        <input type="text" [(ngModel)]="fuenteForm.nombre"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Ej: Recursos Propios">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Estado</label>
+                        <select [(ngModel)]="fuenteForm.estado"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                            <option value="ACTIVO">ACTIVO</option>
+                            <option value="INACTIVO">INACTIVO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Formulario Proveedor -->
+                <div *ngIf="activeFormTab === 'proveedor'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Razón Social *</label>
+                        <input type="text" [(ngModel)]="proveedorForm.nombre"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">RUC/CI</label>
+                            <input type="text" [(ngModel)]="proveedorForm.ruc"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Teléfono</label>
+                            <input type="text" [(ngModel)]="proveedorForm.telefono"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                        <input type="email" [(ngModel)]="proveedorForm.email"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Dirección</label>
+                        <textarea [(ngModel)]="proveedorForm.direccion" rows="2"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Formulario Cheque -->
+                <div *ngIf="activeFormTab === 'cheque'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Número Cheque *</label>
+                            <input type="text" [(ngModel)]="chequeForm.numero_cheque"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Monto *</label>
+                            <input type="number" [(ngModel)]="chequeForm.monto_total"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Banco *</label>
+                        <input type="text" [(ngModel)]="chequeForm.banco"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Beneficiario *</label>
+                        <input type="text" [(ngModel)]="chequeForm.beneficiario"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Fecha Emisión *</label>
+                            <input type="date" [(ngModel)]="chequeForm.fecha_emision"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Estado</label>
+                            <select [(ngModel)]="chequeForm.estado"
+                                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                                <option value="EMITIDO">EMITIDO</option>
+                                <option value="COBRADO">COBRADO</option>
+                                <option value="ANULADO">ANULADO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Cuenta Bancaria *</label>
+                        <input type="text" [(ngModel)]="chequeForm.cuenta_bancaria"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                        <textarea [(ngModel)]="chequeForm.descripcion" rows="2"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Formulario Tipo Adquisición -->
+                <div *ngIf="activeFormTab === 'tipo-adquisicion'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Nombre *</label>
+                        <input type="text" [(ngModel)]="tipoAdquisicionForm.nombre"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Ej: Compra Directa">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Estado</label>
+                        <select [(ngModel)]="tipoAdquisicionForm.estado"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500">
+                            <option value="ACTIVO">ACTIVO</option>
+                            <option value="INACTIVO">INACTIVO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Descripción</label>
+                        <textarea [(ngModel)]="tipoAdquisicionForm.descripcion" rows="3"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-4 py-3 bg-slate-900/50 border-t border-slate-700 flex flex-row-reverse gap-2">
+                <button type="button"  
+                    class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                    (click)="activeFormTab === 'clasificacion' ? saveClasificacion() : 
+                             (activeFormTab === 'tipo' ? saveTipo() : 
+                             (activeFormTab === 'fuente' ? saveFuente() : 
+                             (activeFormTab === 'proveedor' ? saveProveedor() : 
+                             (activeFormTab === 'cheque' ? saveCheque() : 
+                             saveTipoAdquisicion()))))">
+                    <i class="fa-solid fa-save mr-2"></i> Guardar
+                </button>
+                <button type="button" 
+                    class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-600 shadow-sm px-4 py-2 bg-slate-800 text-base font-medium text-gray-300 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    (click)="closeForm()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+"""
+
+path = r"frontend/src/app/pages/catalogos-activos/catalogos-activos.component.html"
+
+with open(path, "w", encoding="utf-8") as f:
+    f.write(content)
+print("File written successfully")

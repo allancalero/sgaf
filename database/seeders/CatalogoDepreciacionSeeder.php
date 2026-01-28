@@ -22,13 +22,13 @@ class CatalogoDepreciacionSeeder extends Seeder
 
             // 2. De equipo de transporte
             ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Colectivo o de carga', 'mas_especifica' => null, 'vida_util_anos' => 5, 'tasa_anual' => 20.00, 'tasa_mensual' => 1.67],
-            ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Vehículos de empresas de alquiler', 'mas_especifica' => null, 'vida_util_anos' => 3, 'tasa_anual' => 33.33, 'tasa_mensual' => 2.78],
+            ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Vehículos de empresas de alquiler', 'mas_especifica' => null, 'vida_util_anos' => 3, 'tasa_anual' => 33.00, 'tasa_mensual' => 2.75],
             ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Uso particular usados en actividades económicas', 'mas_especifica' => null, 'vida_util_anos' => 5, 'tasa_anual' => 20.00, 'tasa_mensual' => 1.67],
-            ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Otros equipos de transporte', 'mas_especifica' => null, 'vida_util_anos' => 8, 'tasa_anual' => 12.50, 'tasa_mensual' => 1.04],
+            ['categoria_general' => 'De equipo de transporte', 'especifica' => 'Otros equipos de transporte', 'mas_especifica' => null, 'vida_util_anos' => 8, 'tasa_anual' => 13.00, 'tasa_mensual' => 1.08],
 
             // 3. De maquinaria y equipos
             ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Industriales en general', 'mas_especifica' => 'Fija en un bien inmóvil', 'vida_util_anos' => 10, 'tasa_anual' => 10.00, 'tasa_mensual' => 0.83],
-            ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Industriales en general', 'mas_especifica' => 'No adherido a la planta', 'vida_util_anos' => 7, 'tasa_anual' => 14.28, 'tasa_mensual' => 1.19],
+            ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Industriales en general', 'mas_especifica' => 'No adherido a la planta', 'vida_util_anos' => 7, 'tasa_anual' => 14.00, 'tasa_mensual' => 1.17],
             ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Industriales en general', 'mas_especifica' => 'Otras maquinarias y equipos', 'vida_util_anos' => 5, 'tasa_anual' => 20.00, 'tasa_mensual' => 1.67],
             ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Equipo empresas agroindustriales', 'mas_especifica' => null, 'vida_util_anos' => 5, 'tasa_anual' => 20.00, 'tasa_mensual' => 1.67],
             ['categoria_general' => 'De maquinaria y equipos', 'especifica' => 'Agrícolas', 'mas_especifica' => null, 'vida_util_anos' => 5, 'tasa_anual' => 20.00, 'tasa_mensual' => 1.67],

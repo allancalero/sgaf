@@ -25,6 +25,7 @@ Route::middleware(['auth:api_jwt', \App\Http\Middleware\AuditLogMiddleware::clas
     // Auth Management
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('/user', function (Request $request) {
         return $request->user()->load('roles', 'permissions'); // Load roles/permissions for frontend
     });
@@ -87,6 +88,11 @@ Route::middleware(['auth:api_jwt', \App\Http\Middleware\AuditLogMiddleware::clas
     Route::put('/cheques/{id}', [CatalogoActivosController::class, 'updateCheque']);
     Route::delete('/cheques/{id}', [CatalogoActivosController::class, 'deleteCheque']);
 
+    Route::get('/tipos-adquisicion', [CatalogoActivosController::class, 'tiposAdquisicion']);
+    Route::post('/tipos-adquisicion', [CatalogoActivosController::class, 'storeTipoAdquisicion']);
+    Route::put('/tipos-adquisicion/{id}', [CatalogoActivosController::class, 'updateTipoAdquisicion']);
+    Route::delete('/tipos-adquisicion/{id}', [CatalogoActivosController::class, 'deleteTipoAdquisicion']);
+
     // Personal y Cargos
     Route::get('/personal', [PersonalController::class, 'index']);
     Route::get('/personal/all', [PersonalController::class, 'all']);
@@ -128,7 +134,7 @@ Route::middleware(['auth:api_jwt', \App\Http\Middleware\AuditLogMiddleware::clas
     // Usuarios (Admin Only for modifications)
     Route::get('/usuarios', [UsuarioController::class, 'index']); // Read-only might be allowed for others, or restrict all? Assuming read-only for CONSULTA.
     
-    Route::middleware(['role:ADMIN'])->group(function () {
+    Route::middleware(['role:admin'])->group(function () {
         Route::post('/usuarios', [UsuarioController::class, 'store']);
         Route::put('/usuarios/{id}', [UsuarioController::class, 'update']);
         Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy']);
@@ -137,6 +143,11 @@ Route::middleware(['auth:api_jwt', \App\Http\Middleware\AuditLogMiddleware::clas
         // System wide sensitive actions
         Route::post('/sistema/respaldo', [SistemaController::class, 'generarRespaldo']);
         Route::delete('/sistema/respaldo/{filename}', [SistemaController::class, 'eliminarRespaldo']);
+
+        // Deletion Requests Flow (Admin actions)
+        Route::get('/solicitudes', [\App\Http\Controllers\Api\SolicitudEliminacionController::class, 'index']);
+        Route::patch('/solicitudes/{id}/aprobar', [\App\Http\Controllers\Api\SolicitudEliminacionController::class, 'aprobar']);
+        Route::patch('/solicitudes/{id}/rechazar', [\App\Http\Controllers\Api\SolicitudEliminacionController::class, 'rechazar']);
     });
 
     // Sistema
@@ -144,4 +155,7 @@ Route::middleware(['auth:api_jwt', \App\Http\Middleware\AuditLogMiddleware::clas
     Route::get('/sistema/respaldo', [SistemaController::class, 'respaldo']);
     Route::get('/sistema/respaldo/{filename}', [SistemaController::class, 'descargarRespaldo']);
     Route::get('/sistema/seguridad', [SistemaController::class, 'seguridad']);
+
+    // Deletion Requests Flow (Creation for Editors/Admins)
+    Route::post('/solicitudes', [\App\Http\Controllers\Api\SolicitudEliminacionController::class, 'store']);
 });

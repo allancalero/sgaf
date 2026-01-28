@@ -419,4 +419,69 @@ class CatalogoActivosController extends Controller
             return response()->json(['message' => 'Error al eliminar el cheque: ' . $e->getMessage()], 500);
         }
     }
+
+    // ==================== TIPOS DE ADQUISICIÓN ====================
+    public function tiposAdquisicion()
+    {
+        $tipos = DB::table('tipos_adquisicion')
+            ->orderBy('nombre')
+            ->get();
+
+        return response()->json($tipos);
+    }
+
+    public function storeTipoAdquisicion(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255|unique:tipos_adquisicion,nombre',
+                'descripcion' => 'nullable|string',
+                'estado' => 'required|in:ACTIVO,INACTIVO'
+            ]);
+
+            $id = DB::table('tipos_adquisicion')->insertGetId([
+                'nombre' => $validated['nombre'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'estado' => $validated['estado'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json(['id' => $id, 'message' => 'Tipo de adquisición creado exitosamente'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al crear el tipo de adquisición: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateTipoAdquisicion(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255|unique:tipos_adquisicion,nombre,' . $id,
+                'descripcion' => 'nullable|string',
+                'estado' => 'required|in:ACTIVO,INACTIVO'
+            ]);
+
+            DB::table('tipos_adquisicion')->where('id', $id)->update([
+                'nombre' => $validated['nombre'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'estado' => $validated['estado'],
+                'updated_at' => now(),
+            ]);
+
+            return response()->json(['message' => 'Tipo de adquisición actualizado exitosamente']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el tipo de adquisición: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteTipoAdquisicion($id)
+    {
+        try {
+            DB::table('tipos_adquisicion')->where('id', $id)->delete();
+            return response()->json(['message' => 'Tipo de adquisición eliminado exitosamente']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar el tipo de adquisición: ' . $e->getMessage()], 500);
+        }
+    }
 }

@@ -31,6 +31,7 @@ class User extends Authenticatable implements JWTSubject
         'rol',
         'estado',
         'foto',
+        'must_change_password',
     ];
 
     protected $appends = [
@@ -57,6 +58,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 

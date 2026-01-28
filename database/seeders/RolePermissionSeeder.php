@@ -16,35 +16,44 @@ class RolePermissionSeeder extends Seeder
 
         $permissions = [
             'activos.view',
-            'activos.manage',
+            'activos.create',
+            'activos.edit',
+            'activos.delete',
+            'activos.manage', // Legacy/Super-admin catch-all
             'catalogos.manage',
             'sistema.manage',
             'seguridad.manage',
             'respaldos.download',
         ];
 
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-        }
+        $guards = ['web', 'api_jwt'];
 
-        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $editor = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
-        $consulta = Role::firstOrCreate(['name' => 'consulta', 'guard_name' => 'web']);
-        $fullAccess = Role::firstOrCreate(['name' => 'fullaccess', 'guard_name' => 'web']);
+        foreach ($guards as $guard) {
+            foreach ($permissions as $perm) {
+                Permission::firstOrCreate(['name' => $perm, 'guard_name' => $guard]);
+            }
 
-        $admin->syncPermissions($permissions);
-        $editor->syncPermissions([
-            'activos.view',
-            'activos.manage',
-        ]);
-        $consulta->syncPermissions([
-            'activos.view',
-        ]);
+            $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
+            $editor = Role::firstOrCreate(['name' => 'editor', 'guard_name' => $guard]);
+            $consulta = Role::firstOrCreate(['name' => 'consulta', 'guard_name' => $guard]);
+            $fullAccess = Role::firstOrCreate(['name' => 'fullaccess', 'guard_name' => $guard]);
 
-        $fullAccess->syncPermissions($permissions);
+            $admin->syncPermissions($permissions);
+            
+            $editor->syncPermissions([
+                'activos.view',
+                'activos.create',
+            ]);
+            
+            $consulta->syncPermissions([
+                'activos.view',
+            ]);
 
-        if ($user = User::first()) {
-            $user->assignRole($admin);
+            $fullAccess->syncPermissions($permissions);
+
+            if ($guard === 'api_jwt' && $user = User::first()) {
+                $user->assignRole($admin);
+            }
         }
     }
 }

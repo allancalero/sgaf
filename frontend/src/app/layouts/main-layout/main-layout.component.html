@@ -1,3 +1,6 @@
+<!-- Inactivity Modal Global -->
+<app-inactivity-modal *ngIf="!isLogin"></app-inactivity-modal>
+
 <!-- Login Page: Show content directly without layout -->
 <div *ngIf="isLogin" class="min-h-screen">
     <router-outlet></router-outlet>

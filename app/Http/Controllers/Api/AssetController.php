@@ -155,6 +155,11 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
+        // Require create permission
+        if (!auth()->user()->can('activos.create')) {
+             return response()->json(['message' => 'No autorizado para crear activos'], 403);
+        }
+
         $validated = $request->validate([
             'codigo_inventario' => [
                 'required',
@@ -208,6 +213,11 @@ class AssetController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Strict Edit Permission Check
+        if (!auth()->user()->can('activos.edit')) {
+             return response()->json(['message' => 'No autorizado para editar activos. Contacte al administrador.'], 403);
+        }
+
         $asset = ActivoFijo::findOrFail($id);
 
         $validated = $request->validate([
@@ -261,7 +271,14 @@ class AssetController extends Controller
 
     public function destroy($id)
     {
-        DB::table('activos_fijos')->where('id', $id)->delete();
+        // Strict Delete Permission Check
+        if (!auth()->user()->can('activos.delete')) {
+             return response()->json(['message' => 'No autorizado para eliminar activos.'], 403);
+        }
+
+        $asset = ActivoFijo::findOrFail($id);
+        $asset->delete();
+        // DB::table('activos_fijos')->where('id', $id)->delete();
         return response()->json(['message' => 'Activo eliminado correctamente']);
     }
 

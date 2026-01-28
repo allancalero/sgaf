@@ -64,4 +64,21 @@ export class AuthService {
     isLoggedIn() {
         return !!this.currentUserSubject.value;
     }
+    changePassword(currentPassword: string, newPassword: string, newPasswordConfirmation: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}/change-password`, {
+            current_password: currentPassword,
+            new_password: newPassword,
+            new_password_confirmation: newPasswordConfirmation
+        }).pipe(
+            tap(() => {
+                // Update local user state to reflect must_change_password = false
+                const currentUser = this.currentUserSubject.value;
+                if (currentUser) {
+                    currentUser.must_change_password = false;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    this.currentUserSubject.next(currentUser);
+                }
+            })
+        );
+    }
 }

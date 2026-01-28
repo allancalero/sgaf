@@ -26,9 +26,10 @@
             <button type="button" (click)="onForgotPassword()"
               class="text-xs text-steel-400 hover:text-steel-300 transition-colors">¿Olvidaste tu contraseña?</button>
           </div>
-          <input type="password" name="password" [(ngModel)]="credentials.password" required
-            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-steel-500 focus:border-transparent transition-all outline-none font-inter"
-            placeholder="••••••••">
+          <app-password-input name="password" [(ngModel)]="credentials.password" [label]="''" [placeholder]="'••••••••'"
+            [showValidation]="false"
+            inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-steel-500 focus:border-transparent transition-all outline-none font-inter">
+          </app-password-input>
         </div>
 
         <button type="submit" [disabled]="!loginForm.form.valid || isLoading"
@@ -52,4 +53,66 @@
       <p class="text-xs text-slate-500 font-inter">© 2026 SGAF2 - Alcaldía Municipal. Todos los derechos reservados.</p>
     </div>
   </div>
+
+  <!-- PASSWORD CHANGE MODAL OVERLAY -->
+  <div *ngIf="showChangePasswordModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-fade-in">
+    <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8">
+
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 mb-4">
+          <fa-icon [icon]="faLock" class="text-blue-400 text-xl"></fa-icon>
+        </div>
+        <h2 class="text-2xl font-orbitron font-bold text-white mb-2">Cambio Requerido</h2>
+        <p class="text-slate-400 text-sm">Por seguridad, debes cambiar tu contraseña antes de continuar.</p>
+      </div>
+
+      <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" class="space-y-4">
+
+        <!-- Current Password (Hidden visually or readonly? No, should be editable if not auto-filled correctly, but here we assume it is auto-filled or user types it. Actually, if we auto-filled it in TS, we can make it readonly or just hidden. Let's show it for transparency but maybe readonly if we are sure.) -->
+        <!-- Let's just ask for it again to be safe/standard, or better yet, since we just logged in, we have it. 
+              But for "Current Password" field in standard flows, user types it. 
+              In the TS I patched it. Let's make it readonly or hidden. 
+              Actually, hiding `currentPassword` control might be cleaner UX if we just validated it.
+              But the backend requires it. Let's keep it visible but readonly if pre-filled, or just standard input.
+              Given the user just typed it, asking again is annoying. I'll make it type='hidden' or visually hidden if I could, but for now standard input matching the form group.
+         -->
+        <app-password-input formControlName="currentPassword" [label]="'Contraseña Actual'" [placeholder]="'••••••••'"
+          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter opacity-75 cursor-not-allowed"
+          [showValidation]="false">
+          <!-- Maybe adding [readonly]="true" to component if supported? It is not supported yet. So standard styling implies it. -->
+        </app-password-input>
+
+        <app-password-input formControlName="newPassword" [label]="'Nueva Contraseña'" [placeholder]="'••••••••'"
+          [showValidation]="true"
+          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter">
+        </app-password-input>
+
+        <div *ngIf="changePasswordForm.get('newPassword')?.touched && changePasswordForm.hasError('mismatch')"
+          class="text-red-400 text-xs mt-1">
+          Las contraseñas no coinciden.
+        </div>
+
+        <app-password-input formControlName="confirmPassword" [label]="'Confirmar Contraseña'"
+          [placeholder]="'••••••••'" [showValidation]="false"
+          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter">
+        </app-password-input>
+
+        <div
+          *ngIf="changePasswordForm.errors?.['mismatch'] && (changePasswordForm.get('confirmPassword')?.touched || changePasswordForm.get('newPassword')?.touched)"
+          class="p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
+          <fa-icon [icon]="faExclamationCircle"></fa-icon>
+          Las contraseñas no coinciden.
+        </div>
+
+        <button type="submit" [disabled]="changePasswordForm.invalid || isChangingPassword"
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5 transition-all mt-6">
+          <span *ngIf="!isChangingPassword">ACTUALIZAR Y CONTINUAR</span>
+          <span *ngIf="isChangingPassword">PROCESANDO...</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+
 </div>

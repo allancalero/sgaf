@@ -7,7 +7,8 @@ import {
     Clasificacion,
     Fuente,
     Tipo,
-    Cheque
+    Cheque,
+    TipoAdquisicion
 } from '../../services/catalogo-activos.service';
 import Swal from 'sweetalert2';
 
@@ -61,7 +62,12 @@ export class CatalogosActivosComponent implements OnInit {
         area_solicitante_id: null as number | null,
         usuario_emisor_id: null as number | null
     };
+
     editingChequeId: number | null = null;
+
+    tiposAdquisicion: TipoAdquisicion[] = [];
+    tipoAdquisicionForm = { nombre: '', descripcion: '', estado: 'ACTIVO' };
+    editingTipoAdquisicionId: number | null = null;
 
     constructor(
         private service: CatalogoActivosService,
@@ -97,6 +103,11 @@ export class CatalogosActivosComponent implements OnInit {
 
         this.service.getCheques().subscribe({
             next: (data) => { this.cheques = data; this.checkLoading(); },
+            error: () => this.checkLoading()
+        });
+
+        this.service.getTiposAdquisicion().subscribe({
+            next: (data) => { this.tiposAdquisicion = data; this.checkLoading(); },
             error: () => this.checkLoading()
         });
     }
@@ -158,6 +169,15 @@ export class CatalogosActivosComponent implements OnInit {
         );
     }
 
+    get filteredTiposAdquisicion() {
+        if (!this.searchText) return this.tiposAdquisicion;
+        const search = this.searchText.toLowerCase();
+        return this.tiposAdquisicion.filter(t =>
+            t.nombre.toLowerCase().includes(search) ||
+            (t.descripcion?.toLowerCase().includes(search) || false)
+        );
+    }
+
     openForm(type: string) {
         this.activeFormTab = type;
         this.showForm = true;
@@ -176,6 +196,7 @@ export class CatalogosActivosComponent implements OnInit {
         this.editingFuenteId = null;
         this.editingTipoId = null;
         this.editingChequeId = null;
+        this.editingTipoAdquisicionId = null;
     }
 
     resetForms() {
@@ -569,9 +590,73 @@ export class CatalogosActivosComponent implements OnInit {
         });
     }
 
+    // ==================== TIPOS DE ADQUISICIÓN ====================
+    saveTipoAdquisicion() {
+        if (!this.tipoAdquisicionForm.nombre) {
+            Swal.fire('Atención', 'El nombre es obligatorio', 'warning');
+            return;
+        }
+
+        const action = this.editingTipoAdquisicionId
+            ? this.service.updateTipoAdquisicion(this.editingTipoAdquisicionId, this.tipoAdquisicionForm)
+            : this.service.createTipoAdquisicion(this.tipoAdquisicionForm);
+
+        action.subscribe({
+            next: () => {
+                Swal.fire({
+                    icon: 'success',
+                    title: this.editingTipoAdquisicionId ? 'Actualizado' : 'Creado',
+                    text: `El tipo de adquisición se ha ${this.editingTipoAdquisicionId ? 'actualizado' : 'creado'} correctamente.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                this.closeForm();
+                this.loadData();
+            },
+            error: (err) => {
+                const msg = err.error?.message || err.message || 'Error desconocido';
+                Swal.fire('Error', `No se pudo procesar el tipo de adquisición: ${msg}`, 'error');
+            }
+        });
+    }
+
+    startEditTipoAdquisicion(item: TipoAdquisicion) {
+        this.editingTipoAdquisicionId = item.id;
+        this.tipoAdquisicionForm = {
+            nombre: item.nombre,
+            descripcion: item.descripcion || '',
+            estado: item.estado
+        };
+        this.openForm('tipo-adquisicion');
+    }
+
+    deleteTipoAdquisicion(id: number) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción no se puede revertir',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.service.deleteTipoAdquisicion(id).subscribe({
+                    next: () => {
+                        Swal.fire('Eliminado', 'El tipo de adquisición ha sido eliminado', 'success');
+                        this.loadData();
+                    },
+                    error: () => Swal.fire('Error', 'No se pudo eliminar el tipo de adquisición', 'error')
+                });
+            }
+        });
+    }
+
     // Keyboard Shortcuts
     @HostListener('window:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
+        if (!event) return;
         if (event.ctrlKey && event.altKey && event.key === 'n') {
             event.preventDefault();
             const map: { [key: string]: string } = {
@@ -579,7 +664,8 @@ export class CatalogosActivosComponent implements OnInit {
                 'clasificaciones': 'clasificacion',
                 'fuentes': 'fuente',
                 'tipos': 'tipo',
-                'cheques': 'cheque'
+                'cheques': 'cheque',
+                'tipos-adquisicion': 'tipo-adquisicion'
             };
             const formType = map[this.activeTab];
             if (formType) {

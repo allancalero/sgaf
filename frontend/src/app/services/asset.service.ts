@@ -94,4 +94,24 @@ export class AssetService {
     downloadActa(id: number): Observable<Blob> {
         return this.http.get(`${this.apiUrl}/${id}/acta`, { responseType: 'blob' });
     }
+
+    // --- Deletion Requests ---
+
+    createSolicitud(activoId: number, motivo: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/solicitudes`, { activo_id: activoId, motivo });
+    }
+
+    getSolicitudes(estado: string = ''): Observable<any> {
+        let params = new HttpParams();
+        if (estado) params = params.set('estado', estado);
+        return this.http.get(`${environment.apiUrl}/solicitudes`, { params });
+    }
+
+    approveSolicitud(id: number, notaAdmin: string = ''): Observable<any> {
+        return this.http.patch(`${environment.apiUrl}/solicitudes/${id}/aprobar`, { nota_admin: notaAdmin });
+    }
+
+    rejectSolicitud(id: number, notaAdmin: string): Observable<any> {
+        return this.http.patch(`${environment.apiUrl}/solicitudes/${id}/rechazar`, { nota_admin: notaAdmin });
+    }
 }

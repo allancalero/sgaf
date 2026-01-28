@@ -22,6 +22,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'verificar-activo', component: VerificarActivoComponent },
     { path: 'verificar-activo/:codigo', component: VerificarActivoComponent },
+    { path: 'verificar-activo/:codigo', component: VerificarActivoComponent },
     {
         path: '',
         canActivate: [authGuard],
@@ -48,6 +49,11 @@ export const routes: Routes = [
                 title: 'Activos de Baja'
             },
             { path: 'activos/reasignaciones', component: ReasignacionesComponent },
+            {
+                path: 'activos/solicitudes',
+                loadComponent: () => import('./pages/solicitudes/solicitudes.component').then(m => m.SolicitudesComponent),
+                title: 'Solicitudes de Baja'
+            },
             { path: 'activos/reportes', component: ReportesComponent },
             { path: 'activos/depreciacion', component: DepreciacionComponent },
             { path: 'activos/trazabilidad', component: TrazabilidadComponent },
