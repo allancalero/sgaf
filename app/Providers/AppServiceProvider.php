@@ -16,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\AuditContext::class, function ($app) {
+            return new \App\Services\AuditContext();
+        });
     }
 
     /**
@@ -26,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         Event::listen(Login::class, LogSuccessfulLogin::class);
+        
+        // Registrar Observador de Auditoría para modelos críticos
+        \App\Models\ActivoFijo::observe(\App\Observers\AuditObserver::class);
+        // Agregar otros modelos aquí...
         
         // Log de queries SQL lentas (solo en desarrollo o cuando se active)
         if (config('app.debug') || env('LOG_SQL_QUERIES', false)) {

@@ -11,28 +11,34 @@ class SistemaController extends Controller
 {
     public function auditoria(Request $request)
     {
-        // Check if activity_log table exists
-        if (!DB::getSchemaBuilder()->hasTable('activity_log')) {
-            return response()->json(['data' => [], 'message' => 'Tabla de auditoría no encontrada']);
-        }
-
-        $query = DB::table('activity_log')
-            ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
-            ->select(
-                'activity_log.*',
-                DB::raw("CONCAT(users.nombre, ' ', users.apellido) as usuario")
-            );
+        $query = \App\Models\AuditLedger::with('user');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('activity_log.description', 'like', "%{$search}%")
-                    ->orWhere('activity_log.subject_type', 'like', "%{$search}%");
+                $q->where('action', 'like', "%{$search}%")
+                    ->orWhere('entity_type', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%");
             });
         }
 
-        $logs = $query->orderBy('activity_log.created_at', 'desc')
+        $logs = $query->orderBy('timestamp', 'desc')
             ->paginate($request->get('per_page', 20));
+
+        // Mapping for frontend compatibility if needed, or returning raw if frontend is flexible
+        // Assuming frontend expects: created_at, description (action), usuario (name)
+        $logs->getCollection()->transform(function ($log) {
+            return [
+                'id' => $log->id,
+                'created_at' => $log->timestamp, // Frontend likely uses this field name
+                'description' => $log->action . ': ' . class_basename($log->entity_type) . ' #' . $log->entity_id,
+                'subject_type' => $log->entity_type,
+                'causer_id' => $log->user_id,
+                'usuario' => $log->user ? ($log->user->nombre . ' ' . $log->user->apellido) : 'Sistema / Anónimo',
+                'ip' => $log->ip_address,
+                'record_hash' => $log->record_hash, // Bonus: Show hash
+            ];
+        });
 
         return response()->json($logs);
     }

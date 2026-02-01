@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Route;
 
 // Redirección inicial
 Route::get('/', function () {
-    return redirect('/SGAF2/#/dashboard');
+    return redirect('/SGAF2/dashboard');
 });
 
 // Redirección de login
 Route::get('/login', function () {
-    return redirect('/SGAF2/#/login');
+    return redirect('/SGAF2/login');
 })->name('login');
 
 /**
@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sistema.respaldo.descargar');
 
     // Perfil (Redirigir a Angular profile)
-    Route::get('/profile', function() { return redirect('/SGAF2/#/perfil'); })->name('profile.edit');
+    Route::get('/profile', function() { return redirect('/SGAF2/perfil'); })->name('profile.edit');
 });
 
 // Auth Routes (Login/Logout logic typically doesn't need these files anymore if using API exclusively)

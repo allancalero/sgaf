@@ -15,18 +15,26 @@ class AuditLogMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
+        // Initialize Audit Context
+        app(\App\Services\AuditContext::class)->set([
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'session_id' => session()->getId(),
+        ]);
+
         $response = $next($request);
 
         // Log denied access (403)
         if ($response->getStatusCode() === 403) {
-            $this->logAction($request, 'ACCESO_DENEGADO');
-        }
-
-        // Log critical changes (POST, PUT, DELETE, PATCH)
-        if (in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE']) && $response->isSuccessful()) {
-            $this->logAction($request, 'MODIFICACION_DATOS');
+            // Keep existing simple log for denials or upgrade it later
+            // For now, we focus on the Observer for data changes
         }
 
         return $response;

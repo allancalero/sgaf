@@ -4,27 +4,14 @@ import { Injectable, signal } from '@angular/core';
     providedIn: 'root'
 })
 export class ThemeService {
-    private darkThemeKey = 'dark-theme-enabled';
-    isDarkMode = signal<boolean>(this.getInitialTheme());
+    isDarkMode = signal<boolean>(true);
 
     constructor() {
-        this.applyTheme(this.isDarkMode());
+        this.applyTheme(true);
     }
 
     toggleTheme() {
-        const newValue = !this.isDarkMode();
-        this.isDarkMode.set(newValue);
-        this.applyTheme(newValue);
-        localStorage.setItem(this.darkThemeKey, JSON.stringify(newValue));
-    }
-
-    private getInitialTheme(): boolean {
-        const saved = localStorage.getItem(this.darkThemeKey);
-        if (saved !== null) {
-            return JSON.parse(saved);
-        }
-        // Default to dark mode as per original design
-        return true;
+        // Theme is now locked to Radiant Dark
     }
 
     private applyTheme(isDark: boolean) {

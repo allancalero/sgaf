@@ -278,6 +278,6 @@ export class DepreciacionComponent implements OnInit, OnDestroy {
         const percent = (dep / original) * 100;
         if (percent > 80) return 'bg-gradient-to-r from-red-500 to-rose-600 shadow-[0_0_10px_rgba(239,68,68,0.5)]';
         if (percent > 50) return 'bg-gradient-to-r from-orange-400 to-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]';
-        return 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-[0_0_10px_rgba(59,130,246,0.5)]';
+        return 'bg-gradient-to-r from-red-600 to-red-500 shadow-[0_0_10px_rgba(220,38,38,0.5)]';
     }
 }

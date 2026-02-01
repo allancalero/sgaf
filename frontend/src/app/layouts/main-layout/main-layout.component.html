@@ -14,18 +14,19 @@
 
     <!-- Sidebar -->
     <aside [class.translate-x-0]="sidebarOpen" [class.-translate-x-full]="!sidebarOpen"
-        class="fixed lg:static inset-y-0 left-0 z-50 w-64 border-r transition-transform duration-300 lg:transform-none lg:w-64 bg-secondary border-color flex flex-col shadow-2xl lg:shadow-none"
-        style="background-color: var(--bg-secondary); border-color: var(--border-color);">
+        class="fixed lg:static inset-y-0 left-0 z-50 w-64 border-r transition-transform duration-300 lg:transform-none lg:w-64 border-white/5 flex flex-col shadow-2xl lg:shadow-none bg-black/40 backdrop-blur-2xl">
 
         <!-- Logo -->
-        <div class="flex items-center gap-3 px-6 h-20 border-b shrink-0" style="border-color: var(--border-color);">
-            <img src="assets/logo-alcaldia.png" alt="Logo" class="w-10 h-10 object-contain">
+        <div class="flex items-center gap-3 px-6 h-20 border-b border-white/5 shrink-0">
+            <div class="p-1.5 bg-white/5 rounded-xl border border-white/10">
+                <img src="assets/logo-alcaldia.png" alt="Logo" class="w-8 h-8 object-contain">
+            </div>
             <div class="flex flex-col">
-                <span class="font-black text-primary text-lg tracking-tighter leading-none">SGAF</span>
-                <span class="text-[9px] text-blue-500 font-bold uppercase tracking-[0.2em]">Activos Fijos</span>
+                <span class="font-black text-white text-lg tracking-tighter leading-none">SGAF</span>
+                <span class="text-[9px] text-red-600 font-black uppercase tracking-[0.2em]">Activos Fijos</span>
             </div>
             <!-- Mobile Close Button -->
-            <button (click)="toggleSidebar()" class="ml-auto lg:hidden text-muted hover:text-primary">
+            <button (click)="toggleSidebar()" class="ml-auto lg:hidden text-white/40 hover:text-white">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -38,13 +39,14 @@
                 <!-- Item con submenú -->
                 <div *ngIf="item.children && item.children.length > 0">
                     <button (click)="item.expanded = !item.expanded"
-                        class="w-full flex items-center gap-3 px-3 py-3 text-primary hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all group select-none">
-                        <svg class="h-5 w-5 shrink-0 text-muted group-hover:text-blue-500 transition-colors" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        class="w-full flex items-center gap-3 px-3 py-3 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all group select-none">
+                        <svg class="h-5 w-5 shrink-0 text-white/30 group-hover:text-red-600 transition-colors"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
                         </svg>
-                        <span class="flex-1 text-left text-sm font-bold tracking-tight">{{ item.label }}</span>
-                        <svg class="h-4 w-4 text-muted transition-transform duration-200"
+                        <span class="flex-1 text-left text-xs font-black uppercase tracking-wider">{{ item.label
+                            }}</span>
+                        <svg class="h-4 w-4 text-white/20 transition-transform duration-200"
                             [class.rotate-90]="item.expanded" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -54,11 +56,11 @@
                     <div *ngIf="item.expanded" class="mt-1 space-y-1 pl-11 animate-fade-in-down">
                         <ng-container *ngFor="let child of item.children">
                             <a [routerLink]="child.route" (click)="closeSidebarMobile()"
-                                routerLinkActive="text-blue-500 font-bold"
-                                class="block py-2 text-sm text-secondary hover:text-primary transition-colors relative group">
+                                routerLinkActive="text-red-500 font-bold"
+                                class="block py-2 text-xs font-bold text-white/40 hover:text-white transition-colors relative group">
                                 <span
-                                    class="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-blue-500 transition-colors"
-                                    routerLinkActive="bg-blue-500 ring-2 ring-blue-500/30"></span>
+                                    class="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white/10 group-hover:bg-red-500 transition-colors"
+                                    routerLinkActive="bg-red-500 ring-2 ring-red-500/30"></span>
                                 {{ child.label }}
                             </a>
                         </ng-container>
@@ -67,13 +69,13 @@
 
                 <!-- Item simple (sin hijos) -->
                 <a *ngIf="!item.children" [routerLink]="item.route" (click)="closeSidebarMobile()"
-                    routerLinkActive="bg-blue-500 text-white shadow-lg shadow-blue-500/30"
-                    class="flex items-center gap-3 px-3 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all group">
-                    <svg class="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" [class.text-white]="false"
+                    routerLinkActive="bg-red-600/10 text-red-500 border border-red-500/20 shadow-lg shadow-red-500/5"
+                    class="flex items-center gap-3 px-3 py-3 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                    <svg class="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform group-hover:text-red-500"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getIcon(item.icon)" />
                     </svg>
-                    <span class="text-sm font-bold tracking-tight">{{ item.label }}</span>
+                    <span class="text-xs font-black uppercase tracking-wider">{{ item.label }}</span>
                 </a>
             </ng-container>
         </nav>
@@ -83,13 +85,13 @@
     <div class="flex-1 flex flex-col relative">
         <!-- Top Header Navigation -->
         <header
-            class="h-16 lg:h-20 border-b flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20 transition-all"
-            style="background-color: var(--bg-header); border-color: var(--border-color); backdrop-filter: blur(8px);">
+            class="h-16 lg:h-20 border-b flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20 transition-all border-white/5"
+            style="background: rgba(5, 5, 5, 0.7); backdrop-filter: blur(20px) saturate(180%);">
 
             <div class="flex items-center gap-4">
                 <!-- Hamburger -->
                 <button (click)="toggleSidebar()"
-                    class="lg:hidden p-2 -ml-2 text-muted hover:text-primary active:scale-95 transition-transform">
+                    class="lg:hidden p-2 -ml-2 text-white/60 hover:text-red-500 active:scale-95 transition-transform">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h7" />
@@ -97,10 +99,11 @@
                 </button>
 
                 <div class="block">
-                    <h1 class="text-base lg:text-lg font-black text-primary tracking-tight leading-tight">Alcaldía de
+                    <h1 class="text-base lg:text-lg font-black text-white tracking-tight leading-tight">Alcaldía de
                         Tipitapa</h1>
-                    <p class="text-[9px] lg:text-[10px] text-muted font-bold uppercase tracking-widest hidden xs:block">
-                        Gestión de Activos V2.0</p>
+                    <p
+                        class="text-[9px] lg:text-[10px] text-red-500/80 font-black uppercase tracking-[0.2em] hidden xs:block">
+                        Gestión de Activos</p>
                 </div>
             </div>
 
@@ -111,8 +114,8 @@
                         <input type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()"
                             (focus)="showResults = true" (click)="showResults = true; $event.stopPropagation()"
                             placeholder="Buscador inteligente..."
-                            class="input-field w-full !pl-12 h-11 text-sm shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-4 top-3.5 text-blue-500"
+                            class="input-field w-full !pl-12 h-11 text-xs shadow-sm font-black tracking-widest uppercase">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-4 top-3.5 text-red-500"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -123,54 +126,59 @@
                     <div *ngIf="showResults && searchTerm.length >= 2"
                         class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1f2e] border dark:border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden z-[9999] border-gray-200">
 
-                        <div *ngIf="isSearching" class="p-6 text-center">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
-                            <p class="text-[10px] text-muted mt-2 font-bold uppercase tracking-widest">Buscando...</p>
+                        <div *ngIf="isSearching" class="p-8 text-center bg-black/40">
+                            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-red-600 mx-auto"></div>
+                            <p class="text-[10px] text-red-500/60 mt-4 font-black uppercase tracking-[0.4em]">
+                                Sincronizando...</p>
                         </div>
 
                         <div *ngIf="!isSearching && searchResults.length > 0"
-                            class="max-h-80 overflow-y-auto custom-scrollbar">
+                            class="max-h-[32rem] overflow-y-auto custom-scrollbar bg-black/60">
                             <button *ngFor="let asset of searchResults" (click)="selectResult(asset)"
-                                class="w-full text-left px-5 py-4 hover:bg-blue-500/5 dark:hover:bg-blue-500/10 border-b last:border-0 border-gray-100 dark:border-white/5 transition-all group active:scale-[0.99]">
-                                <div class="flex items-center justify-between mb-1.5">
+                                class="w-full text-left px-6 py-5 hover:bg-white/[0.03] border-b last:border-0 border-white/5 transition-all group active:scale-[0.99] relative">
+                                <div
+                                    class="absolute inset-y-0 left-0 w-[2px] bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
                                     <span
-                                        class="text-xs font-black text-gray-900 dark:text-white truncate pr-4 group-hover:text-blue-500 transition-colors uppercase gap-2 flex items-center">
-                                        <i class="fas fa-box text-blue-500/50 text-[10px]"></i>
+                                        class="text-[11px] font-black text-white truncate pr-6 group-hover:text-red-500 transition-colors uppercase gap-3 flex items-center tracking-tight">
+                                        <i class="fas fa-box text-red-500/40 text-[10px]"></i>
                                         {{ asset.nombre_activo }}
                                     </span>
                                     <span
-                                        class="text-[10px] font-black text-blue-500 bg-blue-500/10 px-2 py-1 rounded-md uppercase shrink-0 ring-1 ring-blue-500/20">
+                                        class="text-[10px] font-black text-red-500 bg-red-600/10 px-3 py-1 rounded-lg uppercase shrink-0 ring-1 ring-red-600/30 tracking-widest">
                                         {{ asset.codigo_inventario }}
                                     </span>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                <div class="flex flex-wrap items-center gap-x-6 gap-y-1">
                                     <div
-                                        class="text-[10px] text-gray-500 dark:text-gray-400 truncate uppercase font-bold tracking-tight flex items-center gap-1.5">
-                                        <span class="text-muted">Marca/Mod:</span>
-                                        <span class="dark:text-gray-300 font-medium">{{ asset.marca || 'N/A' }} • {{
+                                        class="text-[9px] text-white/40 truncate uppercase font-black tracking-widest flex items-center gap-2">
+                                        <span class="text-red-500/40">MARCA/MOD:</span>
+                                        <span class="text-white/60 font-bold tracking-tight">{{ asset.marca || 'N/A' }}
+                                            • {{
                                             asset.modelo || 'N/A' }}</span>
                                     </div>
                                     <div *ngIf="asset.serie"
-                                        class="text-[10px] text-gray-500 dark:text-gray-400 truncate uppercase font-bold tracking-tight flex items-center gap-1.5 sm:border-l dark:border-white/10 sm:pl-4">
-                                        <span class="text-muted">Serie:</span>
-                                        <span class="dark:text-gray-300 font-medium">{{ asset.serie }}</span>
+                                        class="text-[9px] text-white/40 truncate uppercase font-black tracking-widest flex items-center gap-2 sm:border-l border-white/10 sm:pl-6">
+                                        <span class="text-red-500/40">SERIE:</span>
+                                        <span class="text-white/60 font-bold tracking-tight">{{ asset.serie }}</span>
                                     </div>
                                 </div>
                                 <div
-                                    class="mt-2.5 pt-2.5 border-t border-gray-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                    class="mt-3 pt-3 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-1">
                                         <div
-                                            class="flex items-center gap-1.5 text-[9px] font-bold text-muted uppercase">
-                                            <i class="fas fa-map-marker-alt text-[8px] text-blue-500/50"></i>
-                                            <span class="dark:text-gray-400">{{ asset.area_nombre || 'Sin Area'
+                                            class="flex items-center gap-2 text-[9px] font-black text-white/30 uppercase tracking-widest">
+                                            <i class="fas fa-map-marker-alt text-[8px] text-red-600/40"></i>
+                                            <span>{{ asset.area_nombre || 'S/A'
                                                 }}</span>
                                         </div>
                                         <div
-                                            class="flex items-center gap-1.5 text-[9px] font-bold text-muted uppercase">
-                                            <i class="fas fa-user-tie text-[8px] text-blue-500/50"></i>
-                                            <span class="dark:text-gray-400">{{ asset.personal_nombre ?
-                                                (asset.personal_nombre + ' ' + (asset.personal_apellido || '')) : 'Sin
-                                                Asignar' }}</span>
+                                            class="flex items-center gap-2 text-[9px] font-black text-white/30 uppercase tracking-widest">
+                                            <i class="fas fa-user-tie text-[8px] text-red-600/40"></i>
+                                            <span>{{ asset.personal_nombre ?
+                                                (asset.personal_nombre + ' ' + (asset.personal_apellido || '')) : 'S/A'
+                                                }}</span>
                                         </div>
                                     </div>
                                     <div [class]="'text-[9px] font-black uppercase px-2 py-0.5 rounded self-start sm:self-auto ' + 
@@ -183,64 +191,35 @@
                             </button>
                         </div>
 
-                        <div *ngIf="!isSearching && searchResults.length === 0"
-                            class="p-8 text-center bg-gray-50/50 dark:bg-white/5">
-                            <div class="text-blue-500/20 mb-2 flex justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                        <div *ngIf="!isSearching && searchResults.length === 0" class="p-10 text-center bg-black/80">
+                            <div class="text-red-600/20 mb-4 flex justify-center">
+                                <i class="fas fa-search-minus text-5xl"></i>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">No se encontraron activos para</p>
-                            <p class="text-xs font-bold text-gray-900 dark:text-white mt-1 italic">"{{ searchTerm }}"
+                            <p class="text-[10px] text-white/30 font-black uppercase tracking-[0.3em]">Sin coincidencias
+                                para</p>
+                            <p class="text-xs font-black text-red-500 mt-2 uppercase tracking-tighter italic">"{{
+                                searchTerm }}"
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Theme Toggle Action -->
-                <div class="flex items-center bg-gray-500/5 rounded-2xl p-1 border border-white/5">
-                    <button (click)="toggleTheme()"
-                        class="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
-                        [class.bg-blue-600]="themeService.isDarkMode()" [class.text-white]="themeService.isDarkMode()"
-                        [class.shadow-lg]="themeService.isDarkMode()"
-                        [class.shadow-blue-500/40]="themeService.isDarkMode()"
-                        [class.text-muted]="!themeService.isDarkMode()" title="Cambiar a Modo Oscuro">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                    </button>
-                    <button (click)="toggleTheme()"
-                        class="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
-                        [class.bg-blue-600]="!themeService.isDarkMode()" [class.text-white]="!themeService.isDarkMode()"
-                        [class.shadow-lg]="!themeService.isDarkMode()"
-                        [class.shadow-blue-500/40]="!themeService.isDarkMode()"
-                        [class.text-muted]="themeService.isDarkMode()" title="Cambiar a Modo Claro">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                        </svg>
-                    </button>
-                </div>
+
 
                 <!-- User Profile & Actions -->
-                <div class="flex items-center gap-4 pl-6 border-l" style="border-color: var(--border-color);">
+                <div class="flex items-center gap-4 pl-6 border-l border-white/5">
                     <div class="flex flex-col items-end hidden sm:flex">
-                        <span class="text-sm font-bold text-primary leading-none">{{ user?.nombre }} {{ user?.apellido
+                        <span class="text-sm font-black text-white leading-none">{{ user?.nombre }} {{ user?.apellido
                             }}</span>
-                        <span class="text-[10px] text-muted font-bold tracking-widest mt-1 uppercase">{{ today |
+                        <span class="text-[9px] text-red-500/80 font-black tracking-widest mt-1 uppercase">{{ today |
                             date:'dd MMM yyyy' }}</span>
                     </div>
                     <div
-                        class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-blue-500/30">
+                        class="w-11 h-11 rounded-2xl bg-gradient-to-br from-red-600 to-red-400 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-red-600/20 ring-1 ring-white/10">
                         {{ user?.nombre?.charAt(0) }}{{ user?.apellido?.charAt(0) }}
                     </div>
                     <button (click)="logout()"
-                        class="p-2.5 text-muted hover:text-red-500 transition-colors rounded-xl hover:bg-red-500/5 group"
+                        class="p-2.5 text-white/40 hover:text-red-500 transition-all rounded-xl hover:bg-red-500/5 group active:scale-90"
                         title="Cerrar sesión">
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24"
@@ -254,17 +233,17 @@
         </header>
 
         <!-- Dynamic Content Area -->
-        <main #mainContent class="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar"
+        <main #mainContent class="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar spotlight-bg"
             (scroll)="onMainScroll($event)">
             <router-outlet></router-outlet>
         </main>
 
         <!-- Back to top -->
         <button *ngIf="showScrollTop" (click)="scrollToTop()"
-            class="fixed bottom-8 right-8 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl shadow-blue-500/40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-50 animate-fade-in"
-            title="Ir al inicio">
+            class="fixed bottom-10 right-10 w-14 h-14 bg-red-600 hover:bg-black text-white rounded-2xl shadow-2xl shadow-red-600/40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90 z-50 animate-fade-in border border-red-600/50"
+            title="Protocolo de Retorno">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2.5">
+                stroke="currentColor" stroke-width="3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
             </svg>
         </button>
@@ -274,25 +253,28 @@
             class="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 backdrop-blur-md bg-black/40 animate-fade-in-down">
 
             <div (click)="$event.stopPropagation()"
-                class="bg-white dark:bg-[#111827] w-full max-w-2xl rounded-2xl shadow-[0_30px_100px_rgba(0,0,0,0.5)] border dark:border-white/10 overflow-hidden flex flex-col max-h-[90vh]">
+                class="bg-black/90 backdrop-blur-3xl w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[90vh] relative">
+                <div
+                    class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent">
+                </div>
 
                 <!-- Modal Header -->
-                <div
-                    class="px-6 py-5 border-b dark:border-white/10 flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
-                    <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
-                            <i class="fas fa-box text-xl"></i>
+                <div class="px-10 py-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="h-12 w-12 bg-red-600/10 rounded-2xl flex items-center justify-center text-red-500 border border-red-600/20">
+                            <i class="fas fa-binoculars text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                                Vista Rápida de Activo</h3>
-                            <p class="text-[10px] text-muted font-bold uppercase tracking-widest mt-0.5">Detalles y
-                                características técnicas</p>
+                            <h3 class="text-lg font-orbitron font-black text-white uppercase tracking-tighter">
+                                Monitor de Activo</h3>
+                            <p class="text-[9px] text-red-500/60 font-black uppercase tracking-[0.3em] mt-0.5">Analítica
+                                de componente central</p>
                         </div>
                     </div>
                     <button type="button" (click)="closeAssetModal($event)"
-                        class="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-muted">
-                        <i class="fas fa-times text-lg"></i>
+                        class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-red-600 hover:text-white rounded-xl transition-all text-white/20 active:scale-90">
+                        <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
@@ -300,10 +282,10 @@
                 <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
 
                     <!-- Loading State -->
-                    <div *ngIf="isLoadingAsset" class="py-12 flex flex-col items-center justify-center">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-                        <p class="mt-4 text-xs text-muted font-bold uppercase tracking-widest">Cargando información...
-                        </p>
+                    <div *ngIf="isLoadingAsset" class="py-20 flex flex-col items-center justify-center gap-6">
+                        <div class="w-12 h-12 border-t-2 border-red-600 rounded-full animate-spin"></div>
+                        <p class="text-[10px] text-red-500/60 font-black uppercase tracking-[0.5em]">Accediendo al
+                            registro...</p>
                     </div>
 
                     <!-- Asset Data -->
@@ -311,22 +293,25 @@
 
                         <!-- Identification Section -->
                         <div
-                            class="relative p-5 bg-blue-500/5 dark:bg-blue-500/10 rounded-2xl border border-blue-500/20 overflow-hidden">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            class="relative p-8 bg-red-600/[0.03] rounded-[2rem] border border-red-600/10 overflow-hidden">
+                            <div class="absolute top-0 right-0 p-8 opacity-5">
+                                <i class="fas fa-fingerprint text-8xl text-red-600"></i>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-8 relative z-10">
                                 <div class="flex-1">
                                     <h4
-                                        class="text-xl font-black text-gray-900 dark:text-white uppercase leading-tight mb-2">
+                                        class="text-2xl font-orbitron font-black text-white uppercase tracking-tighter mb-3 leading-tight">
                                         {{ selectedAsset.nombre_activo }}
                                     </h4>
-                                    <div class="flex flex-wrap items-center gap-3">
+                                    <div class="flex flex-wrap items-center gap-4">
                                         <span
-                                            class="text-xs font-black text-blue-600 dark:text-blue-400 bg-blue-500/10 px-3 py-1 rounded-lg ring-1 ring-blue-500/30">
+                                            class="text-[11px] font-black text-red-500 bg-red-600/10 px-4 py-1.5 rounded-xl ring-1 ring-red-600/20 tracking-wider">
                                             {{ selectedAsset.codigo_inventario }}
                                         </span>
-                                        <div [class]="'text-[10px] font-black uppercase px-3 py-1 rounded-lg ring-1 ' + 
-                                        (selectedAsset.estado === 'Bueno' ? 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/30' : 
-                                        selectedAsset.estado === 'Regular' ? 'bg-orange-500/10 text-orange-500 ring-orange-500/30' : 
-                                        'bg-red-500/10 text-red-500 ring-red-500/30')">
+                                        <div [class]="'text-[9px] font-black uppercase px-4 py-1.5 rounded-xl tracking-widest border ' + 
+                                        (selectedAsset.estado === 'Bueno' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
+                                        selectedAsset.estado === 'Regular' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
+                                        'bg-red-500/10 text-red-500 border-red-500/20')">
                                             {{ selectedAsset.estado }}
                                         </div>
                                     </div>
@@ -334,46 +319,45 @@
                                 <!-- QR Code -->
                                 <div class="flex-shrink-0">
                                     <div *ngIf="selectedAssetQrUrl"
-                                        class="w-24 h-24 bg-white rounded-xl p-2 shadow-lg border">
+                                        class="w-28 h-28 bg-white rounded-2xl p-2.5 shadow-2xl ring-4 ring-black">
                                         <img [src]="selectedAssetQrUrl" alt="QR Code"
                                             class="w-full h-full object-contain">
                                     </div>
                                     <div *ngIf="!selectedAssetQrUrl"
-                                        class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                                        class="w-28 h-28 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5">
+                                        <i class="fas fa-satellite-dish fa-spin text-red-600/30"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Details Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-10">
 
                             <!-- Col 1: Technical -->
                             <div class="space-y-6">
                                 <h5
-                                    class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-info-circle text-xs"></i> Información Técnica
+                                    class="text-[9px] font-black text-red-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Espec. Técnicas
                                 </h5>
-                                <div class="space-y-4">
+                                <div class="space-y-5">
                                     <div class="group">
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">Marca
-                                            / Modelo</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">{{
-                                            selectedAsset.marca || 'N/A' }} • {{ selectedAsset.modelo || 'N/A' }}</p>
+                                        <p
+                                            class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1.5 ml-1">
+                                            Modelo / Marca</p>
+                                        <p
+                                            class="text-[11px] font-bold text-white uppercase bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                                            {{
+                                            selectedAsset.marca || 'S/M' }} • {{ selectedAsset.modelo || 'S/M' }}</p>
                                     </div>
                                     <div class="group">
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">
-                                            Número de Serie</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">{{
-                                            selectedAsset.serie || 'SIN SERIE' }}</p>
-                                    </div>
-                                    <div class="group">
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">
-                                            Categoría/Clasificación</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">{{
-                                            selectedAsset.clasificacion_nombre || selectedAsset.clasificacion?.nombre ||
-                                            'N/A' }}</p>
+                                        <p
+                                            class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1.5 ml-1">
+                                            Identificador Serie</p>
+                                        <p
+                                            class="text-[11px] font-black font-mono text-red-500/80 bg-red-600/5 p-3 rounded-xl border border-red-600/10 uppercase">
+                                            {{
+                                            selectedAsset.serie || 'S/N REGISTRADA' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -381,58 +365,64 @@
                             <!-- Col 2: Assignment -->
                             <div class="space-y-6">
                                 <h5
-                                    class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-user-check text-xs"></i> Asignación Actual
+                                    class="text-[9px] font-black text-red-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Despliegue
                                 </h5>
-                                <div class="space-y-4">
+                                <div class="space-y-5">
                                     <div class="group">
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">
-                                            Unidad Administrativa / Área</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">{{
-                                            selectedAsset.area_nombre || selectedAsset.area?.nombre || 'NON ASSIGNED' }}
+                                        <p
+                                            class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1.5 ml-1">
+                                            Área / Depto</p>
+                                        <p
+                                            class="text-[11px] font-bold text-white uppercase bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                                            {{
+                                            selectedAsset.area_nombre || selectedAsset.area?.nombre || 'S/A' }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">
-                                            Responsable del Bien</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">
+                                        <p
+                                            class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1.5 ml-1">
+                                            Custodio Responsable</p>
+                                        <p
+                                            class="text-[11px] font-bold text-white uppercase bg-white/[0.02] p-3 rounded-xl border border-white/5">
                                             {{ (selectedAsset.personal_nombre || (selectedAsset.personal?.nombre)) ?
                                             ((selectedAsset.personal_nombre || selectedAsset.personal?.nombre) + ' ' +
                                             (selectedAsset.personal_apellido || selectedAsset.personal?.apellido || ''))
                                             :
-                                            'CARGO PENDIENTE' }}
+                                            'PENDIENTE DE ASIGNACIÓN' }}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Financial Info -->
-                            <div class="col-span-1 sm:col-span-2 space-y-6 mt-2">
+                            <div class="col-span-1 sm:col-span-2 space-y-6 mt-4">
                                 <h5
-                                    class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-dollar-sign text-xs"></i> Datos Financieros y Adquisición
+                                    class="text-[9px] font-black text-red-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Parámetros Financieros
                                 </h5>
                                 <div
-                                    class="grid grid-cols-1 sm:grid-cols-3 gap-6 p-4 bg-gray-50/50 dark:bg-white/5 rounded-xl border dark:border-white/5">
-                                    <div>
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">Valor
-                                            Contable</p>
-                                        <p class="text-sm font-black text-gray-900 dark:text-white uppercase">C$ {{
+                                    class="grid grid-cols-1 sm:grid-cols-3 gap-6 p-6 bg-black/40 rounded-[2rem] border border-white/5 relative">
+                                    <div class="absolute inset-0 bg-red-600/5 blur-3xl rounded-[2rem]"></div>
+                                    <div class="relative z-10">
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">
+                                            Balance Contable</p>
+                                        <p class="text-lg font-black text-white uppercase tracking-tight">C$ {{
                                             (selectedAsset.valor_adquisicion || selectedAsset.precio_adquisicion || 0) |
                                             number:'1.2-2' }}</p>
                                     </div>
-                                    <div>
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">Fecha
-                                            de Ingreso</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase">{{
-                                            selectedAsset.fecha_adquisicion | date:'dd/MM/yyyy' }}</p>
+                                    <div class="relative z-10">
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">
+                                            Alta Sistema</p>
+                                        <p class="text-xs font-black text-red-500/80 uppercase tracking-widest">{{
+                                            selectedAsset.fecha_adquisicion | date:'dd.MM.yyyy' }}</p>
                                     </div>
-                                    <div>
-                                        <p class="text-[10px] text-muted font-bold uppercase tracking-widest mb-1">
-                                            Fuente Fondos</p>
-                                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 uppercase truncate"
+                                    <div class="relative z-10">
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">
+                                            Origen / Clasif</p>
+                                        <p class="text-[10px] font-bold text-white uppercase truncate"
                                             [title]="selectedAsset.fuente_nombre">{{ selectedAsset.fuente_nombre ||
-                                            'N/A' }}</p>
+                                            'S/F' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -456,18 +446,18 @@
 
                 <!-- Modal Footer -->
                 <div
-                    class="px-6 py-5 border-t dark:border-white/10 flex flex-col sm:flex-row gap-3 items-center justify-between bg-gray-50/50 dark:bg-white/5">
-                    <p class="text-[9px] text-muted font-bold uppercase tracking-tighter">
-                        Sistema de Gestión de Activos Fijos • SGAF V2
+                    class="px-10 py-8 border-t border-white/5 flex flex-col sm:flex-row gap-6 items-center justify-between bg-white/[0.02]">
+                    <p class="text-[9px] text-white/30 font-black uppercase tracking-[0.4em]">
+                        SGAF PRO // PROTOCOLO DE AUDITORÍA
                     </p>
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="flex items-center gap-6 w-full sm:w-auto">
                         <button type="button" (click)="closeAssetModal($event)"
-                            class="flex-1 sm:flex-none px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-secondary hover:text-primary transition-colors">
-                            Cerrar
+                            class="flex-1 sm:flex-none px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all bg-white/5 rounded-xl border border-white/10 active:scale-95">
+                            CERRAR
                         </button>
                         <button type="button" (click)="goToAssetList($event)"
-                            class="flex-1 sm:flex-none btn-primary px-8 py-2.5 text-xs font-bold uppercase tracking-widest shadow-blue-500/40">
-                            <i class="fas fa-external-link-alt mr-2"></i> Ir al Listado Completo
+                            class="flex-1 sm:flex-none btn-primary px-10 h-12 !shadow-red-600/30 text-[10px] font-black tracking-widest">
+                            <i class="fas fa-external-link-alt mr-2"></i> EXPEDIENTE COMPLETO
                         </button>
                     </div>
                 </div>

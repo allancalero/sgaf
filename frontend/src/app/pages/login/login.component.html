@@ -1,43 +1,116 @@
-<div class="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-  <div
-    class="w-full max-w-md bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
-    <div class="p-8">
-      <div class="flex justify-center mb-6">
-        <div class="p-2 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-xl">
-          <img src="assets/logo-alcaldia.png" alt="Logo Alcaldía" class="w-24 h-24 object-contain">
+<div class="min-h-screen spotlight-bg flex items-center justify-center p-4">
+  <div class="w-full max-w-md glass-card rounded-3xl overflow-hidden radiant-glow animate-fade-in">
+    <div class="p-10">
+      <div class="flex justify-center mb-8">
+        <div class="p-3 bg-white/5 rounded-2xl backdrop-blur-2xl border border-white/10 shadow-2xl relative group">
+          <div
+            class="absolute inset-0 bg-red-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+          </div>
+          <img src="assets/logo-alcaldia.png" alt="Logo Alcaldía" class="w-24 h-24 object-contain relative z-10">
         </div>
       </div>
 
-      <h2 class="text-3xl font-orbitron font-bold text-center text-white mb-1">ALCALDÍA DE TIPITAPA</h2>
-      <p class="text-steel-400 text-center mb-8 font-inter font-medium tracking-wide">Sistema de Gestión de Activos
-        Fijos</p>
+      <h2 class="text-3xl font-orbitron font-black text-center mb-1 radiant-text tracking-tighter uppercase">ALCALDÍA DE
+        TIPITAPA</h2>
+      <p class="text-white/40 text-center mb-10 font-inter font-bold text-[10px] uppercase tracking-[0.2em]">Sistema de
+        Gestión de Activos Fijos</p>
 
-      <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2 font-inter">Correo Electrónico</label>
-          <input type="email" name="email" [(ngModel)]="credentials.email" required
-            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-steel-500 focus:border-transparent transition-all outline-none font-inter"
-            placeholder="admin@example.com">
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="space-y-8">
+        <div class="space-y-3">
+          <label class="block text-[10px] font-black text-white/60 uppercase tracking-widest px-1">Correo
+            Electrónico</label>
+          <div class="relative group">
+            <input type="email" name="email" [(ngModel)]="credentials.email" required
+              class="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-red-600/50 focus:border-red-600/30 transition-all outline-none font-inter text-sm placeholder:text-white/20"
+              placeholder="admin@example.com">
+            <div
+              class="absolute inset-0 rounded-2xl ring-1 ring-white/5 group-hover:ring-white/20 transition-all pointer-events-none">
+            </div>
+          </div>
         </div>
 
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-slate-300 font-inter">Contraseña</label>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <label class="text-[10px] font-black text-white/60 uppercase tracking-widest">Contraseña</label>
             <button type="button" (click)="onForgotPassword()"
-              class="text-xs text-steel-400 hover:text-steel-300 transition-colors">¿Olvidaste tu contraseña?</button>
+              class="text-[10px] font-black text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors">¿Olvidaste
+              tu contraseña?</button>
           </div>
           <app-password-input name="password" [(ngModel)]="credentials.password" [label]="''" [placeholder]="'••••••••'"
             [showValidation]="false"
-            inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-steel-500 focus:border-transparent transition-all outline-none font-inter">
+            inputClass="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-red-600/50 focus:border-red-600/30 transition-all outline-none font-inter text-sm placeholder:text-white/20">
           </app-password-input>
         </div>
 
         <button type="submit" [disabled]="!loginForm.form.valid || isLoading"
-          class="w-full bg-steel-500 hover:bg-steel-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-orbitron font-bold py-4 rounded-xl shadow-lg shadow-steel-500/20 transform hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2">
+          class="w-full radiant-button text-white font-orbitron font-black py-5 rounded-2xl transform active:scale-95 transition-all flex items-center justify-center space-x-3 text-sm tracking-widest disabled:opacity-30 disabled:cursor-not-allowed">
           <span *ngIf="!isLoading">INICIAR SESIÓN</span>
-          <span *ngIf="isLoading" class="flex items-center">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+          <span *ngIf="isLoading" class="flex items-center uppercase text-xs font-black">
+            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            AUTENTICANDO...
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <div class="p-6 bg-black/40 text-center border-t border-white/5">
+      <p class="text-[9px] text-white/30 font-black uppercase tracking-[0.3em] font-inter">© 2026 SGAF2 - ALCALDÍA
+        MUNICIPAL. TODOS LOS DERECHOS RESERVADOS.</p>
+    </div>
+  </div>
+
+  <!-- PASSWORD CHANGE MODAL OVERLAY -->
+  <div *ngIf="showChangePasswordModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+    <div
+      class="w-full max-w-md bg-black/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl p-10 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent"></div>
+
+      <div class="text-center mb-10">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-600/10 border border-red-600/20 mb-6 drop-shadow-[0_0_15px_rgba(220,38,38,0.2)]">
+          <i class="fas fa-shield-alt text-red-500 text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-orbitron font-black text-white mb-2 uppercase tracking-tighter">Acceso Restringido</h2>
+        <p class="text-red-500/60 text-[10px] font-black uppercase tracking-[0.2em]">Actualización de protocolo de
+          seguridad requerida</p>
+      </div>
+
+      <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" class="space-y-6">
+
+        <app-password-input formControlName="currentPassword" [label]="'Credencial Actual'" [placeholder]="'••••••••'"
+          inputClass="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-red-600/50 focus:border-red-600/30 transition-all outline-none font-inter text-sm opacity-50 cursor-not-allowed"
+          [showValidation]="false">
+        </app-password-input>
+
+        <app-password-input formControlName="newPassword" [label]="'Nueva Credencial'" [placeholder]="'••••••••'"
+          [showValidation]="true"
+          inputClass="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-red-600/50 focus:border-red-600/30 transition-all outline-none font-inter text-sm placeholder:text-white/20">
+        </app-password-input>
+
+        <app-password-input formControlName="confirmPassword" [label]="'Confirmar Protocolo'" [placeholder]="'••••••••'"
+          [showValidation]="false"
+          inputClass="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-red-600/50 focus:border-red-600/30 transition-all outline-none font-inter text-sm placeholder:text-white/20">
+        </app-password-input>
+
+        <div
+          *ngIf="changePasswordForm.errors?.['mismatch'] && (changePasswordForm.get('confirmPassword')?.touched || changePasswordForm.get('newPassword')?.touched)"
+          class="p-4 rounded-xl bg-red-600/10 border border-red-600/20 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+          <i class="fas fa-exclamation-triangle"></i>
+          Discrepancia en credenciales
+        </div>
+
+        <button type="submit" [disabled]="changePasswordForm.invalid || isChangingPassword"
+          class="w-full radiant-button text-white font-orbitron font-black py-5 rounded-2xl transform active:scale-95 transition-all mt-4 text-sm tracking-widest disabled:opacity-30">
+          <span *ngIf="!isChangingPassword">AUTORIZAR CAMBIO</span>
+          <span *ngIf="isChangingPassword" class="flex items-center justify-center">
+            <svg class="animate-spin h-4 w-4 mr-3 text-white" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
@@ -46,73 +119,8 @@
             PROCESANDO...
           </span>
         </button>
-      </form>
-    </div>
-
-    <div class="p-4 bg-slate-800/80 text-center border-t border-slate-700/50">
-      <p class="text-xs text-slate-500 font-inter">© 2026 SGAF2 - Alcaldía Municipal. Todos los derechos reservados.</p>
-    </div>
-  </div>
-
-  <!-- PASSWORD CHANGE MODAL OVERLAY -->
-  <div *ngIf="showChangePasswordModal"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-fade-in">
-    <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8">
-
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 mb-4">
-          <fa-icon [icon]="faLock" class="text-blue-400 text-xl"></fa-icon>
-        </div>
-        <h2 class="text-2xl font-orbitron font-bold text-white mb-2">Cambio Requerido</h2>
-        <p class="text-slate-400 text-sm">Por seguridad, debes cambiar tu contraseña antes de continuar.</p>
-      </div>
-
-      <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" class="space-y-4">
-
-        <!-- Current Password (Hidden visually or readonly? No, should be editable if not auto-filled correctly, but here we assume it is auto-filled or user types it. Actually, if we auto-filled it in TS, we can make it readonly or just hidden. Let's show it for transparency but maybe readonly if we are sure.) -->
-        <!-- Let's just ask for it again to be safe/standard, or better yet, since we just logged in, we have it. 
-              But for "Current Password" field in standard flows, user types it. 
-              In the TS I patched it. Let's make it readonly or hidden. 
-              Actually, hiding `currentPassword` control might be cleaner UX if we just validated it.
-              But the backend requires it. Let's keep it visible but readonly if pre-filled, or just standard input.
-              Given the user just typed it, asking again is annoying. I'll make it type='hidden' or visually hidden if I could, but for now standard input matching the form group.
-         -->
-        <app-password-input formControlName="currentPassword" [label]="'Contraseña Actual'" [placeholder]="'••••••••'"
-          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter opacity-75 cursor-not-allowed"
-          [showValidation]="false">
-          <!-- Maybe adding [readonly]="true" to component if supported? It is not supported yet. So standard styling implies it. -->
-        </app-password-input>
-
-        <app-password-input formControlName="newPassword" [label]="'Nueva Contraseña'" [placeholder]="'••••••••'"
-          [showValidation]="true"
-          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter">
-        </app-password-input>
-
-        <div *ngIf="changePasswordForm.get('newPassword')?.touched && changePasswordForm.hasError('mismatch')"
-          class="text-red-400 text-xs mt-1">
-          Las contraseñas no coinciden.
-        </div>
-
-        <app-password-input formControlName="confirmPassword" [label]="'Confirmar Contraseña'"
-          [placeholder]="'••••••••'" [showValidation]="false"
-          inputClass="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none font-inter">
-        </app-password-input>
-
-        <div
-          *ngIf="changePasswordForm.errors?.['mismatch'] && (changePasswordForm.get('confirmPassword')?.touched || changePasswordForm.get('newPassword')?.touched)"
-          class="p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-          <fa-icon [icon]="faExclamationCircle"></fa-icon>
-          Las contraseñas no coinciden.
-        </div>
-
-        <button type="submit" [disabled]="changePasswordForm.invalid || isChangingPassword"
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5 transition-all mt-6">
-          <span *ngIf="!isChangingPassword">ACTUALIZAR Y CONTINUAR</span>
-          <span *ngIf="isChangingPassword">PROCESANDO...</span>
-        </button>
 
       </form>
     </div>
   </div>
-
 </div>

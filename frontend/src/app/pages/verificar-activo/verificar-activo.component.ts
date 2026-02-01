@@ -10,152 +10,148 @@ import { environment } from '../../../environments/environment';
     standalone: true,
     imports: [CommonModule, FormsModule],
     template: `
-        <div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
-            <div class="w-full max-w-2xl">
+        <div class="min-h-screen spotlight-bg flex items-center justify-center p-4">
+            <div class="w-full max-w-2xl animate-fade-in">
                 
                 <!-- Header -->
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-500/20 rounded-2xl mb-4">
-                        <i class="fas fa-qrcode text-4xl text-blue-400"></i>
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-red-600/10 rounded-[2rem] mb-6 border border-red-600/20 shadow-2xl shadow-red-600/10">
+                        <i class="fas fa-qrcode text-5xl text-red-500"></i>
                     </div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tight">Verificar Activo</h1>
-                    <p class="text-blue-300/70 text-sm mt-2">Sistema de Gestión de Activos Fijos</p>
+                    <h1 class="text-4xl font-orbitron font-black text-white uppercase tracking-tighter leading-none">Verificar <span class="text-red-600">Activo</span></h1>
+                    <p class="text-red-500/60 text-[10px] font-black uppercase tracking-[0.4em] mt-4">Sistema de Gestión de Activos Fijos</p>
                 </div>
 
                 <!-- Search Box -->
-                <div class="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 mb-6" *ngIf="!asset">
-                    <label class="text-xs font-bold text-blue-300 uppercase tracking-widest mb-2 block">
-                        Ingrese el Código de Inventario
+                <div class="bg-black/40 backdrop-blur-3xl rounded-[2.5rem] p-10 border border-white/10 shadow-2xl relative overflow-hidden" *ngIf="!asset">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent"></div>
+                    
+                    <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-4 block ml-1">
+                        Código de Inventario Institucional
                     </label>
-                    <div class="flex gap-3">
+                    <div class="flex gap-4">
                         <input type="text" [(ngModel)]="codigoInput" 
-                            placeholder="Ej: 123-004-007-000001"
-                            class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                            placeholder="EJ: 123-004-007-000001"
+                            class="flex-1 bg-white/5 border border-white/5 rounded-2xl px-6 py-5 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-red-600/50 font-black tracking-widest uppercase text-sm transition-all"
                             (keyup.enter)="buscarActivo()">
                         <button (click)="buscarActivo()" [disabled]="loading"
-                            class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all disabled:opacity-50">
-                            <i class="fas" [class.fa-search]="!loading" [class.fa-spinner]="loading" [class.fa-spin]="loading"></i>
+                            class="w-16 h-16 bg-red-600 hover:bg-black text-white font-black rounded-2xl transition-all disabled:opacity-30 border border-red-600/40 shadow-lg shadow-red-600/20 active:scale-90">
+                            <i class="fas" [class.fa-bolt]="!loading" [class.fa-spinner]="loading" [class.fa-spin]="loading"></i>
                         </button>
                     </div>
-                    <p *ngIf="error" class="text-red-400 text-sm mt-3 flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                    <p *ngIf="error" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-6 flex items-center gap-3 bg-red-600/10 p-4 rounded-xl border border-red-600/20">
+                        <i class="fas fa-exclamation-triangle"></i> {{ error }}
                     </p>
                 </div>
 
                 <!-- Asset Card -->
-                <div *ngIf="asset" class="bg-white dark:bg-[#111827] rounded-2xl shadow-2xl overflow-hidden border dark:border-white/10 animate-fade-in">
+                <div *ngIf="asset" class="bg-black/40 backdrop-blur-3xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 relative">
+                    <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent"></div>
                     
                     <!-- Card Header -->
-                    <div class="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-5">
+                    <div class="bg-white/[0.02] px-10 py-8 border-b border-white/5">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Activo Verificado</p>
-                                <h2 class="text-xl font-black text-white uppercase">{{ asset.nombre_activo }}</h2>
+                                <p class="text-red-500 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Protocolo de Verificación</p>
+                                <h2 class="text-2xl font-orbitron font-black text-white uppercase tracking-tighter">{{ asset.nombre_activo }}</h2>
                             </div>
-                            <div class="bg-white/20 rounded-xl p-3">
-                                <i class="fas fa-check-circle text-2xl text-white"></i>
+                            <div class="w-14 h-14 bg-red-600/10 border border-red-600/20 rounded-2xl flex items-center justify-center text-red-500 shadow-lg shadow-red-600/10">
+                                <i class="fas fa-check-double text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Asset Info -->
-                    <div class="p-6 space-y-6">
+                    <div class="p-10 space-y-10">
                         
                         <!-- Codigo & Estado -->
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span class="text-sm font-black text-blue-600 bg-blue-500/10 px-4 py-2 rounded-lg ring-1 ring-blue-500/30 font-mono">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <span class="text-xs font-black text-red-500 bg-red-600/10 px-6 py-2.5 rounded-xl border border-red-600/20 tracking-widest font-mono">
                                 {{ asset.codigo_inventario }}
                             </span>
-                            <div [class]="'text-xs font-black uppercase px-3 py-1.5 rounded-lg ring-1 ' + 
-                                (asset.estado === 'BUENO' ? 'bg-emerald-500/10 text-emerald-600 ring-emerald-500/30' : 
-                                asset.estado === 'REGULAR' ? 'bg-orange-500/10 text-orange-600 ring-orange-500/30' : 
-                                'bg-red-500/10 text-red-600 ring-red-500/30')">
+                            <div [class]="'text-[10px] font-black uppercase px-6 py-2.5 rounded-xl border tracking-[0.2em] ' + 
+                                (asset.estado === 'BUENO' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
+                                asset.estado === 'REGULAR' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
+                                'bg-red-500/10 text-red-500 border-red-500/20')">
                                 {{ asset.estado }}
                             </div>
                         </div>
 
                         <!-- Grid Info -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-10">
                             
                             <!-- Technical -->
-                            <div class="space-y-4">
-                                <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-info-circle"></i> Información Técnica
+                            <div class="space-y-6">
+                                <h3 class="text-[9px] font-black text-red-500 uppercase tracking-[0.5em] flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Especificaciones
                                 </h3>
-                                <div class="space-y-3">
+                                <div class="space-y-5">
                                     <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Marca / Modelo</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.marca || 'N/A' }} • {{ asset.modelo || 'N/A' }}</p>
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2 font-inter">Marca / Modelo</p>
+                                        <p class="text-xs font-black text-white p-3 bg-white/[0.03] rounded-xl border border-white/5 uppercase">{{ asset.marca || 'S/M' }} • {{ asset.modelo || 'S/M' }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Número de Serie</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.serie || 'SIN SERIE' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Clasificación</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.clasificacion?.nombre || 'N/A' }}</p>
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2 font-inter">Identificador Serial</p>
+                                        <p class="text-xs font-black text-white p-3 bg-white/[0.03] rounded-xl border border-white/5 uppercase">{{ asset.serie || 'S/N' }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Assignment -->
-                            <div class="space-y-4">
-                                <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-user-check"></i> Asignación Actual
+                            <div class="space-y-6">
+                                <h3 class="text-[9px] font-black text-red-500 uppercase tracking-[0.5em] flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Despliegue Actual
                                 </h3>
-                                <div class="space-y-3">
+                                <div class="space-y-5">
                                     <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Área</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.area?.nombre || 'NO ASIGNADO' }}</p>
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2 font-inter">Área / Departamento</p>
+                                        <p class="text-xs font-black text-white p-3 bg-white/[0.03] rounded-xl border border-white/5 uppercase">{{ asset.area?.nombre || 'S/A' }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Responsable</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                            {{ asset.personal ? (asset.personal.nombre + ' ' + (asset.personal.apellido || '')) : 'SIN ASIGNAR' }}
+                                        <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2 font-inter">Custodio Final</p>
+                                        <p class="text-xs font-black text-white p-3 bg-white/[0.03] rounded-xl border border-white/5 uppercase">
+                                            {{ asset.personal ? (asset.personal.nombre + ' ' + (asset.personal.apellido || '')) : 'S/A' }}
                                         </p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Ubicación</p>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.ubicacion?.nombre || 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Financial -->
-                        <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4 space-y-3">
-                            <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                <i class="fas fa-dollar-sign"></i> Datos Financieros
+                        <div class="bg-black/40 border border-white/5 rounded-[2.5rem] p-8 space-y-6 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-red-600/[0.02] blur-3xl"></div>
+                            <h3 class="text-[9px] font-black text-red-500 uppercase tracking-[0.5em] flex items-center gap-3 relative z-10">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Datos Financieros
                             </h3>
-                            <div class="grid grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 relative z-10">
                                 <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Valor Contable</p>
-                                    <p class="text-lg font-black text-gray-900 dark:text-white">C$ {{ asset.precio_adquisicion | number:'1.2-2' }}</p>
+                                    <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2">Valor Contable</p>
+                                    <p class="text-xl font-black text-white">C$ {{ asset.precio_adquisicion | number:'1.2-2' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Fecha Adquisición</p>
-                                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.fecha_adquisicion | date:'dd/MM/yyyy' }}</p>
+                                    <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2">Alta en Sistema</p>
+                                    <p class="text-xs font-black text-red-500/80 tracking-widest uppercase">{{ asset.fecha_adquisicion | date:'dd.MM.yyyy' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Fuente Fondos</p>
-                                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ asset.fuente_financiamiento?.nombre || 'N/A' }}</p>
+                                    <p class="text-[9px] text-white/30 font-black uppercase tracking-widest mb-2">Origen / Fuente</p>
+                                    <p class="text-[10px] font-bold text-white uppercase truncate">{{ asset.fuente_financiamiento?.nombre || 'S/F' }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Footer -->
-                    <div class="px-6 py-4 bg-gray-50 dark:bg-white/5 border-t dark:border-white/10 flex justify-between items-center">
-                        <p class="text-[9px] text-gray-400 font-bold uppercase">SGAF V2 • Verificación de Activo</p>
-                        <button (click)="nuevaBusqueda()" class="text-blue-500 hover:text-blue-600 text-sm font-bold flex items-center gap-2">
-                            <i class="fas fa-search"></i> Nueva Búsqueda
+                    <div class="px-10 py-8 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
+                        <p class="text-[9px] text-white/30 font-black uppercase tracking-[0.4em]">SGAF PRO // VERIFICACIÓN</p>
+                        <button (click)="nuevaBusqueda()" class="w-full sm:w-auto px-8 py-3 bg-red-600 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-red-600/40 active:scale-95 flex items-center justify-center gap-3">
+                            <i class="fas fa-search"></i> Protocolo de Re-búsqueda
                         </button>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <p class="text-center text-white/40 text-xs mt-8">
-                    Sistema de Gestión de Activos Fijos • Alcaldía Municipal
+                <p class="text-center text-white/20 text-[9px] font-black uppercase tracking-[0.5em] mt-12">
+                    Sistema de Gestión de Activos Fijos // Alcaldía de Tipitapa
                 </p>
             </div>
         </div>
@@ -209,7 +205,7 @@ export class VerificarActivoComponent implements OnInit {
         this.error = '';
         this.asset = null;
 
-        this.http.get<any>(`${environment.apiUrl}/assets/verify/${encodeURIComponent(this.codigoInput.trim())}`)
+        this.http.get<any>(`${environment.apiUrl} /assets/verify / ${encodeURIComponent(this.codigoInput.trim())} `)
             .subscribe({
                 next: (data) => {
                     this.loading = false;

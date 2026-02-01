@@ -9,111 +9,112 @@ import Swal from 'sweetalert2';
     standalone: true,
     imports: [CommonModule],
     template: `
-            <div class="p-6 lg:p-8">
-                <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="p-6 lg:p-10 min-h-screen">
+                <div class="mb-10 animate-fade-in flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 italic">Respaldo</h2>
-                        <p class="text-sm text-gray-500">Respaldo y restauración de datos</p>
+                        <h1 class="text-5xl font-orbitron font-black text-white tracking-tighter uppercase leading-none">
+                            Respaldo <span class="text-red-600">de Datos</span>
+                        </h1>
+                        <p class="text-red-500/80 mt-3 text-sm font-black uppercase tracking-[0.3em]">
+                            Gestión integral de copias de seguridad y recuperación.
+                        </p>
                     </div>
                     <button 
                         (click)="generarRespaldo()" 
                         [disabled]="isGenerating"
-                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-50"
+                        class="btn-primary px-8 py-4 !shadow-red-600/30 flex-none"
                     >
-                        <svg *ngIf="isGenerating" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <i *ngIf="!isGenerating" class="fas fa-database"></i>
-                        {{ isGenerating ? 'Generando...' : 'GENERAR RESPALDO' }}
+                        <i *ngIf="!isGenerating" class="fas fa-database mr-2"></i>
+                        <i *ngIf="isGenerating" class="fas fa-circle-notch animate-spin mr-2"></i>
+                        {{ isGenerating ? 'GENERANDO...' : 'GENERAR RESPALDO' }}
                     </button>
                 </div>
 
-                <!-- Info Cards -->
-                <div class="grid gap-6 sm:grid-cols-2 mb-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                <!-- Info Cards Radiant -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <div class="radiant-card-stat">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
-                                <i class="fas fa-server text-xl"></i>
+                            <div class="p-3 bg-red-600/10 rounded-2xl border border-red-600/20 shadow-lg shadow-red-600/10">
+                                <i class="fas fa-server text-xl text-red-500"></i>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Base de Datos</p>
-                                <p class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ info?.database || 'Calculando...' }}</p>
+                                <p class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Base de Datos</p>
+                                <p class="text-lg font-orbitron font-black text-white truncate">{{ info?.database || 'CALCULANDO...' }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                    <div class="radiant-card-stat">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
-                                <i class="fas fa-folder-open text-xl"></i>
+                            <div class="p-3 bg-red-600/10 rounded-2xl border border-red-600/20 shadow-lg shadow-red-600/10">
+                                <i class="fas fa-folder-open text-xl text-red-500"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Directorio de Almacenamiento</p>
-                                <p class="text-sm font-bold text-gray-600 dark:text-gray-300 truncate">{{ info?.storage_path || 'Buscando...' }}</p>
+                                <p class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Directorio de Almacenamiento</p>
+                                <p class="text-xs font-black text-white/80 truncate uppercase tracking-tighter">{{ info?.storage_path || 'BUSCANDO...' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                            <i class="fas fa-history text-indigo-500"></i>
+                <div class="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
+                    <div class="px-8 py-6 border-b border-white/5 bg-black/40 flex items-center justify-between">
+                        <h3 class="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                            <i class="fas fa-history text-red-500"></i>
                             Historial de Respaldos
                         </h3>
-                        <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full">
+                        <span class="px-4 py-1.5 bg-red-600/10 border border-red-600/20 text-red-500 text-[10px] font-black rounded-full uppercase tracking-widest">
                             {{ backups.length }} Archivos
                         </span>
                     </div>
 
-                    <div class="p-12 text-center" *ngIf="backups.length === 0">
-                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
-                            <i class="fas fa-box-open text-3xl text-gray-400"></i>
+                    <div class="py-24 text-center" *ngIf="backups.length === 0">
+                        <div class="inline-flex items-center justify-center w-24 h-24 bg-white/5 rounded-full mb-6 border border-white/10">
+                            <i class="fas fa-box-open text-4xl text-white/20"></i>
                         </div>
-                        <p class="text-gray-500 font-medium">No se han encontrado respaldos en el servidor.</p>
-                        <p class="text-xs text-gray-400">Haga clic en el botón superior para crear uno nuevo.</p>
+                        <p class="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-2">No se han encontrado respaldos en el servidor.</p>
+                        <p class="text-[9px] font-black text-red-500/60 uppercase tracking-widest">Haga clic en el botón superior para crear uno nuevo.</p>
                     </div>
 
                     <div class="overflow-x-auto" *ngIf="backups.length > 0">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left">
                             <thead>
-                                <tr class="text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-900/50">
-                                    <th class="px-6 py-4">Archivo</th>
-                                    <th class="px-6 py-4">Fecha de Creación</th>
-                                    <th class="px-6 py-4">Tamaño</th>
-                                    <th class="px-6 py-4 text-center">Acciones</th>
+                                <tr class="bg-black/40 text-white/40 text-[9px] font-black uppercase tracking-[0.3em] border-b border-white/5">
+                                    <th class="py-5 px-8">Archivo</th>
+                                    <th class="py-5 px-8">Fecha de Creación</th>
+                                    <th class="py-5 px-8">Tamaño</th>
+                                    <th class="py-5 px-8 text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                                <tr *ngFor="let b of backups" class="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors group">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:scale-110 transition-transform">
+                            <tbody class="divide-y divide-white/5 uppercase">
+                                <tr *ngFor="let b of backups" class="hover:bg-white/[0.03] transition-all duration-300 group">
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-red-600/5 border border-red-600/10 text-red-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg shadow-red-600/5">
                                                 <i class="fas fa-file-code"></i>
                                             </div>
-                                            <span class="font-bold text-gray-700 dark:text-gray-200">{{ b.nombre }}</span>
+                                            <span class="font-black text-white text-xs tracking-tight">{{ b.nombre }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ b.fecha }}</span>
+                                    <td class="px-8 py-6">
+                                        <span class="text-[10px] font-black text-white/40 tracking-widest">{{ b.fecha }}</span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-lg">
+                                    <td class="px-8 py-6">
+                                        <span class="px-3 py-1 bg-white/5 border border-white/10 text-white/60 text-[9px] font-black rounded-lg tracking-widest">
                                             {{ (b.size / 1024 / 1024) | number:'1.2-2' }} MB
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center justify-center gap-2">
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center justify-center gap-3">
                                             <button 
                                                 (click)="descargar(b.nombre)"
-                                                class="w-9 h-9 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                                                class="w-10 h-10 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/10 active:scale-90"
                                                 title="Descargar"
                                             >
                                                 <i class="fas fa-download text-sm"></i>
                                             </button>
                                             <button 
                                                 (click)="eliminar(b.nombre)"
-                                                class="w-9 h-9 flex items-center justify-center bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                                                class="w-10 h-10 flex items-center justify-center bg-red-600/10 border border-red-600/20 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-600/10 active:scale-90"
                                                 title="Eliminar"
                                             >
                                                 <i class="fas fa-trash-alt text-sm"></i>

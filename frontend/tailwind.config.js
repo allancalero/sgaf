@@ -6,20 +6,34 @@ module.exports = {
     theme: {
         screens: {
             'xs': '480px',
-            'sm': '640px',
-            'md': '768px',
-            'lg': '1024px',
-            'xl': '1280px',
+            'sm': '576px',   // Tablet Start
+            'md': '768px',   // Intermediate Tablet
+            'lg': '992px',   // Desktop Start
+            'xl': '1400px',  // Large Desktop Start
             '2xl': '1536px',
         },
         extend: {
             colors: {
+                // OVERRIDE: Mapping 'blue' to 'red' palette for Mundialito Design without refactoring all templates
+                'blue': {
+                    50: '#fef2f2',
+                    100: '#fee2e2',
+                    200: '#fecaca',
+                    300: '#fca5a5',
+                    400: '#f87171',
+                    500: '#ef4444',
+                    600: '#dc2626',
+                    700: '#b91c1c',
+                    800: '#991b1b',
+                    900: '#7f1d1d',
+                    950: '#450a0a',
+                },
                 'steel': {
-                    300: '#7CB4D4',
-                    400: '#5C9DC8',
-                    500: '#4682B4',
-                    600: '#36648B',
-                    700: '#2A4F6E',
+                    300: '#fca5a5', // Red 300
+                    400: '#f87171', // Red 400
+                    500: '#ef4444', // Red 500
+                    600: '#dc2626', // Red 600
+                    700: '#b91c1c', // Red 700
                 },
                 'teal': {
                     200: '#7CB4D4',

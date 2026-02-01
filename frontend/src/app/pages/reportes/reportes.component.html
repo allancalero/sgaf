@@ -1,175 +1,234 @@
+<div class="p-6 lg:p-12">
+    <!-- Header -->
+    <div class="mb-12 animate-fade-in text-center lg:text-left">
+        <h1 class="text-5xl font-orbitron font-black text-white tracking-tighter uppercase leading-none">Centro de <span
+                class="text-red-600">Reportes</span></h1>
+        <p class="text-red-500/80 mt-4 text-sm font-black uppercase tracking-[0.3em] max-w-2xl">
+            Gestión estratégica de activos fijos con exportación de alta fidelidad para procesos de auditoría.
+        </p>
+    </div>
 
-    <div class="p-6 lg:p-8">
-        <!-- Header -->
-        <div class="mb-8 text-center lg:text-left">
-            <h1 class="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Centro de Reportes</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2 max-w-2xl">Gestione la información estratégica de
-                activos fijos.
-                Exportación directa en formato PDF listo para impresión y auditoría.</p>
+    <!-- Filters Section Radiant -->
+    <div
+        class="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 mb-12 shadow-2xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+            <i class="fas fa-filter text-6xl text-red-600"></i>
         </div>
 
-        <!-- Filters Section -->
-        <div class="card mb-8 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                    Filtros de Reporte
-                </h3>
-                <button *ngIf="hasActiveFilters()" (click)="clearFilters()"
-                    class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Limpiar filtros
-                </button>
-            </div>
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-red-600"></span>
+                Parámetros de Filtrado
+            </h3>
+            <button *ngIf="hasActiveFilters()" (click)="clearFilters()"
+                class="text-[9px] font-black text-white/40 hover:text-red-500 uppercase tracking-widest flex items-center gap-2 transition-all">
+                <i class="fas fa-trash-alt"></i>
+                RESETEAR FILTROS
+            </button>
+        </div>
 
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Seleccione los filtros deseados antes de descargar
-                un reporte. Los
-                filtros se aplicarán a todos los reportes.</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <!-- Area Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Área</label>
-                    <select [(ngModel)]="selectedAreaId" (ngModelChange)="onAreaChange()" class="input-field w-full">
-                        <option [ngValue]="null">Todas las áreas</option>
-                        <option *ngFor="let area of areas; let i = index" [ngValue]="area.id">{{ (i +
-                            1).toString().padStart(2, '0') }} {{ area.nombre }}</option>
-                    </select>
-                </div>
-
-                <!-- Ubicacion Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ubicación</label>
-                    <select [(ngModel)]="selectedUbicacionId" (ngModelChange)="onFilterChange()"
-                        class="input-field w-full">
-                        <option [ngValue]="null">Todas las ubicaciones</option>
-                        <option *ngFor="let u of ubicaciones; let i = index" [ngValue]="u.id">{{ (i +
-                            1).toString().padStart(2, '0') }} {{ u.nombre }}</option>
-                    </select>
-                </div>
-
-                <!-- Personal Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsable</label>
-                    <select [(ngModel)]="selectedPersonalId" (ngModelChange)="onFilterChange()"
-                        class="input-field w-full">
-                        <option [ngValue]="null">Todos los responsables</option>
-                        <option *ngFor="let p of personal; let i = index" [ngValue]="p.id">{{ (i +
-                            1).toString().padStart(2, '0') }} {{ p.nombre }} {{ p.apellido }}</option>
-                    </select>
-                </div>
-
-                <!-- Clasificacion Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Clasificación</label>
-                    <select [(ngModel)]="selectedClasificacionId" (ngModelChange)="onFilterChange()"
-                        class="input-field w-full">
-                        <option [ngValue]="null">Todas las clasificaciones</option>
-                        <option *ngFor="let c of clasificaciones" [ngValue]="c.id">{{ c.prefijo }} {{ c.nombre }}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            <!-- Area Filter -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Unidad
+                    Administrativa</label>
+                <div class="relative">
+                    <select [(ngModel)]="selectedAreaId" (ngModelChange)="onAreaChange()"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-black uppercase text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all">
+                        <option [ngValue]="null" class="bg-[#0a0f1d]">TODAS LAS ÁREAS</option>
+                        <option *ngFor="let area of areas; let i = index" [ngValue]="area.id" class="bg-[#0a0f1d]">
+                            {{ (i + 1).toString().padStart(2, '0') }} {{ area.nombre }}
                         </option>
                     </select>
-                </div>
-
-                <!-- Estado Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
-                    <select [(ngModel)]="selectedEstado" (ngModelChange)="onFilterChange()" class="input-field w-full">
-                        <option [ngValue]="null">Todos los estados</option>
-                        <option *ngFor="let estado of estados" [ngValue]="estado">{{ estado }}</option>
-                    </select>
+                    <i
+                        class="fas fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none"></i>
                 </div>
             </div>
 
-            <div *ngIf="hasActiveFilters()" class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                <p class="text-sm text-blue-600 dark:text-blue-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Los reportes se generarán con los filtros seleccionados aplicados.
-                </p>
+            <!-- Ubicacion Filter -->
+            <div class="space-y-3">
+                <label
+                    class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Geolocalización</label>
+                <div class="relative">
+                    <select [(ngModel)]="selectedUbicacionId" (ngModelChange)="onFilterChange()"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-black uppercase text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all">
+                        <option [ngValue]="null" class="bg-[#0a0f1d]">TODAS LAS UBICACIONES</option>
+                        <option *ngFor="let u of ubicaciones; let i = index" [ngValue]="u.id" class="bg-[#0a0f1d]">
+                            {{ (i + 1).toString().padStart(2, '0') }} {{ u.nombre }}
+                        </option>
+                    </select>
+                    <i
+                        class="fas fa-map-marker-alt absolute right-6 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Personal Filter -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Agente
+                    Responsable</label>
+                <div class="relative">
+                    <select [(ngModel)]="selectedPersonalId" (ngModelChange)="onFilterChange()"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-black uppercase text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all">
+                        <option [ngValue]="null" class="bg-[#0a0f1d]">TODOS LOS CUSTODIOS</option>
+                        <option *ngFor="let p of personal; let i = index" [ngValue]="p.id" class="bg-[#0a0f1d]">
+                            {{ p.nombre }} {{ p.apellido }}
+                        </option>
+                    </select>
+                    <i
+                        class="fas fa-user-shield absolute right-6 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Clasificacion Filter -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Categoría
+                    Técnica</label>
+                <div class="relative">
+                    <select [(ngModel)]="selectedClasificacionId" (ngModelChange)="onFilterChange()"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-black uppercase text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all">
+                        <option [ngValue]="null" class="bg-[#0a0f1d]">TODAS LAS CATEGORÍAS</option>
+                        <option *ngFor="let c of clasificaciones" [ngValue]="c.id" class="bg-[#0a0f1d]">{{ c.nombre }}
+                        </option>
+                    </select>
+                    <i
+                        class="fas fa-tags absolute right-6 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Estado Filter -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Condición
+                    Operativa</label>
+                <div class="relative">
+                    <select [(ngModel)]="selectedEstado" (ngModelChange)="onFilterChange()"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-black uppercase text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all">
+                        <option [ngValue]="null" class="bg-[#0a0f1d]">TODOS LOS ESTADOS</option>
+                        <option *ngFor="let estado of estados" [ngValue]="estado" class="bg-[#0a0f1d]">{{ estado }}
+                        </option>
+                    </select>
+                    <i
+                        class="fas fa-heartbeat absolute right-6 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none"></i>
+                </div>
             </div>
         </div>
 
-        <!-- Statistics Section -->
-        <div class="card mb-8 p-6">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Estadísticas de Activos Fijos
-                </h3>
-
-                <!-- General Report Button -->
-                <button (click)="downloadReport('inventario-general')" [disabled]="loading"
-                    class="btn-primary flex items-center gap-2 px-6 py-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Generar Reporte General
-                </button>
+        <div *ngIf="hasActiveFilters()"
+            class="mt-8 p-4 bg-red-600/10 border border-red-600/20 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-2">
+            <div class="w-8 h-8 rounded-full bg-red-600/20 flex items-center justify-center text-red-500">
+                <i class="fas fa-info-circle"></i>
             </div>
-
-            <!-- Summary Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div
-                    class="bg-blue-50 dark:bg-gradient-to-br dark:from-blue-600/20 dark:to-blue-800/10 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4 text-center">
-                    <p class="text-3xl font-black text-blue-600 dark:text-blue-400">{{ resumen.total_activos | number }}
-                    </p>
-                    <p class="text-xs text-blue-800/60 dark:text-gray-400 mt-1">Total Activos</p>
-                </div>
-                <div
-                    class="bg-green-50 dark:bg-gradient-to-br dark:from-green-600/20 dark:to-green-800/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4 text-center">
-                    <p class="text-3xl font-black text-green-600 dark:text-green-400">{{ resumen.activos_buenos | number
-                        }}</p>
-                    <p class="text-xs text-green-800/60 dark:text-gray-400 mt-1">Estado Bueno</p>
-                </div>
-                <div
-                    class="bg-yellow-50 dark:bg-gradient-to-br dark:from-yellow-600/20 dark:to-yellow-800/10 border border-yellow-200 dark:border-yellow-500/20 rounded-xl p-4 text-center">
-                    <p class="text-3xl font-black text-yellow-600 dark:text-yellow-400">{{ resumen.activos_regulares |
-                        number }}</p>
-                    <p class="text-xs text-yellow-800/60 dark:text-gray-400 mt-1">Estado Regular</p>
-                </div>
-                <div
-                    class="bg-red-50 dark:bg-gradient-to-br dark:from-red-600/20 dark:to-red-800/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 text-center">
-                    <p class="text-3xl font-black text-red-600 dark:text-red-400">{{ resumen.activos_malos | number }}
-                    </p>
-                    <p class="text-xs text-red-800/60 dark:text-gray-400 mt-1">Estado Malo</p>
-                </div>
-            </div>
-
-            <!-- Bar Chart - Assets by Classification -->
-            <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-3">Activos por Clasificación</h4>
-            <div class="space-y-2 max-h-64 overflow-y-auto pr-2">
-                <div *ngFor="let item of activosPorClasificacion" class="flex items-center gap-3">
-                    <div class="w-32 text-xs text-gray-600 dark:text-gray-400 truncate" [title]="item.clasificacion">{{
-                        item.clasificacion
-                        || 'Sin clasificar' }}</div>
-                    <div class="flex-1 bg-gray-200 dark:bg-gray-700/50 rounded-full h-5 overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-400 rounded-full flex items-center justify-end pr-2 transition-all duration-500"
-                            [style.width.%]="(item.cantidad / maxClasificacion) * 100">
-                            <span class="text-[10px] font-bold text-white">{{ item.cantidad }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div *ngIf="activosPorClasificacion.length === 0" class="text-center text-gray-500 py-4">
-                    No hay datos de clasificación disponibles
-                </div>
-            </div>
+            <p class="text-[10px] font-black text-red-400 uppercase tracking-widest">
+                LOS REPORTES SE GENERARÁN CON EL CRITERIO DE FILTRADO ACTIVO.
+            </p>
         </div>
     </div>
 
+    <!-- Statistics Section Radiant -->
+    <div class="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 shadow-2xl">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+            <h3 class="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                <span class="w-8 h-[1px] bg-red-600"></span>
+                Indicadores de Gestión
+            </h3>
+
+            <!-- General Report Button -->
+            <button (click)="downloadReport('inventario-general')" [disabled]="loading"
+                class="btn-primary flex items-center gap-4 px-10 h-14 !shadow-red-600/30 group">
+                <i class="fas fa-file-export group-hover:rotate-12 transition-transform"></i>
+                <span class="font-black uppercase tracking-[0.2em] text-xs">Descargar Inventario General</span>
+            </button>
+        </div>
+
+        <!-- Summary Cards Radiant -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div class="radiant-card-stat group">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2">Activos Totales</p>
+                    <p class="text-4xl font-orbitron font-black text-white leading-none">{{ resumen.total_activos |
+                        number }}</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="w-4 h-1 bg-red-600 rounded-full"></span>
+                        <span class="text-[9px] font-black text-red-500 uppercase tracking-widest">INVENTARIO
+                            BASE</span>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i class="fas fa-boxes text-8xl text-white"></i>
+                </div>
+            </div>
+
+            <div class="radiant-card-stat group">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.2em] mb-2">Estado Óptimo
+                    </p>
+                    <p class="text-4xl font-orbitron font-black text-emerald-500 leading-none">{{ resumen.activos_buenos
+                        | number }}</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="w-4 h-1 bg-emerald-500 rounded-full"></span>
+                        <span class="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest">FUNCIONALIDAD
+                            100%</span>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i class="fas fa-check-circle text-8xl text-emerald-500"></i>
+                </div>
+            </div>
+
+            <div class="radiant-card-stat group">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.2em] mb-2">Estado Regular
+                    </p>
+                    <p class="text-4xl font-orbitron font-black text-amber-500 leading-none">{{
+                        resumen.activos_regulares | number }}</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="w-4 h-1 bg-amber-500 rounded-full"></span>
+                        <span class="text-[9px] font-black text-amber-500/60 uppercase tracking-widest">REQUIERE
+                            ATENCIÓN</span>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i class="fas fa-exclamation-triangle text-8xl text-amber-500"></i>
+                </div>
+            </div>
+
+            <div class="radiant-card-stat group">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-black text-red-500/60 uppercase tracking-[0.2em] mb-2">Estado Crítico</p>
+                    <p class="text-4xl font-orbitron font-black text-red-500 leading-none">{{ resumen.activos_malos |
+                        number }}</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="w-4 h-1 bg-red-500 rounded-full"></span>
+                        <span class="text-[9px] font-black text-red-500/60 uppercase tracking-widest">REEMPLAZO
+                            NECESARIO</span>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i class="fas fa-times-circle text-8xl text-red-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart - Assets by Classification Radiant -->
+        <h4 class="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-6 ml-2">Distribución por
+            Clasificación</h4>
+        <div class="space-y-4 max-h-[400px] overflow-y-auto pr-6 custom-scrollbar">
+            <div *ngFor="let item of activosPorClasificacion" class="group/bar">
+                <div class="flex items-center justify-between mb-2">
+                    <span
+                        class="text-[10px] font-black text-white uppercase tracking-widest group-hover/bar:text-red-500 transition-colors">
+                        {{ item.clasificacion || 'SIN CLASIFICAR' }}
+                    </span>
+                    <span class="text-[10px] font-black text-red-500 uppercase">{{ item.cantidad }} UDS</span>
+                </div>
+                <div class="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                    <div class="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-400 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                        [style.width.%]="(item.cantidad / maxClasificacion) * 100">
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="activosPorClasificacion.length === 0" class="py-20 text-center">
+                <div class="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">SIN DATOS DISPONIBLES</div>
+            </div>
+        </div>
+    </div>
+</div>

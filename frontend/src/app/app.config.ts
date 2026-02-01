@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER } from '@angular/core';
-import { provideRouter, withHashLocation, withDebugTracing } from '@angular/router';
+import { provideRouter, withDebugTracing } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
@@ -20,7 +20,7 @@ function initializeApp(authService: AuthService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withHashLocation(), withDebugTracing()),
+    provideRouter(routes, withDebugTracing()),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-NI' },
     {

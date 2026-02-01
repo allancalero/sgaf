@@ -1,122 +1,118 @@
+<div class="p-6 lg:p-8">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+        <div>
+            <h1 class="text-3xl font-black text-primary tracking-tight">Trazabilidad de Activos</h1>
+            <p class="text-secondary mt-1">Historial auditivo de movimientos y cambios de estado.</p>
+        </div>
 
-    <div class="p-6 lg:p-8">
-        <!-- Header -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-            <div>
-                <h1 class="text-3xl font-black text-primary tracking-tight">Trazabilidad de Activos</h1>
-                <p class="text-secondary mt-1">Historial auditivo de movimientos y cambios de estado.</p>
-            </div>
+        <div class="relative w-full lg:w-96">
+            <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+                placeholder="Buscar por código o activo..."
+                class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 pl-12 h-14 !text-gray-900 dark:!text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-4 text-red-600" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+    </div>
 
-            <div class="relative w-full lg:w-96">
-                <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
-                    placeholder="Buscar por código o activo..."
-                    class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 pl-12 h-14 !text-gray-900 dark:!text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-4 text-blue-500" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+    <div class="max-w-5xl mx-auto">
+        <div *ngIf="loading" class="space-y-6">
+            <div *ngFor="let i of [1,2,3]" class="card p-6 animate-pulse border-white/5">
+                <div class="h-4 bg-white/5 rounded w-1/4 mb-4"></div>
+                <div class="h-8 bg-white/5 rounded w-3/4"></div>
             </div>
         </div>
 
-        <div class="max-w-5xl mx-auto">
-            <div *ngIf="loading" class="space-y-6">
-                <div *ngFor="let i of [1,2,3]" class="card p-6 animate-pulse border-white/5">
-                    <div class="h-4 bg-white/5 rounded w-1/4 mb-4"></div>
-                    <div class="h-8 bg-white/5 rounded w-3/4"></div>
-                </div>
-            </div>
+        <div *ngIf="!loading && historial.length === 0"
+            class="text-center py-20 card bg-white/5 border-dashed border-white/10">
+            <p class="text-gray-500">No se encontraron registros de trazabilidad.</p>
+        </div>
 
-            <div *ngIf="!loading && historial.length === 0"
-                class="text-center py-20 card bg-white/5 border-dashed border-white/10">
-                <p class="text-gray-500">No se encontraron registros de trazabilidad.</p>
-            </div>
+        <!-- Timeline -->
+        <div *ngIf="!loading && historial.length > 0"
+            class="space-y-8 relative before:absolute before:inset-0 before:ml-5 lg:before:ml-[25px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-red-600 before:via-white/5 before:to-transparent">
 
-            <!-- Timeline -->
-            <div *ngIf="!loading && historial.length > 0"
-                class="space-y-8 relative before:absolute before:inset-0 before:ml-5 lg:before:ml-[25px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:via-white/5 before:to-transparent">
+            <div *ngFor="let item of historial; let i = index" class="relative flex items-center justify-between group">
+                <div class="flex items-center w-full">
+                    <!-- Icon -->
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-full border border-red-600/30 bg-red-600/10 text-red-500 text-[10px] font-black z-10 shrink-0 group-hover:scale-110 transition-transform">
+                        {{ (currentPage - 1) * pageSize + i + 1 }}
+                    </div>
 
-                <div *ngFor="let item of historial; let i = index"
-                    class="relative flex items-center justify-between group">
-                    <div class="flex items-center w-full">
-                        <!-- Icon -->
-                        <div
-                            class="flex items-center justify-center w-8 h-8 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-500 text-[10px] font-black z-10 shrink-0 group-hover:scale-110 transition-transform">
-                            {{ (currentPage - 1) * pageSize + i + 1 }}
+                    <!-- Content -->
+                    <div class="card ml-6 flex-1 hover:border-red-600/30 transition-all p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-2">
+                            <span class="text-xs font-bold text-red-500 tracking-widest uppercase">{{
+                                formatDate(item.fecha_asignacion) }}</span>
+                            <span class="badge-gray">{{ item.codigo_inventario }}</span>
                         </div>
 
-                        <!-- Content -->
-                        <div class="card ml-6 flex-1 hover:border-blue-500/30 transition-all p-6">
-                            <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-2">
-                                <span class="text-xs font-bold text-blue-400 tracking-widest uppercase">{{
-                                    formatDate(item.fecha_asignacion) }}</span>
-                                <span class="badge-gray">{{ item.codigo_inventario }}</span>
+                        <h3 class="text-lg font-bold text-white mb-4">{{ item.nombre_activo }}</h3>
+
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <div class="space-y-1">
+                                <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">De
+                                    (Anterior)</p>
+                                <p class="text-sm text-gray-300">{{ item.personal_anterior || 'Sin custodio previo'
+                                    }}</p>
+                                <p class="text-xs text-gray-500">{{ item.area_anterior || '-' }}</p>
                             </div>
+                            <div class="space-y-1">
+                                <p class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">A (Nuevo)
+                                </p>
+                                <p class="text-sm text-white font-bold">{{ item.personal_nuevo }}</p>
+                                <p class="text-xs text-gray-400">{{ item.area_nueva || '-' }}</p>
+                            </div>
+                        </div>
 
-                            <h3 class="text-lg font-bold text-white mb-4">{{ item.nombre_activo }}</h3>
-
+                        <!-- Photo Evidence -->
+                        <div *ngIf="item.foto_reasignacion" class="mt-4">
+                            <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-2">Evidencia
+                                Fotográfica</p>
                             <div
-                                class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-2xl bg-white/5 border border-white/5">
-                                <div class="space-y-1">
-                                    <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">De
-                                        (Anterior)</p>
-                                    <p class="text-sm text-gray-300">{{ item.personal_anterior || 'Sin custodio previo'
-                                        }}</p>
-                                    <p class="text-xs text-gray-500">{{ item.area_anterior || '-' }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">A (Nuevo)
-                                    </p>
-                                    <p class="text-sm text-white font-bold">{{ item.personal_nuevo }}</p>
-                                    <p class="text-xs text-gray-400">{{ item.area_nueva || '-' }}</p>
-                                </div>
+                                class="relative w-full max-w-sm rounded-2xl overflow-hidden border border-white/10 group/img shadow-xl">
+                                <img [src]="getImageUrl(item.foto_reasignacion)"
+                                    class="w-full h-48 object-cover group-hover/img:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                             </div>
+                        </div>
 
-                            <!-- Photo Evidence -->
-                            <div *ngIf="item.foto_reasignacion" class="mt-4">
-                                <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-2">Evidencia
-                                    Fotográfica</p>
-                                <div
-                                    class="relative w-full max-w-sm rounded-2xl overflow-hidden border border-white/10 group/img shadow-xl">
-                                    <img [src]="getImageUrl(item.foto_reasignacion)"
-                                        class="w-full h-48 object-cover group-hover/img:scale-105 transition-transform duration-500">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 flex flex-col gap-1">
-                                <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Motivo:</p>
-                                <span class="text-xs text-gray-400 italic">"{{ item.motivo }}"</span>
-                            </div>
+                        <div class="mt-4 flex flex-col gap-1">
+                            <p class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Motivo:</p>
+                            <span class="text-xs text-gray-400 italic">"{{ item.motivo }}"</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Pagination -->
-            <div class="pagination-container mt-12 bg-gray-500/5 p-6 rounded-3xl border border-white/5">
-                <div class="pagination-info">
-                    <span class="pagination-label">
-                        Mostrando <span class="pagination-value">{{ historial.length }}</span> de <span
-                            class="pagination-value">{{ totalItems }}</span> registros
-                    </span>
-                </div>
-                <div class="pagination-nav" *ngIf="lastPage > 1">
-                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <span class="pagination-page text-white font-bold">Pág {{ currentPage }} / {{ lastPage }}</span>
-                    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
-                        class="pagination-btn">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
+        <!-- Pagination -->
+        <div class="pagination-container mt-12 bg-gray-500/5 p-6 rounded-3xl border border-white/5">
+            <div class="pagination-info">
+                <span class="pagination-label">
+                    Mostrando <span class="pagination-value">{{ historial.length }}</span> de <span
+                        class="pagination-value">{{ totalItems }}</span> registros
+                </span>
+            </div>
+            <div class="pagination-nav" *ngIf="lastPage > 1">
+                <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <span class="pagination-page text-white font-bold">Pág {{ currentPage }} / {{ lastPage }}</span>
+                <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === lastPage"
+                    class="pagination-btn">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
-
+</div>

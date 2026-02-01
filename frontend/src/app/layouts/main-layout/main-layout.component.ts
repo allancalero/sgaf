@@ -72,7 +72,7 @@ export class MainLayoutComponent implements OnInit {
                 { label: 'En Desuso', icon: 'pause', route: '/activos/desuso' },
                 { label: 'De Baja', icon: 'trash', route: '/activos/baja' },
                 { label: 'Reasignaciones', icon: 'transfer', route: '/activos/reasignaciones' },
-                { label: 'Solicitudes de Baja', icon: 'clipboard', route: '/activos/solicitudes' },
+
                 { label: 'Reportes', icon: 'report', route: '/activos/reportes' },
                 { label: 'Depreciación', icon: 'chart', route: '/activos/depreciacion' },
                 { label: 'Trazabilidad', icon: 'history', route: '/activos/trazabilidad' },
@@ -190,9 +190,7 @@ export class MainLayoutComponent implements OnInit {
         }
     }
 
-    toggleTheme() {
-        this.themeService.toggleTheme();
-    }
+
 
     logout() {
         this.authService.logout();

@@ -1,329 +1,325 @@
-
-    <div class="p-6 lg:p-8">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-                <h2 class="text-3xl font-black text-primary tracking-tight">Recursos Humanos</h2>
-                <p class="text-secondary mt-1 tracking-tight">Gestión del personal y estructura de cargos.</p>
-            </div>
+<div class="p-6 lg:p-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h2 class="text-3xl font-black text-primary tracking-tight">Recursos Humanos</h2>
+            <p class="text-secondary mt-1 tracking-tight">Gestión del personal y estructura de cargos.</p>
         </div>
+    </div>
 
-        <div class="mb-6">
-            <div class="relative group">
-                <input type="text" [(ngModel)]="searchText"
-                    class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 rounded-2xl py-4 pl-14 pr-6 !text-gray-900 dark:!text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-lg shadow-xl text-center"
-                    placeholder="Buscar en {{ activeTab === 'personal' ? 'Personal' : 'Cargos' }}...">
-                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mb-6">
+        <div class="relative group">
+            <input type="text" [(ngModel)]="searchText"
+                class="input-field w-full !bg-white dark:!bg-white/5 !border-gray-300 dark:!border-white/10 rounded-2xl py-4 pl-14 pr-6 !text-gray-900 dark:!text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600/30 transition-all text-lg shadow-xl text-center"
+                placeholder="Buscar en {{ activeTab === 'personal' ? 'Personal' : 'Cargos' }}...">
+            <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <div *ngIf="searchText" class="absolute inset-y-0 right-0 pr-6 flex items-center">
+                <button (click)="searchText = ''"
+                    class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                </div>
-                <div *ngIf="searchText" class="absolute inset-y-0 right-0 pr-6 flex items-center">
-                    <button (click)="searchText = ''"
-                        class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button (click)="activeTab = 'personal'" [class.bg-blue-600]="activeTab === 'personal'"
-                [class.text-white]="activeTab === 'personal'" [class.shadow-lg]="activeTab === 'personal'"
-                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
-                Listado de Personal ({{ personal.length }})
-            </button>
-            <button (click)="activeTab = 'cargos'" [class.bg-blue-600]="activeTab === 'cargos'"
-                [class.text-white]="activeTab === 'cargos'" [class.shadow-lg]="activeTab === 'cargos'"
-                class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-blue-500 hover:text-white shrink-0">
-                Cargos Institucionales ({{ cargos.length }})
-            </button>
-        </div>
-
-        <!-- Integrated Top Form Section -->
-        <div *ngIf="showForm" class="mb-10 animate-fade-in">
-            <div class="card p-0 overflow-hidden border-t-4 border-blue-500 shadow-2xl">
-                <!-- Form Tabs Titles -->
-                <div class="flex border-b border-white/5 bg-gray-500/5 justify-between items-center">
-                    <h3 class="px-8 py-4 text-sm font-black uppercase tracking-widest text-blue-500">
-                        {{ editingPersonalId || editingCargoId ? 'Editar' : 'Nuevo' }} Registro
-                    </h3>
-                    <button (click)="closeForm()"
-                        class="p-2 mr-4 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="px-8 py-8">
-                    <!-- PERSONAL FORM -->
-                    <form *ngIf="activeFormTab === 'personal'" (ngSubmit)="savePersonal()" class="space-y-6">
-                        <div class="flex flex-col items-center justify-center mb-6">
-                            <label class="relative cursor-pointer group">
-                                <div
-                                    class="h-24 w-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors">
-                                    <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
-                                    <svg *ngIf="!imagePreview" class="h-8 w-8 text-gray-400 group-hover:text-blue-500"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0010.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <input type="file" (change)="onFileSelected($event)" class="hidden" accept="image/*">
-                                <div
-                                    class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 shadow-lg group-hover:scale-110 transition-transform">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                            </label>
-                            <span class="text-xs text-muted mt-2">Foto de perfil</span>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">No. Empleado</label>
-                                <input type="text" [(ngModel)]="personalForm.numero_empleado" name="numero_empleado"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: 001">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Nombre <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="personalForm.nombre" name="nombre"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Juan">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Apellido <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="personalForm.apellido" name="apellido"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Pérez">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Cargo Responsable</label>
-                                <select [(ngModel)]="personalForm.cargo_id" name="cargo"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option [ngValue]="undefined">Selecciona un cargo</option>
-                                    <option *ngFor="let c of allCargos" [value]="c.id">{{ c.nombre }}</option>
-                                </select>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Área Asignada</label>
-                                <select [(ngModel)]="personalForm.area_id" name="area"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option [ngValue]="undefined">Selecciona un área</option>
-                                    <option *ngFor="let a of areas; let i = index" [value]="a.id">
-                                        {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} {{ a.nombre }} </option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Estado</label>
-                                <select [(ngModel)]="personalForm.estado" name="estado"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option value="ACTIVO">Activo</option>
-                                    <option value="INACTIVO">Inactivo</option>
-                                </select>
-                            </div>
-                            <div class="flex justify-end mt-6">
-                                <button type="submit"
-                                    class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
-                                    {{ editingPersonalId ? 'Actualizar Personal' : 'Guardar Personal' }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- CARGO FORM -->
-                    <form *ngIf="activeFormTab === 'cargo'" (ngSubmit)="saveCargo()" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Nombre del Cargo <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" [(ngModel)]="cargoForm.nombre" name="nombre_cargo"
-                                    class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Administrador">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-muted">Estado</label>
-                                <select [(ngModel)]="cargoForm.estado" name="estado_cargo"
-                                    class="input-field h-11 text-sm bg-gray-50/5">
-                                    <option value="ACTIVO">Activo</option>
-                                    <option value="INACTIVO">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex justify-end pt-4">
-                            <button type="submit"
-                                class="btn-primary w-full md:w-auto px-8 h-11 shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
-                                {{ editingCargoId ? 'Actualizar Cargo' : 'Guardar Cargo' }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB CONTENT -->
-
-        <!-- PERSONAL TAB -->
-        <div *ngIf="activeTab === 'personal'" class="animate-fade-in space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <div class="flex items-center gap-4">
-                    <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Listado de Personal</h3>
-                </div>
-                <button (click)="openForm('personal')"
-                    class="btn-primary h-11 px-6 shadow-lg shadow-blue-500/20 active:scale-95 transition-all font-bold">
-                    Nuevo Personal
                 </button>
-            </div>
-
-            <div class="card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr
-                                class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                                <th class="px-6 py-4 w-12">#</th>
-                                <th class="px-6 py-4">Nombre Completo</th>
-                                <th class="px-6 py-4">Cargo / Área</th>
-                                <th class="px-6 py-4">Estado</th>
-                                <th class="px-6 py-4 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngIf="loading" class="animate-pulse">
-                                <td colspan="4" class="px-6 py-10 text-center text-muted">Cargando personal...</td>
-                            </tr>
-                            <tr *ngFor="let p of filteredPersonal; let i = index"
-                                class="hover:bg-gray-500/5 transition-colors group">
-                                <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 overflow-hidden">
-                                            <img *ngIf="p.foto" [src]="p.foto" class="h-full w-full object-cover">
-                                            <span *ngIf="!p.foto" class="text-blue-500 font-bold text-xs">{{
-                                                p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}</span>
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-primary">{{ p.nombre }} {{ p.apellido
-                                                }}</span>
-                                            <span *ngIf="p.numero_empleado" class="text-[10px] text-muted font-mono">#{{
-                                                p.numero_empleado }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-primary">{{ p.cargo || 'Sin Cargo' }}</span>
-                                        <span class="text-[10px] text-muted">{{ p.area || 'General' }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span [class]="p.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
-                                        {{ p.estado }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <button (click)="startEditPersonal(p)"
-                                            class="p-2 text-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button (click)="deletePersonal(p.id)"
-                                            class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Pagination removed for real-time search -->
-            </div>
-        </div>
-
-        <!-- CARGOS TAB -->
-        <div *ngIf="activeTab === 'cargos'" class="animate-fade-in space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Cargos Institucionales</h3>
-                <button (click)="openForm('cargo')"
-                    class="btn-primary h-11 px-6 shadow-lg shadow-blue-500/20 active:scale-95 transition-all font-bold">
-                    Nuevo Cargo
-                </button>
-            </div>
-
-            <div class="card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr
-                                class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
-                                <th class="px-6 py-4 w-12">#</th>
-                                <th class="px-6 py-4">Cargo</th>
-                                <th class="px-6 py-4 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5 font-medium">
-                            <tr *ngFor="let c of filteredCargos; let i = index"
-                                class="hover:bg-gray-500/5 transition-colors group">
-                                <td class="px-6 py-3 text-xs font-black text-muted">{{ i + 1 }}</td>
-                                <td class="px-6 py-3">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-primary">{{ c.nombre }}</span>
-                                        <span [class]="c.estado === 'ACTIVO' ? 'text-emerald-500' : 'text-red-500'"
-                                            class="text-[10px] uppercase tracking-wider font-bold">
-                                            {{ c.estado }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-3 text-right">
-                                    <div
-                                        class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button (click)="startEditCargo(c)"
-                                            class="p-1.5 text-muted hover:text-blue-500 rounded-md transition-all">
-                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button (click)="deleteCargo(c.id)"
-                                            class="p-1.5 text-muted hover:text-red-500 rounded-md transition-all">
-                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Pagination removed for real-time search -->
             </div>
         </div>
     </div>
 
+    <!-- Navigation Tabs -->
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <button (click)="activeTab = 'personal'" [class.bg-red-600]="activeTab === 'personal'"
+            [class.text-white]="activeTab === 'personal'" [class.shadow-lg]="activeTab === 'personal'"
+            class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-black hover:text-white shrink-0">
+            Listado de Personal ({{ personal.length }})
+        </button>
+        <button (click)="activeTab = 'cargos'" [class.bg-red-600]="activeTab === 'cargos'"
+            [class.text-white]="activeTab === 'cargos'" [class.shadow-lg]="activeTab === 'cargos'"
+            class="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:bg-black hover:text-white shrink-0">
+            Cargos Institucionales ({{ cargos.length }})
+        </button>
+    </div>
+
+    <!-- Integrated Top Form Section -->
+    <div *ngIf="showForm" class="mb-10 animate-fade-in">
+        <div class="card p-0 overflow-hidden border-t-4 border-red-600 shadow-2xl">
+            <!-- Form Tabs Titles -->
+            <div class="flex border-b border-white/5 bg-gray-500/5 justify-between items-center">
+                <h3 class="px-8 py-4 text-sm font-black uppercase tracking-widest text-red-500">
+                    {{ editingPersonalId || editingCargoId ? 'Editar' : 'Nuevo' }} Registro
+                </h3>
+                <button (click)="closeForm()"
+                    class="p-2 mr-4 text-muted hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="px-8 py-8">
+                <!-- PERSONAL FORM -->
+                <form *ngIf="activeFormTab === 'personal'" (ngSubmit)="savePersonal()" class="space-y-6">
+                    <div class="flex flex-col items-center justify-center mb-6">
+                        <label class="relative cursor-pointer group">
+                            <div
+                                class="h-24 w-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-red-500 transition-colors">
+                                <img *ngIf="imagePreview" [src]="imagePreview" class="h-full w-full object-cover">
+                                <svg *ngIf="!imagePreview" class="h-8 w-8 text-gray-400 group-hover:text-red-500"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0010.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <input type="file" (change)="onFileSelected($event)" class="hidden" accept="image/*">
+                            <div
+                                class="absolute bottom-0 right-0 bg-red-600 text-white rounded-full p-1 shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                        </label>
+                        <span class="text-xs text-muted mt-2">Foto de perfil</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">No. Empleado</label>
+                            <input type="text" [(ngModel)]="personalForm.numero_empleado" name="numero_empleado"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: 001">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Nombre <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" [(ngModel)]="personalForm.nombre" name="nombre"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Juan">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Apellido <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" [(ngModel)]="personalForm.apellido" name="apellido"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Pérez">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Cargo Responsable</label>
+                            <select [(ngModel)]="personalForm.cargo_id" name="cargo"
+                                class="input-field h-11 text-sm bg-gray-50/5">
+                                <option [ngValue]="undefined">Selecciona un cargo</option>
+                                <option *ngFor="let c of allCargos" [value]="c.id">{{ c.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Área Asignada</label>
+                            <select [(ngModel)]="personalForm.area_id" name="area"
+                                class="input-field h-11 text-sm bg-gray-50/5">
+                                <option [ngValue]="undefined">Selecciona un área</option>
+                                <option *ngFor="let a of areas; let i = index" [value]="a.id">
+                                    {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }} {{ a.nombre }} </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Estado</label>
+                            <select [(ngModel)]="personalForm.estado" name="estado"
+                                class="input-field h-11 text-sm bg-gray-50/5">
+                                <option value="ACTIVO">Activo</option>
+                                <option value="INACTIVO">Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end mt-6">
+                            <button type="submit"
+                                class="btn-primary w-full md:w-auto px-8 h-11 !shadow-red-600/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                                {{ editingPersonalId ? 'Actualizar Personal' : 'Guardar Personal' }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- CARGO FORM -->
+                <form *ngIf="activeFormTab === 'cargo'" (ngSubmit)="saveCargo()" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Nombre del Cargo <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" [(ngModel)]="cargoForm.nombre" name="nombre_cargo"
+                                class="input-field h-11 text-sm bg-gray-50/5" placeholder="Ej: Administrador">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted">Estado</label>
+                            <select [(ngModel)]="cargoForm.estado" name="estado_cargo"
+                                class="input-field h-11 text-sm bg-gray-50/5">
+                                <option value="ACTIVO">Activo</option>
+                                <option value="INACTIVO">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-4">
+                        <button type="submit"
+                            class="btn-primary w-full md:w-auto px-8 h-11 !shadow-red-600/20 hover:scale-[1.02] active:scale-95 transition-all font-bold tracking-wide">
+                            {{ editingCargoId ? 'Actualizar Cargo' : 'Guardar Cargo' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB CONTENT -->
+
+    <!-- PERSONAL TAB -->
+    <div *ngIf="activeTab === 'personal'" class="animate-fade-in space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-4">
+                <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Listado de Personal</h3>
+            </div>
+            <button (click)="openForm('personal')"
+                class="btn-primary h-11 px-6 !shadow-red-600/20 active:scale-95 transition-all font-bold">
+                Nuevo Personal
+            </button>
+        </div>
+
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                            <th class="px-6 py-4 w-12">#</th>
+                            <th class="px-6 py-4">Nombre Completo</th>
+                            <th class="px-6 py-4">Cargo / Área</th>
+                            <th class="px-6 py-4">Estado</th>
+                            <th class="px-6 py-4 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 font-medium">
+                        <tr *ngIf="loading" class="animate-pulse">
+                            <td colspan="4" class="px-6 py-10 text-center text-muted">Cargando personal...</td>
+                        </tr>
+                        <tr *ngFor="let p of filteredPersonal; let i = index"
+                            class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-4 text-xs font-black text-muted">{{ i + 1 }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="h-8 w-8 rounded-full bg-red-600/10 flex items-center justify-center border border-red-600/20 overflow-hidden">
+                                        <img *ngIf="p.foto" [src]="p.foto" class="h-full w-full object-cover">
+                                        <span *ngIf="!p.foto" class="text-red-500 font-bold text-xs">{{
+                                            p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-primary">{{ p.nombre }} {{ p.apellido
+                                            }}</span>
+                                        <span *ngIf="p.numero_empleado" class="text-[10px] text-muted font-mono">#{{
+                                            p.numero_empleado }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-primary">{{ p.cargo || 'Sin Cargo' }}</span>
+                                    <span class="text-[10px] text-muted">{{ p.area || 'General' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span [class]="p.estado === 'ACTIVO' ? 'badge-emerald' : 'badge-red'">
+                                    {{ p.estado }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button (click)="startEditPersonal(p)"
+                                        class="p-2 text-muted hover:text-red-500 hover:bg-red-600/10 rounded-lg transition-all">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="deletePersonal(p.id)"
+                                        class="p-2 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination removed for real-time search -->
+        </div>
+    </div>
+
+    <!-- CARGOS TAB -->
+    <div *ngIf="activeTab === 'cargos'" class="animate-fade-in space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <h3 class="text-xs font-black text-muted uppercase tracking-[0.2em]">Cargos Institucionales</h3>
+            <button (click)="openForm('cargo')"
+                class="btn-primary h-11 px-6 !shadow-red-600/20 active:scale-95 transition-all font-bold">
+                Nuevo Cargo
+            </button>
+        </div>
+
+        <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-500/5 text-muted text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                            <th class="px-6 py-4 w-12">#</th>
+                            <th class="px-6 py-4">Cargo</th>
+                            <th class="px-6 py-4 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 font-medium">
+                        <tr *ngFor="let c of filteredCargos; let i = index"
+                            class="hover:bg-gray-500/5 transition-colors group">
+                            <td class="px-6 py-3 text-xs font-black text-muted">{{ i + 1 }}</td>
+                            <td class="px-6 py-3">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-primary">{{ c.nombre }}</span>
+                                    <span [class]="c.estado === 'ACTIVO' ? 'text-emerald-500' : 'text-red-500'"
+                                        class="text-[10px] uppercase tracking-wider font-bold">
+                                        {{ c.estado }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <div
+                                    class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button (click)="startEditCargo(c)"
+                                        class="p-1.5 text-muted hover:text-red-500 rounded-md transition-all">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="deleteCargo(c.id)"
+                                        class="p-1.5 text-muted hover:text-red-500 rounded-md transition-all">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination removed for real-time search -->
+        </div>
+    </div>
+</div>

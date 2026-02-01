@@ -1,0 +1,71 @@
+﻿
+> frontend@0.0.0 build
+> ng build --output-path ../public/SGAF2 --base-href /SGAF2/
+
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [8.840 seconds] - 2026-02-01T02:11:46.222Z
+
+node.exe : [1m[33m[33mÔû▓ 
+[43;33m[[43;30mWARNING[43;33m][0m 
+[1mNG8113: RouterOutlet is not used 
+within the template of App[0m 
+[1m[35m[plugin angular-compiler][0m
+En línea: 1 Carácter: 1
++ & "C:\nvm4w\nodejs/node.exe" "C:\nvm4
+w\nodejs/node_modules/npm/bin/np ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: ([1m[33m[33mÔ...r-compile  
+  r][0m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+
+    src/app/app.ts:8:12:
+[37m      8 Ôöé   imports: 
+[[32mRouterOutlet[37m, 
+MainLayoutComponent],
+        ÔòÁ             
+[32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX 
+[41;31m[[41;97mERROR[41;31m][0m 
+[1mNG8002: Can't bind to 'spin' since 
+it isn't a known property of 'fa-icon'.
+1. If 'fa-icon' is an Angular 
+component and it has 'spin' input, 
+then verify that it is included in the 
+'@Component.imports' of this component.
+2. If 'fa-icon' is a Web Component 
+then add 'CUSTOM_ELEMENTS_SCHEMA' to 
+the '@Component.schemas' of this 
+component to suppress this message.
+3. To allow any property add 
+'NO_ERRORS_SCHEMA' to the 
+'@Component.schemas' of this 
+component.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/pages/solicitudes/solicitud
+es.component.html:12:40:
+[37m      12 Ôöé ...-icon 
+[icon]="faSpinner" 
+[32m[spin]="true"[37m 
+class="text-4xl text-ste...
+         ÔòÁ                           
+  [32m~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of 
+component SolicitudesComponent.
+
+    src/app/pages/solicitudes/solicitud
+es.component.ts:13:17:
+[37m      13 Ôöé     templateUrl: [32
+m'./solicitudes.component.html'[37m,
+         ÔòÁ                  
+[32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m

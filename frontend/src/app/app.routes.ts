@@ -34,26 +34,19 @@ export const routes: Routes = [
             {
                 path: 'activos',
                 loadComponent: () => import('./pages/assets/assets.component').then(m => m.AssetsComponent),
-                title: 'Inventario de Activos'
             },
             {
                 path: 'activos/desuso',
                 loadComponent: () => import('./pages/activos-state/activos-state.component').then(m => m.ActivosStateComponent),
                 data: { state: 'DESUSO', title: 'Activos en Desuso' },
-                title: 'Activos en Desuso'
             },
             {
                 path: 'activos/baja',
                 loadComponent: () => import('./pages/activos-state/activos-state.component').then(m => m.ActivosStateComponent),
                 data: { state: 'BAJA', title: 'Activos de Baja' },
-                title: 'Activos de Baja'
             },
             { path: 'activos/reasignaciones', component: ReasignacionesComponent },
-            {
-                path: 'activos/solicitudes',
-                loadComponent: () => import('./pages/solicitudes/solicitudes.component').then(m => m.SolicitudesComponent),
-                title: 'Solicitudes de Baja'
-            },
+
             { path: 'activos/reportes', component: ReportesComponent },
             { path: 'activos/depreciacion', component: DepreciacionComponent },
             { path: 'activos/trazabilidad', component: TrazabilidadComponent },
