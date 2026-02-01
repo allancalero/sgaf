@@ -19,7 +19,7 @@ import { environment } from '../../../environments/environment';
                         <i class="fas fa-qrcode text-5xl text-red-500"></i>
                     </div>
                     <h1 class="text-4xl font-orbitron font-black text-white uppercase tracking-tighter leading-none">Verificar <span class="text-red-600">Activo</span></h1>
-                    <p class="text-red-500/60 text-[10px] font-black uppercase tracking-[0.4em] mt-4">Sistema de Gestión de Activos Fijos</p>
+                    <p class="text-red-500/60 text-[10px] font-black uppercase tracking-[0.4em] mt-4">Sistema de Gestión de Activo Fijo</p>
                 </div>
 
                 <!-- Search Box -->
@@ -142,7 +142,7 @@ import { environment } from '../../../environments/environment';
 
                     <!-- Footer -->
                     <div class="px-10 py-8 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-                        <p class="text-[9px] text-white/30 font-black uppercase tracking-[0.4em]">SGAF PRO // VERIFICACIÓN</p>
+                        <p class="text-[9px] text-white/30 font-black uppercase tracking-[0.4em]">SIGAF PRO // VERIFICACIÓN</p>
                         <button (click)="nuevaBusqueda()" class="w-full sm:w-auto px-8 py-3 bg-red-600 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-red-600/40 active:scale-95 flex items-center justify-center gap-3">
                             <i class="fas fa-search"></i> Protocolo de Re-búsqueda
                         </button>
@@ -151,7 +151,7 @@ import { environment } from '../../../environments/environment';
 
                 <!-- Footer -->
                 <p class="text-center text-white/20 text-[9px] font-black uppercase tracking-[0.5em] mt-12">
-                    Sistema de Gestión de Activos Fijos // Alcaldía de Tipitapa
+                    Sistema de Gestión de Activo Fijo // Alcaldía de Tipitapa
                 </p>
             </div>
         </div>

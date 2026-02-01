@@ -1,7 +1,7 @@
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 animate-fade-in">
     <div>
         <h2 class="text-5xl font-orbitron font-black text-white tracking-tighter uppercase leading-none">
-            {{ isMisActivos ? 'Mi Inventario' : 'Activos Fijos' }}
+            {{ isMisActivos ? 'Mi Inventario' : 'Gestión de Activo Fijo' }}
         </h2>
         <p class="text-red-500/80 mt-3 text-sm font-black uppercase tracking-[0.3em]">
             {{ isMisActivos ? 'Consulta y gestión de tus activos asignados.' : 'Gestión administrativa del inventario
@@ -775,7 +775,7 @@
         <div
             class="px-6 py-5 border-t dark:border-white/10 flex flex-col sm:flex-row gap-3 items-center justify-between bg-gray-50/50 dark:bg-white/5">
             <p class="text-[9px] text-muted font-bold uppercase tracking-tighter">
-                Sistema de Gestión de Activos Fijos • SGAF V2
+                Sistema de Gestión de Activo Fijo • SIGAF V2
             </p>
             <div class="flex items-center gap-3 w-full sm:w-auto">
                 <button type="button" (click)="closeQuickView(); $event.stopPropagation()"
